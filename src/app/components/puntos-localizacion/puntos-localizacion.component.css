@@ -1,0 +1,190 @@
+/* components/puntos-localizacion/puntos-localizacion.component.css */
+
+/* Contenedor principal */
+.container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Título principal */
+h2 {
+  color: #1a237e;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 3px solid #1a237e;
+  padding-bottom: 12px;
+  font-size: 1.8rem;
+  text-transform: uppercase;
+}
+
+/* Tabla responsive */
+.table-responsive {
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+  padding: 12px;
+}
+
+/* Estilos generales de la tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fafafa;
+  border-radius: 10px;
+}
+
+/* Encabezados de la tabla */
+table th {
+  background-color: #1a237e;
+  color: white;
+  font-weight: bold;
+  text-align: left;
+  padding: 16px;
+  border-bottom: 3px solid #3949ab;
+  text-transform: uppercase;
+  font-size: 1rem;
+}
+
+/* Celdas de la tabla */
+table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle;
+  color: #333;
+}
+
+/* Filas alternadas */
+table tbody tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+/* Efecto hover en filas */
+table tbody tr:hover {
+  background-color: #e3f2fd;
+  transition: background 0.3s ease-in-out;
+}
+
+/* Eliminar borde en última fila */
+table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Botón principal */
+.btn-primary {
+  background: linear-gradient(135deg, #1a237e, #3949ab);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  display: inline-block;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #3949ab, #1a237e);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Alertas estilizadas */
+.alert {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.alert.alert-danger {
+  background-color: #ffebee;
+  border-left: 5px solid #d32f2f;
+  color: #b71c1c;
+}
+
+.alert.alert-info {
+  background-color: #e3f2fd;
+  border-left: 5px solid #1e88e5;
+  color: #0d47a1;
+}
+
+/* Spinner de carga */
+.spinner-border {
+  color: #1a237e;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 30px auto;
+  display: block;
+  animation: spin 1s linear infinite;
+}
+
+/* Animación del spinner */
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mensaje cuando no hay datos */
+.no-data-message {
+  text-align: center;
+  padding: 35px;
+  color: #777;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+/* Coordenadas */
+.coordinates {
+  font-family: 'Courier New', monospace;
+  color: #444;
+  font-weight: bold;
+}
+
+/* Estilos responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  table th,
+  table td {
+    padding: 12px;
+  }
+
+  .btn-primary {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  table {
+    font-size: 0.8rem;
+  }
+
+  .btn-primary {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .alert {
+    font-size: 0.9rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}
