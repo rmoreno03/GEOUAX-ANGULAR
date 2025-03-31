@@ -1,0 +1,175 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+* {
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background: #f4f4f4;
+  color: #1a1a1a;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  padding: 32px;
+  max-width: 95%;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Título */
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #d71920;
+  border-left: 6px solid #f7941d;
+  padding-left: 16px;
+  text-transform: uppercase;
+}
+
+/* Tabla */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 1000px;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Encabezados */
+.table th {
+  background: #d71920;
+  color: white;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+}
+
+.table th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.table th:last-child {
+  border-top-right-radius: 12px;
+}
+
+/* Celdas */
+.table td {
+  padding: 14px 16px;
+  vertical-align: middle;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #f1f1f1;
+  color: #333;
+}
+
+/* Hover fila */
+.table tbody tr:hover {
+  background: #fff5f3;
+  transition: background 0.2s ease-in-out;
+}
+
+/* Botón */
+.btn-primary {
+  background: linear-gradient(135deg, #d71920, #f7941d);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+}
+
+/* Centrado vertical del botón */
+td:last-child {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Spinner */
+.spinner-border {
+  color: #d71920;
+  width: 3rem;
+  height: 3rem;
+  margin: 40px auto;
+  display: block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Alertas */
+.alert {
+  padding: 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  border-left: 6px solid #d71920;
+  color: #b71c1c;
+}
+
+.alert-info {
+  background-color: #e3f2fd;
+  border-left: 6px solid #1e88e5;
+  color: #0d47a1;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  .btn-primary {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.85rem;
+    padding: 12px;
+  }
+
+  .table td {
+    display: block;
+    width: 100%;
+  }
+}

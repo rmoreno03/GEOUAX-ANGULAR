@@ -5,9 +5,9 @@ import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { PuntosLocalizacionComponent } from './components/puntos-localizacion/puntos-localizacion.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { SharedModule } from './shared/shared.module';
 
 // Inicializar Firebase
 const app = initializeApp(environment.firebase);
@@ -16,13 +16,13 @@ export const db = getFirestore(app);
 @NgModule({
   declarations: [
     AppComponent,
-    PuntosLocalizacionComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    CommonModule
+    CommonModule,
+    SharedModule
   ],
   providers: [],
   bootstrap: [AppComponent]

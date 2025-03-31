@@ -1,0 +1,48 @@
+<div class="container mt-4">
+  <h2>Puntos de Localización</h2>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Latitud</th>
+          <th>Longitud</th>
+          <th>Fecha</th>
+          <th>Usuario</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let punto of puntosLocalizacion">
+          <td>{{ punto.nombre }}</td>
+          <td>{{ punto.descripcion }}</td>
+          <td>{{ punto.latitud }}</td>
+          <td>{{ punto.longitud }}</td>
+          <td>{{ punto.fechaCreacion }}</td>
+          <td>{{ punto.usuarioCreador }}</td>
+          <td>
+            <button class="btn-primary" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
+              Ver en Mapa
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!loading && !error && puntosLocalizacion.length === 0" class="alert alert-info">
+    No hay puntos de localización disponibles.
+  </div>
+</div>

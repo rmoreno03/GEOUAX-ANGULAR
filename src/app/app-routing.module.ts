@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PuntosLocalizacionComponent } from './components/puntos-localizacion/puntos-localizacion.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/puntos', pathMatch: 'full' },
-  { path: 'puntos', component: PuntosLocalizacionComponent },
+  {
+    path: 'puntos',
+    loadChildren: () => import('./features/puntos-localizacion/puntos-localizacion.module').then(m => m.PuntosLocalizacionModule)
+  },
   { path: '**', redirectTo: '/puntos' }
 ];
 
