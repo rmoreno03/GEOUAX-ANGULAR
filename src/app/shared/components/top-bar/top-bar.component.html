@@ -1,4 +1,45 @@
+<!-- Topbar -->
 <header class="topbar">
-  <button class="menu-toggle" (click)="toggleSidebar.emit()">☰</button>
-  <span class="page-title">GeoUAX</span>
+  <div class="left-section">
+    <button class="menu-toggle" (click)="toggleSidebar.emit()">☰</button>
+    <span class="page-title">{{ title }}</span>
+  </div>
+
+  <div class="topbar-menu">
+    <button *ngFor="let option of menuOptions"
+            class="menu-option"
+            (click)="option.action()"
+            [ngClass]="{'active': option.label === 'Filtrar'}">
+      {{ option.label }}
+    </button>
+  </div>
 </header>
+
+<!-- Subbarra de filtros debajo -->
+<div class="filter-bar" *ngIf="showFilter">
+  <div class="filter-grid">
+    <div class="filter-group">
+      <label>Nombre:</label>
+      <input type="text" placeholder="Buscar por nombre">
+    </div>
+
+    <div class="filter-group">
+      <label>Descripción:</label>
+      <input type="text" placeholder="Buscar por descripción">
+    </div>
+
+    <div class="filter-group">
+      <label>Fecha:</label>
+      <input type="date">
+    </div>
+
+    <div class="filter-group">
+      <label>Usuario:</label>
+      <input type="number" placeholder="ID de usuario">
+    </div>
+
+    <div class="filter-group full-width">
+      <button class="btn-primary" (click)="aplicarFiltro()">Aplicar</button>
+    </div>
+  </div>
+</div>
