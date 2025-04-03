@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-  padding: 32px;
+  padding: 30px;
   max-width: 95%;
   margin: 0 auto;
   background: #fff;
@@ -37,6 +37,8 @@ h2 {
 /* Tabla */
 .table-responsive {
   overflow-x: auto;
+  max-height: 590px; /* Ajusta la altura máxima según tus necesidades */
+  overflow-y: auto; /* Habilita el scroll vertical */
 }
 
 .table {
@@ -74,6 +76,8 @@ h2 {
   font-size: 0.95rem;
   border-bottom: 1px solid #f1f1f1;
   color: #333;
+  font-weight: 400;
+  transition: background 0.2s ease-in-out;
 }
 
 /* Hover fila */
@@ -82,24 +86,39 @@ h2 {
   transition: background 0.2s ease-in-out;
 }
 
+.botones {
+  display: flex;           /* Activamos flexbox */
+  gap: 16px;               /* Espacio entre botones */
+}
+
+.botones .btn {
+  flex: 1;                 /* Cada botón ocupa el mismo ancho */
+  text-align: center;      /* Centrar el texto dentro del botón */
+}
+
 /* Botón */
-.btn-primary {
-  background: linear-gradient(135deg, #d71920, #f7941d);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 6px 14px;
-  font-size: 0.85rem;
+.btn {
+  display: inline-block;
+  padding: 3px 12px;       /* Más grande que antes */
+  border-radius: 12px;      /* Botones más redondeados */
+  font-size: 0.75rem;       /* Aumenta un poco la fuente */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-  display: inline-block;
-  white-space: nowrap;
+  text-transform: uppercase; /* Texto en mayúsculas */
+  letter-spacing: 0.5px;
+  border: none;             /* Quitamos borde */
+  margin: 4px 2px;          /* Pequeño margen entre botones */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Sombra base */
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #d71920, #f7941d);
+  color: #fff;
 }
 
 .btn-primary:hover {
-  transform: scale(1.05);
+  transform: scale(1.10);
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 

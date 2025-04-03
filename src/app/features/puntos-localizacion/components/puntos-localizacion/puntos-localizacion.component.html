@@ -33,9 +33,10 @@
           <td>{{ punto.fechaCreacion }}</td>
           <td>{{ punto.usuarioCreador }}</td>
           <td>
-            <button class="btn-primary" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
-              Ver en Mapa
-            </button>
+            <div class="botones">
+              <button type="submit" class="btn btn-primary" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">Ver en mapa</button>
+              <button type="button" class="btn btn-primary" [routerLink]="['/puntos-localizacion', punto.id]">Editar</button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -46,3 +47,5 @@
     No hay puntos de localización disponibles.
   </div>
 </div>
+
+<router-outlet></router-outlet>

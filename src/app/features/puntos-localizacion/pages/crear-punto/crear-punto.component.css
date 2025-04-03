@@ -1,0 +1,182 @@
+/* -----------------------------------
+   Estilos base (igual que en tu tabla)
+--------------------------------------*/
+* {
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background: #f4f4f4;
+  color: #1a1a1a;
+  margin: 0;
+  padding: 0;
+}
+
+/* -----------------------------------
+   .container (idéntico a tu tabla)
+--------------------------------------*/
+.container {
+  padding: 32px;
+  max-width: 100%;
+  max-height: 100%;
+  width: 400vh;
+  height: 90vh;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* -----------------------------------
+   Título (igual que tu tabla)
+--------------------------------------*/
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #d71920;
+  border-left: 6px solid #f7941d;
+  padding-left: 16px;
+  text-transform: uppercase;
+}
+
+/* -----------------------------------
+   Wrapper para el formulario y el mapa
+--------------------------------------*/
+.crear-punto-wrapper {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap; /* Para que en pantallas pequeñas salte abajo el mapa o el form */
+}
+
+/* -----------------------------------
+   Formulario
+--------------------------------------*/
+.formulario {
+  flex: 1 1 400px; /* Se adaptará, mínimo ~400px */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 73vh;
+}
+
+.formulario label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.formulario input,
+.formulario textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.formulario input:focus,
+.formulario textarea:focus {
+  outline: none;
+  border-color: #f7941d;
+  box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.2);
+}
+
+/* -----------------------------------
+   Botones (similar a .btn-primary de tu tabla)
+--------------------------------------*/
+
+.botones {
+  display: flex;        /* Activamos Flexbox */
+  gap: 12px;            /* Separación entre botones */
+  margin-top: 16px;     /* Espacio superior respecto a los campos */
+  justify-content: flex-end; /* Alineación a la derecha */
+}
+.btn-primary {
+  background: linear-gradient(135deg, #d71920, #f7941d);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  white-space: nowrap;
+  text-transform: uppercase;
+  margin-right: 8px;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón secundario (estilo gris) */
+.btn-secondary {
+  background: linear-gradient(135deg, #f4f4f4, #ddd);
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.btn-secondary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+}
+
+/* -----------------------------------
+   Mapa
+--------------------------------------*/
+.mapa-preview {
+  flex: 1 1 400px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  min-height: 500px;
+  background: #fff;
+}
+
+#map-preview {
+  width: 89.5vh;
+  height: 72.5vh
+  ;
+}
+
+/* -----------------------------------
+   Responsividad
+--------------------------------------*/
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  .crear-punto-wrapper {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}

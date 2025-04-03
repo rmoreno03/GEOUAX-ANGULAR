@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="crear-punto-wrapper">
+    <div class="formulario">
+      <h2>Crear Nuevo Punto</h2>
+
+      <form (ngSubmit)="guardarPunto()" #puntoForm="ngForm">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" [(ngModel)]="punto.nombre" required />
+
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" name="descripcion" [(ngModel)]="punto.descripcion" rows="2" required></textarea>
+
+        <label for="latitud">Latitud</label>
+        <input type="text" id="latitud" name="latitud" [(ngModel)]="punto.latitud" readonly />
+
+        <label for="longitud">Longitud</label>
+        <input type="text" id="longitud" name="longitud" [(ngModel)]="punto.longitud" readonly />
+
+        <div class="botones">
+          <button type="submit" class="btn-primary">Guardar Punto</button>
+          <button type="button" class="btn-secondary" routerLink="/puntos-localizacion">Volver</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="mapa-preview">
+      <div id="map-preview"></div>
+    </div>
+  </div>
+</div>

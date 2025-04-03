@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.detalle-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 700px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+}
+
+.detalle-container h2 {
+  color: #d71920;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  border-left: 4px solid #f7941d;
+  padding-left: 12px;
+}
+
+.info p {
+  font-size: 1rem;
+  margin: 12px 0;
+  color: #333;
+}
+
+.info strong {
+  color: #d71920;
+}
+
+.acciones {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn.eliminar {
+  background: linear-gradient(to right, #d71920, #f7941d);
+  color: white;
+}
+
+.btn.eliminar:hover {
+  background: linear-gradient(to right, #c31212, #e28012);
+  transform: scale(1.05);
+}
+
+.btn.volver {
+  background: #eee;
+  color: #333;
+}
+
+.btn.volver:hover {
+  background: #ddd;
+  transform: scale(1.05);
+}
+
+.loading, .error {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+}
+
+.error {
+  color: #d71920;
+}

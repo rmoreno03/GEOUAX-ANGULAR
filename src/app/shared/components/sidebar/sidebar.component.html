@@ -1,11 +1,11 @@
-<aside class="sidebar">
-  <div class="logo">
-    🌍 GeoUAX
-  </div>
-  <nav class="menu">
-    <a routerLink="/puntos" routerLinkActive="active">📍 Puntos</a>
-    <a routerLink="/rutas" routerLinkActive="active">🧭 Rutas</a>
-    <a routerLink="/usuarios" routerLinkActive="active">👥 Usuarios</a>
-    <a routerLink="/configuracion" routerLinkActive="active">⚙️ Configuración</a>
-  </nav>
-</aside>
+<div class="logo">
+  <img src="LogoGEOUAXsinFondo.png" alt="GeoUAX logo" class="logo-img" />
+  <span *ngIf="!collapsed">GeoUAX</span>
+</div>
+
+<nav class="menu">
+  <a routerLink="/puntos-localizacion"> <span *ngIf="!collapsed">Puntos</span></a>
+  <a routerLink="/rutas"><i class="pi pi-compass"></i> <span *ngIf="!collapsed">Rutas</span></a>
+  <a routerLink="/usuarios"><i class="pi pi-users"></i> <span *ngIf="!collapsed">Usuarios</span></a>
+  <a routerLink="/configuracion"><i class="pi pi-cog"></i> <span *ngIf="!collapsed">Configuración</span></a>
+</nav>

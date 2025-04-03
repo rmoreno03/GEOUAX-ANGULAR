@@ -1,0 +1,23 @@
+<div class="detalle-container" *ngIf="!loading && punto">
+  <h2>{{ punto.nombre }}</h2>
+  <div class="info">
+    <p><strong>Descripción:</strong> {{ punto.descripcion }}</p>
+    <p><strong>Latitud:</strong> {{ punto.latitud }}</p>
+    <p><strong>Longitud:</strong> {{ punto.longitud }}</p>
+    <p><strong>Fecha de creación:</strong> {{ punto.fechaCreacion }}</p>
+    <p><strong>Usuario creador:</strong> {{ punto.usuarioCreador }}</p>
+  </div>
+
+  <div class="acciones">
+    <button class="btn eliminar" (click)="eliminar()">Eliminar</button>
+    <button class="btn volver" routerLink="/puntos-localizacion">Volver</button>
+  </div>
+</div>
+
+<div *ngIf="loading" class="loading">
+  Cargando punto...
+</div>
+
+<div *ngIf="error" class="error">
+  {{ error }}
+</div>
