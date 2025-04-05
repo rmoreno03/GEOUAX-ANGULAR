@@ -1,5 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { PuntosLocalizacionService } from '../../../features/puntos-localizacion/services/puntosLocalizacion.service';
+import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
+import { FilterService } from '../../../core/services/filter.service';
+import { OrdenService } from '../../../core/services/orden.service';
 
 @Component({
   standalone: false,
@@ -10,25 +15,72 @@ import { Router } from '@angular/router';
 
 export class TopBarComponent {
 
+  @Output() onFiltrar = new EventEmitter<Partial<PuntoLocalizacion>>();
+  @Output() onOrdenar = new EventEmitter<{ campo: string, orden: 'asc' | 'desc' }>();
   @Output() toggleSidebar = new EventEmitter<void>();
 
   title = '';
   showFilter = false;
-  menuOptions: { label: string, action: () => void }[] = [];
+  showOrdenar = false;
+  ordenSelected: 'asc' | 'desc' = 'asc';
+  ordenSeleccionadoCampo: string = '';
+  menuOptions: { label: string; icon?: string; action: () => void }[] = [];
+  filtroForm: FormGroup;
+  camposOrdenables: string[] = ['nombre', 'descripcion', 'fechaCreacion', 'latitud', 'longitud', 'usuarioCreador'];
 
-  constructor(private router: Router) {
+
+  constructor(
+    private router: Router,
+    private filterService: FilterService,
+    private fb: FormBuilder,
+    private ordenService: OrdenService
+  ){
+
+    this.filtroForm = this.fb.group({
+      nombre: [''],
+      descripcion: [''],
+      fecha: [''],
+      usuario: ['']
+    });
+
     router.events.subscribe(() => {
       const url = router.url;
 
       if (url.includes('puntos-localizacion')) {
         this.title = 'Gestión de Puntos';
         this.menuOptions = [
-          { label: 'Ver todos los puntos', action: () => this.router.navigate(['/puntos-localizacion']) },
-          { label: 'Ver todos los puntos en el Mapa', action: () => alert('Mostrando mapa...') },
-          { label: 'Nuevo Punto', action: () => this.router.navigate(['/puntos-localizacion/nuevo']) },
-          { label: 'Filtrar', action: () => this.toggleFilter() },
-          { label: 'Ordenar', action: () => alert('Ordenando...') }
+          {
+            label: 'Ver todos los puntos',
+            icon: 'fas fa-list',
+            action: () => this.router.navigate(['/puntos-localizacion'])
+          },
+          {
+            label: 'Ver todos los puntos en el Mapa',
+            icon: 'fas fa-map-marked-alt',
+            action: () => alert('Mostrando mapa...')
+          },
+          {
+            label: 'Nuevo Punto',
+            icon: 'fas fa-plus',
+            action: () => this.router.navigate(['/puntos-localizacion/nuevo'])
+          },
+          {
+            label: 'Filtrar',
+            icon: 'fas fa-filter',
+            action: () => this.toggleFilter()
+          },
+          {
+            label: 'Ordenar',
+            icon: 'fas fa-sort',
+            action: () => this.toggleOrdenar()
+          },
+          {
+            label: 'Resetear',
+            icon: 'fas fa-sync-alt',
+            action: () => this.resetearTodo()
+          }
         ];
+
       } else if (url.includes('rutas')) {
         this.title = 'Gestión de Rutas';
         this.menuOptions = [
@@ -52,10 +104,39 @@ export class TopBarComponent {
     this.showFilter = !this.showFilter;
   }
 
-  aplicarFiltro() {
-    // Lógica de filtro aquí
-    console.log('Filtrando...');
+  toggleOrdenar() {
+    this.showOrdenar = !this.showOrdenar;
+  }
+
+
+  async aplicarFiltro() {
+    const filtros = this.filtroForm.value;
+    this.filterService.setFilter(filtros);
     this.showFilter = false;
   }
+
+
+  async aplicarOrden(campo: string) {
+    this.ordenSeleccionadoCampo = campo;
+    this.ordenService.setOrden({ campo, orden: this.ordenSelected });
+    this.showOrdenar = false;
+  }
+
+
+  resetearTodo() {
+    this.filtroForm.reset();
+    this.filterService.setFilter('');
+    this.ordenService.resetOrden();
+    this.showFilter = false;
+    this.showOrdenar = false;
+    this.ordenSeleccionadoCampo = '';
+  }
+
+
+  resetearFiltro() {
+    this.filtroForm.reset();
+    this.filterService.setFilter('');
+  }
+
 }
 

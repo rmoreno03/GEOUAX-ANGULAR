@@ -4,6 +4,7 @@ import { environment } from '../../../../../environments/environment';
 import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.service';
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
 import { Router } from '@angular/router';
+import { Timestamp } from 'firebase/firestore';
 
 @Component({
   selector: 'app-crear-punto',
@@ -21,7 +22,8 @@ export class CrearPuntoComponent implements AfterViewInit {
     usuarioCreador: '1',
     latitud: 0,
     longitud: 0,
-    fechaCreacion: new Date().toISOString(),
+    fechaCreacion: Timestamp.now(),
+    foto: ''
   };
 
   constructor(

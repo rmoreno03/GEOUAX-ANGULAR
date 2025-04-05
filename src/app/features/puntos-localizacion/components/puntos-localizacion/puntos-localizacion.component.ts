@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
 import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.service';
+import { FilterService } from '../../../../core/services/filter.service';
+import { Timestamp } from 'firebase/firestore';
+import { OrdenService } from '../../../../core/services/orden.service';
 
 
 @Component({
@@ -11,16 +14,33 @@ import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.ser
 })
 export class PuntosLocalizacionComponent implements OnInit {
   puntosLocalizacion: PuntoLocalizacion[] = [];
+  puntosFiltrados: PuntoLocalizacion[] = [];
   loading = true;
   error = '';
+  ordenCampo: string = '';
+  ordenDireccion: 'asc' | 'desc' = 'asc';
 
   constructor(
-    private puntosLocalizacionService: PuntosLocalizacionService
+    private puntosLocalizacionService: PuntosLocalizacionService,
+    private filterService: FilterService,
+    private ordenService: OrdenService
   ) { }
 
   async ngOnInit(): Promise<void> {
     try {
       this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacion();
+      this.puntosFiltrados = [...this.puntosLocalizacion];
+
+      this.filterService.filter$.subscribe(filtro => {
+        this.puntosFiltrados = this.filtrarPuntos(filtro);
+      });
+
+      this.ordenService.orden$.subscribe(orden => {
+        if (orden) {
+          this.ordenarPuntos(orden);
+        }
+      });
+
     } catch (error) {
       this.error = 'Error al cargar los puntos de localización';
       console.error(error);
@@ -28,6 +48,76 @@ export class PuntosLocalizacionComponent implements OnInit {
       this.loading = false;
     }
   }
+
+  private filtrarPuntos(filtro: any): PuntoLocalizacion[] {
+    return this.puntosLocalizacion.filter(p => {
+      const coincideNombre =
+        !filtro.nombre ||
+        p.nombre?.toLowerCase().includes(filtro.nombre.toLowerCase());
+
+      const coincideDescripcion =
+        !filtro.descripcion ||
+        p.descripcion?.toLowerCase().includes(filtro.descripcion.toLowerCase());
+
+      const coincideFecha =
+        !filtro.fecha ||
+        (p.fechaCreacion &&
+          p.fechaCreacion.toDate().toISOString().startsWith(filtro.fecha));
+
+      const coincideUsuario =
+        !filtro.usuario ||
+        p.usuarioCreador?.toLowerCase().includes(filtro.usuario.toLowerCase());
+
+      return coincideNombre && coincideDescripcion && coincideFecha && coincideUsuario;
+    });
+  }
+
+  ordenarPuntos({ campo, orden }: { campo: string, orden: 'asc' | 'desc' }) {
+    this.ordenCampo = campo;
+    this.ordenDireccion = orden;
+
+    const dir = orden === 'asc' ? 1 : -1;
+
+    this.puntosFiltrados.sort((a, b) => {
+
+      const aVal = a[campo as keyof PuntoLocalizacion];
+      const bVal = b[campo as keyof PuntoLocalizacion];
+
+
+      if (aVal == null) return 1 * dir;
+      if (bVal == null) return -1 * dir;
+
+      if (campo === 'fechaCreacion') {
+        const fechaA = aVal instanceof Timestamp ? aVal.toDate() : new Date(aVal);
+        const fechaB = bVal instanceof Timestamp ? bVal.toDate() : new Date(bVal);
+        return (fechaA.getTime() - fechaB.getTime()) * dir;
+      }
+
+      console.log('Ordenando por:', campo, orden);
+
+      return aVal.toString().localeCompare(bVal.toString()) * dir;
+    });
+  }
+
+
+
+  formatFecha(fecha: any): string {
+    if (!fecha?.toDate) return '';
+    const date = fecha.toDate();
+    return date.toLocaleString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(',', '');
+  }
+
+
+
+
 
 
   // Función para abrir en Google Maps

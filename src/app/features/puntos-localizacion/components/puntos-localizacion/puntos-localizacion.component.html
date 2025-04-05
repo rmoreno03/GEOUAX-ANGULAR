@@ -15,35 +15,54 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Nombre</th>
-          <th>Descripción</th>
+          <th>Nombre del punto</th>
+          <th>Descripción del punto</th>
           <th>Latitud</th>
           <th>Longitud</th>
-          <th>Fecha</th>
-          <th>Usuario</th>
+          <th>Fecha de creación</th>
+          <th>Usuario creador</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let punto of puntosLocalizacion">
+        <tr *ngFor="let punto of puntosFiltrados">
           <td>{{ punto.nombre }}</td>
           <td>{{ punto.descripcion }}</td>
           <td>{{ punto.latitud }}</td>
           <td>{{ punto.longitud }}</td>
-          <td>{{ punto.fechaCreacion }}</td>
+          <td>{{ formatFecha(punto.fechaCreacion)}}</td>
           <td>{{ punto.usuarioCreador }}</td>
           <td>
             <div class="botones">
-              <button type="submit" class="btn btn-primary" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">Ver en mapa</button>
-              <button type="button" class="btn btn-primary" [routerLink]="['/puntos-localizacion', punto.id]">Editar</button>
+              <!-- Ver en mapa -->
+              <button type="submit" class="btn btn-primary" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
+                <i class="fas fa-map-marked-alt"></i> Mapa
+              </button>
+
+              <!-- Editar -->
+              <button type="button" class="btn btn-primary" [routerLink]="['/puntos-localizacion', punto.id]">
+                <i class="fas fa-pen-to-square"></i> Editar
+              </button>
+
+
             </div>
           </td>
+        </tr>
+        <!-- Fila vacía solo si hay una fila -->
+        <tr class="fila-placeholder" >
+          <td style="visibility: hidden;">Nombre------------------------</td>
+          <td style="visibility: hidden;">Descripción-------------------</td>
+          <td style="visibility: hidden;">Latitud-----------------------</td>
+          <td style="visibility: hidden;">Longitud----------------------</td>
+          <td style="visibility: hidden;">------------------------------</td>
+          <td style="visibility: hidden;">Usuario-----------------------</td>
+          <td style="visibility: hidden;">Acciones----------------------</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div *ngIf="!loading && !error && puntosLocalizacion.length === 0" class="alert alert-info">
+  <div *ngIf="!loading && !error && puntosFiltrados.length === 0" class="alert alert-info">
     No hay puntos de localización disponibles.
   </div>
 </div>

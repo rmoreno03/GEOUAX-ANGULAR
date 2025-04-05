@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 
 export interface PuntoLocalizacion {
   id: string;
@@ -5,7 +6,7 @@ export interface PuntoLocalizacion {
   descripcion: string;
   latitud: number;
   longitud: number;
-  fechaCreacion: string;
-  foto: string;
+  fechaCreacion: Timestamp;
+  foto: '';
   usuarioCreador: string;
 }

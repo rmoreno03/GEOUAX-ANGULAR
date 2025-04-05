@@ -10,36 +10,71 @@
             class="menu-option"
             (click)="option.action()"
             [ngClass]="{'active': option.label === 'Filtrar'}">
-      {{ option.label }}
+            <i [class]="option.icon" style="margin-right: 8px;"></i> {{ option.label }}
     </button>
   </div>
 </header>
 
-<!-- Subbarra de filtros debajo -->
-<div class="filter-bar" *ngIf="showFilter">
-  <div class="filter-grid">
-    <div class="filter-group">
-      <label>Nombre:</label>
-      <input type="text" placeholder="Buscar por nombre">
+<!-- Menú desplegable de ordenación -->
+<div class="ordenar-container" *ngIf="showOrdenar">
+  <div class="ordenar-horizontal">
+    <div class="ordenar-opciones">
+      <label>
+        <input type="radio" name="orden" value="asc" [(ngModel)]="ordenSelected">
+        Ascendente
+      </label>
+      <label>
+        <input type="radio" name="orden" value="desc" [(ngModel)]="ordenSelected">
+        Descendente
+      </label>
     </div>
 
-    <div class="filter-group">
-      <label>Descripción:</label>
-      <input type="text" placeholder="Buscar por descripción">
-    </div>
-
-    <div class="filter-group">
-      <label>Fecha:</label>
-      <input type="date">
-    </div>
-
-    <div class="filter-group">
-      <label>Usuario:</label>
-      <input type="number" placeholder="ID de usuario">
-    </div>
-
-    <div class="filter-group full-width">
-      <button class="btn-primary" (click)="aplicarFiltro()">Aplicar</button>
+    <div class="ordenar-campos-horizontal">
+      <button
+        type="button"
+        *ngFor="let campo of camposOrdenables"
+        (click)="aplicarOrden(campo)"
+        [class.orden-activa]="ordenSeleccionadoCampo === campo"
+      >
+        {{ campo | titlecase }}
+        <span *ngIf="ordenSeleccionadoCampo === campo">
+          {{ ordenSelected === 'asc' ? '↑' : '↓' }}
+        </span>
+      </button>
     </div>
   </div>
+</div>
+
+
+
+<!-- Subbarra de filtros debajo -->
+<div class="filter-bar" *ngIf="showFilter">
+  <form [formGroup]="filtroForm" (ngSubmit)="aplicarFiltro()">
+    <div class="filter-grid">
+      <div class="filter-group">
+        <label>Nombre:</label>
+        <input type="text" formControlName="nombre" placeholder="Buscar por nombre">
+      </div>
+
+      <div class="filter-group">
+        <label>Descripción:</label>
+        <input type="text" formControlName="descripcion" placeholder="Buscar por descripción">
+      </div>
+
+      <div class="filter-group">
+        <label>Fecha:</label>
+        <input type="date" formControlName="fecha">
+      </div>
+
+      <div class="filter-group">
+        <label>Usuario:</label>
+        <input type="number" formControlName="usuario" placeholder="ID de usuario">
+      </div>
+
+      <div class="filter-group full-width">
+        <button type="submit" class="btn-primary">Aplicar</button>
+        <button type="button" class="btn-primary" (click)="resetearFiltro()">Resetear</button>
+      </div>
+    </div>
+  </form>
 </div>

@@ -37,8 +37,9 @@ h2 {
 /* Tabla */
 .table-responsive {
   overflow-x: auto;
-  max-height: 590px; /* Ajusta la altura máxima según tus necesidades */
-  overflow-y: auto; /* Habilita el scroll vertical */
+  max-height: 590px;
+  overflow-y: auto;
+  min-width: 1000px;
 }
 
 .table {
@@ -49,6 +50,18 @@ h2 {
   border-radius: 12px;
   overflow: hidden;
 }
+
+.fila-placeholder {
+  height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  font-size: 0;
+  visibility: collapse;
+}
+
+
 
 /* Encabezados */
 .table th {
@@ -87,29 +100,39 @@ h2 {
 }
 
 .botones {
-  display: flex;           /* Activamos flexbox */
-  gap: 16px;               /* Espacio entre botones */
+  display: flex;
+  gap: 16px;
+  height: 50px;
 }
 
 .botones .btn {
-  flex: 1;                 /* Cada botón ocupa el mismo ancho */
-  text-align: center;      /* Centrar el texto dentro del botón */
+  flex: 1;
+  text-align: center;
 }
+
+.btn i {
+  font-size: 1rem;
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+
 
 /* Botón */
 .btn {
   display: inline-block;
-  padding: 3px 12px;       /* Más grande que antes */
-  border-radius: 12px;      /* Botones más redondeados */
-  font-size: 0.75rem;       /* Aumenta un poco la fuente */
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase; /* Texto en mayúsculas */
+  text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: none;             /* Quitamos borde */
-  margin: 4px 2px;          /* Pequeño margen entre botones */
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Sombra base */
+  border: none;
+  margin: 4px 2px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary {
