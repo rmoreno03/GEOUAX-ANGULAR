@@ -10,7 +10,7 @@ const routes: Routes = [
   {
     path: '',
     redirectTo: 'auth/login',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
 
   // Rutas protegidas por autenticación
@@ -23,15 +23,14 @@ const routes: Routes = [
         path: 'puntos',
         loadChildren: () => import('./features/puntos-localizacion/puntos-localizacion.module').then(m => m.PuntosLocalizacionModule)
       },
-      // Puedes añadir más rutas protegidas aquí (rutas, usuarios, etc.)
     ]
   },
 
-  // Rutas de autenticación con layout propio y guard para evitar acceso si ya está logueado
+  // Rutas de autenticación (login/register) usando canActivateChild
   {
     path: 'auth',
     component: AuthLayoutComponent,
-    canActivate: [NoAuthGuard],
+    canActivateChild: [NoAuthGuard],
     children: [
       {
         path: '',
@@ -40,7 +39,7 @@ const routes: Routes = [
     ]
   },
 
-  // Cualquier ruta desconocida → redirige a login
+  // Ruta wildcard
   {
     path: '**',
     redirectTo: 'auth/login'

@@ -3,7 +3,6 @@
 
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
-    <!-- Email -->
     <label for="email">Email</label>
     <div class="password-wrapper">
       <input
@@ -12,13 +11,14 @@
         formControlName="email"
         placeholder="ejemplo@correo.com"
       />
-      <div class="input-error" *ngIf="email?.touched && email?.errors?.['required']">
-        El email es obligatorio.
-      </div>
-      <div class="input-error" *ngIf="email?.touched && email?.errors?.['email']">
-        El formato no es válido.
-      </div>
     </div>
+    <div class="input-error" *ngIf="email?.touched && email?.errors?.['required']">
+      El email es obligatorio.
+    </div>
+    <div class="input-error" *ngIf="email?.touched && email?.errors?.['email']">
+      El formato no es válido.
+    </div>
+
 
     <!-- Contraseña -->
     <label for="password">Contraseña</label>

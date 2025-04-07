@@ -8,7 +8,7 @@ export const routes: Routes = [
   { path: '', component: PuntosLocalizacionComponent },
   { path: 'nuevo', component: CrearPuntoComponent },
   { path: ':id', component: DetallePuntoComponent },
-  { path: '**', redirectTo: ''} // Redirigir a la lista de puntos si la ruta no coincide
+  { path: '**', redirectTo: ''}
 ];
 
 @NgModule({

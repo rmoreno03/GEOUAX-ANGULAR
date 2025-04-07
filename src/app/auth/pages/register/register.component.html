@@ -12,14 +12,15 @@
         formControlName="email"
         placeholder="ejemplo@correo.com"
       />
-      <div class="input-error" *ngIf="email?.touched && email?.errors?.['required']">
-        El email es obligatorio.
-      </div>
-      <div class="input-error" *ngIf="email?.touched && email?.errors?.['email']">
-        El formato no es válido.
-      </div>
+    </div>
+    <div class="input-error" *ngIf="email?.touched && email?.errors?.['required']">
+      El email es obligatorio.
+    </div>
+    <div class="input-error" *ngIf="email?.touched && email?.errors?.['email']">
+      El formato no es válido.
     </div>
 
+    <!-- Contraseña -->
     <label for="password">Contraseña</label>
     <div class="password-wrapper">
       <input
@@ -35,6 +36,27 @@
     <div class="input-error" *ngIf="password?.touched && password?.errors?.['required']">
       La contraseña es obligatoria.
     </div>
+    <div class="input-error" *ngIf="password?.touched && password?.errors?.['minlength']">
+      La contraseña debe tener al menos 6 caracteres.
+    </div>
+
+    <!-- Confirmar contraseña -->
+    <label for="confirmPassword">Confirmar contraseña</label>
+    <div class="password-wrapper">
+      <input
+        [type]="showPassword ? 'text' : 'password'"
+        id="confirmPassword"
+        formControlName="confirmPassword"
+        placeholder="••••••••"
+      />
+      <button type="button" class="toggle-password" (click)="togglePassword()">
+        <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+      </button>
+    </div>
+    <div class="input-error" *ngIf="confirmPassword?.touched && registerForm.errors?.['passwordMismatch']">
+      Las contraseñas no coinciden.
+    </div>
+
     <!-- Botón Enviar -->
     <button type="submit">Crear cuenta</button>
   </form>

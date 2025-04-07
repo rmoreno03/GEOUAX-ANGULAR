@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
@@ -18,14 +18,27 @@ export class RegisterComponent {
     private auth: AuthService,
     private router: Router
   ) {
-    this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    });
+    this.registerForm = this.fb.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', Validators.required],
+      },
+      { validators: this.passwordMatchValidator }
+    );
   }
 
   showPassword = false;
 
+
+  passwordMatchValidator(form: AbstractControl) {
+    const password = form.get('password')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+    if (password !== confirmPassword) {
+      return { passwordMismatch: true };
+    }
+    return null;
+  }
 
   get email() {
     return this.registerForm.get('email');
@@ -33,6 +46,10 @@ export class RegisterComponent {
 
   get password() {
     return this.registerForm.get('password');
+  }
+
+  get confirmPassword() {
+    return this.registerForm.get('confirmPassword');
   }
 
   togglePassword() {
@@ -48,7 +65,7 @@ export class RegisterComponent {
       .then(() => this.router.navigate(['/auth/login']))
       .catch(err => {
         this.errorMessage = 'Error al registrar: ' + err.message;
-        console.error(err); // 👈 para ver exactamente qué dice Firebase
+        console.error(err);
       });
   }
 
