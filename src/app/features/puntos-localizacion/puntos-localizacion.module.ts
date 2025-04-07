@@ -5,6 +5,8 @@ import { PuntosLocalizacionRoutingModule } from './puntos-localizacion-routing.m
 import { CrearPuntoComponent } from './pages/crear-punto/crear-punto.component';
 import { DetallePuntoComponent } from './pages/detalle-punto/detalle-punto.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from '../../shared/shared.module';
+
 
 
 
@@ -19,7 +21,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     PuntosLocalizacionRoutingModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    SharedModule
   ]
 })
 export class PuntosLocalizacionModule { }

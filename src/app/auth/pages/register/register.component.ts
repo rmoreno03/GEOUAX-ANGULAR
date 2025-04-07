@@ -10,24 +10,46 @@ import { Router } from '@angular/router';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  errorMessage = '';
-  registerForm: any;
+  registerForm;
+  errorMessage: string = '';
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router
+  ) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
+  showPassword = false;
 
+
+  get email() {
+    return this.registerForm.get('email');
+  }
+
+  get password() {
+    return this.registerForm.get('password');
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
 
   onSubmit() {
     const { email, password } = this.registerForm.value;
-    if (email && password) {
-      this.auth.register(email, password)
-        .then(() => this.router.navigate(['/']))
-        .catch(err => this.errorMessage = 'Error al registrar. Puede que el correo ya exista.');
-    }
+
+    if (!this.registerForm.valid) return;
+
+    this.auth.register(email!, password!)
+      .then(() => this.router.navigate(['/auth/login']))
+      .catch(err => {
+        this.errorMessage = 'Error al registrar: ' + err.message;
+        console.error(err); // 👈 para ver exactamente qué dice Firebase
+      });
   }
+
 }

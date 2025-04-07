@@ -1,0 +1,208 @@
+/* ─────────────────────────────────────────────── */
+/* 🎯 CONTENEDOR PRINCIPAL DEL FORMULARIO DE LOGIN */
+/* ─────────────────────────────────────────────── */
+.auth-container {
+  width: 100%;
+  max-width: 520px; /* Más ancho pero compacto */
+  padding: 1.5rem 2rem; /* Menos alto */
+  border-radius: 1.2rem;
+  background-color: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+  font-family: 'Poppins', sans-serif;
+  animation: fadeIn 0.4s ease-in-out;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: auto;
+}
+
+.auth-container:hover {
+  transform: translateY(-2px);
+}
+
+/* ───────────────────────────────────────────── */
+/* 🔤 TÍTULO DEL FORMULARIO */
+/* ───────────────────────────────────────────── */
+.auth-container h2 {
+  text-align: center;
+  font-size: 1.9rem;
+  color: #222;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* ───────────────────────────────────────────── */
+/* 📋 FORMULARIO (estructura interna) */
+/* ───────────────────────────────────────────── */
+.auth-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem; /* separación entre campos */
+}
+
+/* ───────────────────────────────────────────── */
+/* ✍️ CAMPOS DE TEXTO (input email, contraseña...) */
+/* ───────────────────────────────────────────── */
+.auth-container input {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.7rem;
+  border: 1px solid #ccc;
+  transition: border 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.auth-container input:focus {
+  border-color: #bb1c9d;
+  box-shadow: 0 0 0 3px rgba(187, 28, 157, 0.2);
+  outline: none;
+}
+
+/* ───────────────────────────────────────────── */
+/* 🔐 CONTENEDOR CONTRASEÑA + BOTÓN "VER" DENTRO */
+/* ───────────────────────────────────────────── */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 3rem; /* espacio para el botón "ver" */
+}
+
+/* ───────────────────────────────────────────── */
+/* 👁 BOTÓN "VER/OCULTAR" CONTRASEÑA */
+/* ───────────────────────────────────────────── */
+.toggle-password {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(to right, #bb1c9d, #f3722c);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 1rem;
+  padding: 0.4rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-password:hover {
+  background: linear-gradient(to right, #6a0dad, #bb1c9d);
+}
+
+/* ───────────────────────────────────────────── */
+/* 🧨 MENSAJES DE ERROR FIJOS (no cambia el tamaño) */
+/* ───────────────────────────────────────────── */
+.input-error {
+  height: 1.4rem;
+  font-size: 0.85rem;
+  color: red;
+  margin-top: -0.3rem;
+  margin-bottom: 0.2rem;
+  line-height: 1.4rem;
+}
+
+/* ───────────────────────────────────────────── */
+/* 🎯 BOTÓN DE ENVÍO ("Entrar") CON EFECTO BARRIDO */
+/* ───────────────────────────────────────────── */
+.auth-container button[type="submit"] {
+  position: relative;
+  padding: 0.75rem;
+  background: linear-gradient(to right, #bb1c9d, #f3722c);
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.9rem;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.auth-container button[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, #ffffff66, #ffffff33);
+  transform: skewX(-20deg);
+  transition: left 0.4s ease;
+  z-index: 1;
+}
+
+.auth-container button[type="submit"]:hover::before {
+  left: 120%;
+}
+
+.auth-container button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(187, 28, 157, 0.3);
+}
+
+.auth-container button[type="submit"]:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(187, 28, 157, 0.25);
+}
+
+/* ───────────────────────────────────────────── */
+/* 📢 MENSAJES DE ERROR GENERALES */
+/* ───────────────────────────────────────────── */
+.auth-container .error {
+  color: red;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* ───────────────────────────────────────────── */
+/* 📄 PÁRRAFOS Y ENLACES (registro, etc.) */
+/* ───────────────────────────────────────────── */
+.auth-container p {
+  margin-top: 1.3rem;
+  font-size: 0.95rem;
+  text-align: center;
+  color: #444;
+}
+
+.auth-container a {
+  color: #bb1c9d;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.auth-container a:hover {
+  text-decoration: underline;
+  color: #f3722c;
+}
+
+
+
+
+/* ───────────────────────────────────────────── */
+/* 🎬 ENTRADA SUAVE DEL FORMULARIO */
+/* ───────────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

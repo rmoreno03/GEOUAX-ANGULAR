@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -8,5 +9,8 @@ import { Component, Input } from '@angular/core';
 })
 export class SidebarComponent {
   @Input() collapsed = false;
+
+
+
 
 }

@@ -11,7 +11,9 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   errorMessage = '';
-  loginForm;
+  showPassword = false;
+
+  loginForm: any;
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
@@ -20,12 +22,27 @@ export class LoginComponent {
     });
   }
 
+
+  get email() {
+    return this.loginForm.get('email')!;
+  }
+
+  get password() {
+    return this.loginForm.get('password')!;
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
   onSubmit() {
     const { email, password } = this.loginForm.value;
-    if (email && password) {
-      this.auth.login(email, password)
-        .then(() => this.router.navigate(['/']))
-        .catch(err => this.errorMessage = 'Credenciales incorrectas o error en el inicio de sesión.');
-    }
+    if (!this.loginForm.valid) return;
+
+    this.auth.login(email!, password!)
+      .then(() => this.router.navigate(['/puntos']))
+      .catch(err => {
+        this.errorMessage = 'Error al iniciar sesión: ' + err.message;
+      });
   }
 }

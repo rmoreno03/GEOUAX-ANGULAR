@@ -46,13 +46,13 @@ export class TopBarComponent {
     router.events.subscribe(() => {
       const url = router.url;
 
-      if (url.includes('puntos-localizacion')) {
+      if (url.includes('puntos')) {
         this.title = 'Gestión de Puntos';
         this.menuOptions = [
           {
             label: 'Ver todos los puntos',
             icon: 'fas fa-list',
-            action: () => this.router.navigate(['/puntos-localizacion'])
+            action: () => this.router.navigate(['/puntos'])
           },
           {
             label: 'Ver todos los puntos en el Mapa',
@@ -62,7 +62,7 @@ export class TopBarComponent {
           {
             label: 'Nuevo Punto',
             icon: 'fas fa-plus',
-            action: () => this.router.navigate(['/puntos-localizacion/nuevo'])
+            action: () => this.router.navigate(['/puntos/nuevo'])
           },
           {
             label: 'Filtrar',
@@ -137,6 +137,8 @@ export class TopBarComponent {
     this.filtroForm.reset();
     this.filterService.setFilter('');
   }
+
+
 
 }
 

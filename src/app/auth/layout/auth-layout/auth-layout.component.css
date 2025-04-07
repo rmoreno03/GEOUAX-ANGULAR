@@ -1,0 +1,78 @@
+/* 🌅 Fondo con degradado */
+.auth-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #e6f4ff, #f4e6ff);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* 🧩 Contenido centrado (logo + formulario) */
+.auth-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem 1rem;
+  flex-wrap: wrap;
+}
+
+/* Pantallas grandes: reducir espacio entre auth-left y auth-right */
+@media (min-width: 1024px) {
+  .auth-content {
+    gap: 1rem; /* Reduce el espacio entre los elementos */
+    max-width: 1200px; /* Limita el ancho máximo del contenedor */
+    margin: 0 auto; /* Centra el contenedor */
+  }
+}
+
+/* 🖼️ Logo centrado */
+.auth-left {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 300px;         /* asegúrate de que tenga espacio */
+  max-width: 600px;         /* opcional, para que no se dispare demasiado */
+}
+
+.auth-logo {
+  width: 500px;
+  max-width: 100%;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.auth-logo:hover {
+  transform: scale(1.03);
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.12));
+}
+
+/* 📋 Formulario centrado */
+.auth-right {
+  flex: 1;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 1rem;
+}
+
+/* 🎬 Animación suave al aparecer */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 📱 Responsive: compacto en pantallas pequeñas */
+@media (max-height: 750px), (max-width: 768px) {
+  .auth-content {
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .auth-logo {
+    width: 300px;
+  }
+}

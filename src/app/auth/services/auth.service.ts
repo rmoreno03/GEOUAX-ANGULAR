@@ -1,40 +1,48 @@
 import { Injectable } from '@angular/core';
-import { auth } from '../../../app/app.module';
+import { auth } from '../../../app/app.module'; // <- importas el auth manual
 import {
-  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   User
 } from 'firebase/auth';
+import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private currentUser: User | null = null;
+  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
 
-  constructor() {
-    onAuthStateChanged(auth, (user) => {
-      this.currentUser = user;
+  constructor(private router: Router) {
+    // Detectar si hay sesión iniciada
+    onAuthStateChanged(auth, (user: User | null) => {
+      this.isLoggedInSubject.next(!!user);
     });
   }
 
-  login(email: string, password: string) {
-    return signInWithEmailAndPassword(auth, email, password);
+  login(email: string, password: string): Promise<void> {
+    return signInWithEmailAndPassword(auth, email, password)
+      .then(() => this.isLoggedInSubject.next(true));
   }
 
-  register(email: string, password: string) {
-    return createUserWithEmailAndPassword(auth, email, password);
+  register(email: string, password: string): Promise<void> {
+    return createUserWithEmailAndPassword(auth, email, password)
+      .then(() => this.isLoggedInSubject.next(true));
   }
 
-  logout() {
-    return signOut(auth);
+  logout(): Promise<void> {
+    return signOut(auth).then(() => {
+      this.isLoggedInSubject.next(false);
+      this.router.navigate(['/auth/login']);
+    });
   }
 
-  isLoggedIn(): boolean {
-    return this.currentUser !== null;
+  isAuthenticated(): boolean {
+    return this.isLoggedInSubject.value;
   }
 
-  getUser(): User | null {
-    return this.currentUser;
+  getAuthStatus() {
+    return this.isLoggedInSubject.asObservable();
   }
 }

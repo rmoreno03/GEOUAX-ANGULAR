@@ -12,13 +12,13 @@ import { RouterModule } from '@angular/router';
   declarations: [
     SidebarComponent,
     FooterComponent,
-    TopBarComponent
+    TopBarComponent,
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    FormsModule
+    FormsModule,
   ],
   exports: [
     SidebarComponent,
