@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { FeaturesLayoutComponent } from './features/layout/features-layout/features-layout.component';
+import { FeaturesLayoutComponent } from './features/layout/pages/features-layout/features-layout.component';
 import { AuthGuard } from './auth/guards/auth.guard';
 import { NoAuthGuard } from './auth/guards/no-auth.guard';
-import { AuthLayoutComponent } from './auth/layout/auth-layout/auth-layout.component';
+import { AuthLayoutComponent } from './features/layout/pages/auth-layout/auth-layout.component';
 
 const routes: Routes = [
   {

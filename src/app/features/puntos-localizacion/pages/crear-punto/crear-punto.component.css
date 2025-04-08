@@ -140,6 +140,24 @@ h2 {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 
+.preview-container {
+  margin-top: 20px;
+}
+
+.preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.preview-grid img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
 /* -----------------------------------
    Mapa
 --------------------------------------*/

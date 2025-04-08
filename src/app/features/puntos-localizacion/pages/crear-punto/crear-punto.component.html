@@ -16,6 +16,17 @@
         <label for="longitud">Longitud</label>
         <input type="text" id="longitud" name="longitud" [(ngModel)]="punto.longitud" readonly />
 
+        <label for="fotos">Seleccionar Fotos</label>
+        <input type="file" id="fotos" (change)="onFotosSeleccionadas($event)" multiple accept="image/*" />
+
+        <div class="preview-container" *ngIf="previewUrls.length > 0">
+          <h4>Previsualización</h4>
+          <div class="preview-grid">
+            <img *ngFor="let img of previewUrls" [src]="img" alt="Previsualización" />
+          </div>
+        </div>
+
+
         <div class="botones">
           <button type="submit" class="btn-primary">Guardar Punto</button>
           <button type="button" class="btn-secondary" routerLink="/puntos-localizacion">Volver</button>

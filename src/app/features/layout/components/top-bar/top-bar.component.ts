@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { PuntosLocalizacionService } from '../../../features/puntos-localizacion/services/puntosLocalizacion.service';
-import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
-import { FilterService } from '../../../core/services/filter.service';
-import { OrdenService } from '../../../core/services/orden.service';
+import { PuntosLocalizacionService } from '../../../puntos-localizacion/services/puntosLocalizacion.service';
+import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
+import { FilterService } from '../../../../core/services/filter.service';
+import { OrdenService } from '../../../../core/services/orden.service';
 
 @Component({
   standalone: false,

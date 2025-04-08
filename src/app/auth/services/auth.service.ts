@@ -8,7 +8,7 @@ import {
   User
 } from 'firebase/auth';
 import { BehaviorSubject } from 'rxjs';
-import { auth } from '../../../app/app.module'; // Asegúrate de que aquí importas tu instancia correctamente
+import { auth } from '../../../app/app.module';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -60,7 +60,7 @@ export class AuthService {
     return signOut(auth)
       .then(() => {
         this.isLoggedInSubject.next(false);
-        this.router.navigate(['/auth/login']);
+        //this.router.navigate(['/auth/login']);
         console.log('🔒 Sesión cerrada');
       })
       .catch((error) => {

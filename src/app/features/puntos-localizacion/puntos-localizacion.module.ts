@@ -5,7 +5,9 @@ import { PuntosLocalizacionRoutingModule } from './puntos-localizacion-routing.m
 import { CrearPuntoComponent } from './pages/crear-punto/crear-punto.component';
 import { DetallePuntoComponent } from './pages/detalle-punto/detalle-punto.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { SharedModule } from '../../shared/shared.module';
+import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+
+
 
 
 
@@ -22,7 +24,8 @@ import { SharedModule } from '../../shared/shared.module';
     PuntosLocalizacionRoutingModule,
     ReactiveFormsModule,
     FormsModule,
-    SharedModule
+    NgbCarouselModule
+
   ]
 })
 export class PuntosLocalizacionModule { }

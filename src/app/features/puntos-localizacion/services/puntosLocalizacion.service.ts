@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, QueryConstraint, where, Timestamp} from 'firebase/firestore';
 import { db } from '../../../app.module';
 import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root'
@@ -67,7 +69,9 @@ export class PuntosLocalizacionService {
   async obtenerPuntoPorId(id: string): Promise<PuntoLocalizacion | null> {
     const docRef = doc(this.collectionRef, id);
     const puntoSnap = await getDoc(docRef);
+
     if (!puntoSnap.exists()) return null;
+
     const data = puntoSnap.data();
     return {
       id: puntoSnap.id,
@@ -76,10 +80,11 @@ export class PuntosLocalizacionService {
       latitud: data['latitud'],
       longitud: data['longitud'],
       fechaCreacion: data['fechaCreacion'] || '',
-      foto: data['foto'],
+      fotos: data['fotos'] || [], // 🔥 usamos array de imágenes
       usuarioCreador: data['usuarioCreador']
     };
   }
+
 
   async crearPunto(punto: PuntoLocalizacion): Promise<void> {
     punto.fechaCreacion = Timestamp.now();
@@ -94,5 +99,18 @@ export class PuntosLocalizacionService {
   async eliminarPunto(id: string): Promise<void> {
     const docRef = doc(this.collectionRef, id);
     await deleteDoc(docRef);
+  }
+
+  async subirFoto(file: File): Promise<string> {
+    const storage = getStorage(); // usa el Firebase Storage inicializado
+    const nombreArchivo = `puntos/${uuidv4()}-${file.name}`;
+    const storageRef = ref(storage, nombreArchivo);
+
+    // Subir el archivo
+    const snapshot = await uploadBytes(storageRef, file);
+
+    // Obtener la URL pública
+    const url = await getDownloadURL(snapshot.ref);
+    return url;
   }
 }

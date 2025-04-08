@@ -15,6 +15,10 @@ import { Timestamp } from 'firebase/firestore';
 export class CrearPuntoComponent implements AfterViewInit {
   map!: mapboxgl.Map;
   marker!: mapboxgl.Marker;
+  selectedFiles: File[] = [];
+  previewUrls: string[] = [];
+  uploading = false;
+
 
   punto: Partial<PuntoLocalizacion> = {
     nombre: '',
@@ -23,7 +27,7 @@ export class CrearPuntoComponent implements AfterViewInit {
     latitud: 0,
     longitud: 0,
     fechaCreacion: Timestamp.now(),
-    foto: ''
+    fotos: []
   };
 
   constructor(
@@ -64,13 +68,43 @@ export class CrearPuntoComponent implements AfterViewInit {
       this.punto.descripcion &&
       this.punto.usuarioCreador &&
       this.punto.latitud !== undefined &&
-      this.punto.longitud !== undefined&&
+      this.punto.longitud !== undefined &&
       this.punto.fechaCreacion
     ) {
+      this.uploading = true;
+
+      // Subimos todas las fotos (puedes usar Firebase Storage aquí)
+      const urls: string[] = [];
+
+      for (const file of this.selectedFiles) {
+        const url = await this.puntosService.subirFoto(file); // implementa este método
+        urls.push(url);
+      }
+
+      this.punto.fotos = urls;
+
       await this.puntosService.crearPunto(this.punto as PuntoLocalizacion);
-      this.router.navigate(['/puntos-localizacion']);
+      this.uploading = false;
+      this.router.navigate(['/puntos']);
     } else {
       alert('Por favor, completa todos los campos y selecciona una ubicación.');
     }
   }
+
+  onFotosSeleccionadas(event: any): void {
+    this.selectedFiles = Array.from(event.target.files);
+    this.previewUrls = [];
+
+    this.selectedFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          this.previewUrls.push(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+
 }

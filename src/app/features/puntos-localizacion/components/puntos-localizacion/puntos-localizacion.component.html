@@ -35,16 +35,16 @@
           <td>
             <div class="botones">
               <!-- Ver en mapa -->
-              <button type="submit" class="btn btn-primary" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
-                <i class="fas fa-map-marked-alt"></i> Mapa
+              <button type="submit" class="btn btn-primary btn-icon" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
+                <img src="icoMap.ico" alt="Mapa" />
+                <span class="btn-text">Ver en mapa</span>
               </button>
 
               <!-- Editar -->
-              <button type="button" class="btn btn-primary" [routerLink]="['/puntos-localizacion', punto.id]">
-                <i class="fas fa-pen-to-square"></i> Editar
+              <button type="button" class="btn btn-primary btn-icon" [routerLink]="['/puntos', punto.id]">
+                <img src="icoEdit.ico" alt="Mapa" />
+                <span class="btn-text">Editar</span>
               </button>
-
-
             </div>
           </td>
         </tr>

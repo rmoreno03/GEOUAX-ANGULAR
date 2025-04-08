@@ -7,6 +7,6 @@ export interface PuntoLocalizacion {
   latitud: number;
   longitud: number;
   fechaCreacion: Timestamp;
-  foto: '';
   usuarioCreador: string;
+  fotos?: string[];
 }

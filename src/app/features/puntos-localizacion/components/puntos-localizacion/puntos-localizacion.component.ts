@@ -79,24 +79,27 @@ export class PuntosLocalizacionComponent implements OnInit {
     const dir = orden === 'asc' ? 1 : -1;
 
     this.puntosFiltrados.sort((a, b) => {
-
       const aVal = a[campo as keyof PuntoLocalizacion];
       const bVal = b[campo as keyof PuntoLocalizacion];
-
 
       if (aVal == null) return 1 * dir;
       if (bVal == null) return -1 * dir;
 
       if (campo === 'fechaCreacion') {
-        const fechaA = aVal instanceof Timestamp ? aVal.toDate() : new Date(aVal);
-        const fechaB = bVal instanceof Timestamp ? bVal.toDate() : new Date(bVal);
+        const fechaA = this.parseFecha(aVal);
+        const fechaB = this.parseFecha(bVal);
         return (fechaA.getTime() - fechaB.getTime()) * dir;
       }
 
-      console.log('Ordenando por:', campo, orden);
-
       return aVal.toString().localeCompare(bVal.toString()) * dir;
     });
+  }
+
+
+  private parseFecha(valor: any): Date {
+    if (valor instanceof Timestamp) return valor.toDate();
+    if (Array.isArray(valor)) return new Date(valor[0]);
+    return new Date(valor);
   }
 
 

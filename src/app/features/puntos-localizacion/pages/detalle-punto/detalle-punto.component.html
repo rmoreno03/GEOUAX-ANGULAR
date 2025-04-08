@@ -1,23 +1,46 @@
-<div class="detalle-container" *ngIf="!loading && punto">
-  <h2>{{ punto.nombre }}</h2>
-  <div class="info">
-    <p><strong>Descripción:</strong> {{ punto.descripcion }}</p>
-    <p><strong>Latitud:</strong> {{ punto.latitud }}</p>
-    <p><strong>Longitud:</strong> {{ punto.longitud }}</p>
-    <p><strong>Fecha de creación:</strong> {{ punto.fechaCreacion }}</p>
-    <p><strong>Usuario creador:</strong> {{ punto.usuarioCreador }}</p>
+<div class="container">
+  <div class="detalle-punto-wrapper">
+    <div class="info-punto">
+      <h2>{{ punto?.nombre }}</h2>
+
+      <div class="info">
+        <p><strong>Descripción:</strong> {{ punto?.descripcion }}</p>
+        <p><strong>Latitud:</strong> {{ punto?.latitud }}</p>
+        <p><strong>Longitud:</strong> {{ punto?.longitud }}</p>
+        <p><strong>Fecha de creación:</strong> {{ formatFecha(punto?.fechaCreacion)}}</p>
+        <p><strong>Usuario creador:</strong> {{ punto?.usuarioCreador }}</p>
+      </div>
+
+      <div class="carrusel-fotos">
+        <!-- Si hay fotos, mostrar el carrusel -->
+        <ngb-carousel *ngIf="punto?.fotos?.length; else sinFotos" [interval]="3000" [wrap]="true" [pauseOnHover]="true">
+          <ng-template ngbSlide *ngFor="let foto of punto?.fotos">
+            <div class="carousel-img-wrapper">
+              <img [src]="foto" alt="Foto del punto" />
+            </div>
+          </ng-template>
+        </ngb-carousel>
+
+        <!-- Si no hay fotos, mostrar imagen por defecto -->
+        <ng-template #sinFotos>
+          <div class="carousel-img-wrapper">
+            <img src="noImage.png" alt="Imagen por defecto" />
+          </div>
+        </ng-template>
+      </div>
+
+
+      <div class="botones">
+        <button class="btn-primary" (click)="eliminar()">Eliminar</button>
+        <button class="btn-secondary" routerLink="/puntos-localizacion">Volver</button>
+      </div>
+    </div>
+
+    <div class="mapa-preview">
+      <div id="map-preview"></div>
+    </div>
   </div>
 
-  <div class="acciones">
-    <button class="btn eliminar" (click)="eliminar()">Eliminar</button>
-    <button class="btn volver" routerLink="/puntos-localizacion">Volver</button>
-  </div>
-</div>
-
-<div *ngIf="loading" class="loading">
-  Cargando punto...
-</div>
-
-<div *ngIf="error" class="error">
-  {{ error }}
+  <div *ngIf="loading" class="loading">Cargando punto...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
 </div>
