@@ -57,7 +57,7 @@ export class TopBarComponent {
           {
             label: 'Ver todos los puntos en el Mapa',
             icon: 'fas fa-map-marked-alt',
-            action: () => alert('Mostrando mapa...')
+            action: () => this.router.navigate(['/puntos/mapa'])
           },
           {
             label: 'Nuevo Punto',

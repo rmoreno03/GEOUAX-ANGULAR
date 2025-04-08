@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="contenedor-mapa">
+    <aside class="sidebar">
+      <h3 class="titulo-sidebar">PUNTOS</h3>
+      <ul class="lista-puntos">
+        <li
+          *ngFor="let punto of puntos"
+          (click)="centrarPunto(punto)"
+          class="item-punto"
+        >
+          {{ punto.nombre }}
+        </li>
+      </ul>
+    </aside>
+
+    <section class="mapa-principal">
+      <div id="mapa" class="mapa-gl"></div>
+    </section>
+  </div>
+</div>
