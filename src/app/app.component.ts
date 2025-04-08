@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './app.module';
 
 @Component({
   selector: 'app-root',
@@ -8,4 +11,13 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
 
+  constructor(private router: Router) {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.router.navigate(['/puntos']);
+      } else {
+        this.router.navigate(['/auth/login']);
+      }
+    });
+  }
 }

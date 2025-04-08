@@ -6,14 +6,11 @@ import { NoAuthGuard } from './auth/guards/no-auth.guard';
 import { AuthLayoutComponent } from './auth/layout/auth-layout/auth-layout.component';
 
 const routes: Routes = [
-  // Redirige a login si entra vacío
   {
     path: '',
     redirectTo: 'auth/login',
     pathMatch: 'full',
   },
-
-  // Rutas protegidas por autenticación
   {
     path: '',
     component: FeaturesLayoutComponent,
@@ -22,11 +19,9 @@ const routes: Routes = [
       {
         path: 'puntos',
         loadChildren: () => import('./features/puntos-localizacion/puntos-localizacion.module').then(m => m.PuntosLocalizacionModule)
-      },
+      }
     ]
   },
-
-  // Rutas de autenticación (login/register) usando canActivateChild
   {
     path: 'auth',
     component: AuthLayoutComponent,
@@ -38,13 +33,12 @@ const routes: Routes = [
       }
     ]
   },
-
-  // Ruta wildcard
   {
     path: '**',
     redirectTo: 'auth/login'
   }
 ];
+
 
 
 @NgModule({
