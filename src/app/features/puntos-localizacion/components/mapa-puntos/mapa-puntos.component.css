@@ -11,7 +11,7 @@
 .container {
   padding: 32px;
   max-width: 100%;
-  width: 100%;
+  width: 400vh;
   height: 90vh;
   margin: 0 auto;
   background: #fff;
@@ -34,7 +34,7 @@
 
 /* Barra lateral izquierda */
 .sidebar {
-  width: 280px;
+  width: 380px;
   padding: 24px;
   background: #fdfdfd;
   border-right: 1px solid #e0e0e0;

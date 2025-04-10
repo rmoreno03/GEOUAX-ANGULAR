@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import "primeicons/primeicons.css";
 
 * {
   font-family: 'Poppins', sans-serif;
@@ -98,6 +99,32 @@ h2 {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 
+.btn-warning {
+  background: linear-gradient(135deg, #ff9900, #f3722c);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  text-transform: uppercase;
+}
+
+.btn-warning:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+}
+
+button i {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+
+
 .mapa-preview {
   flex: 1 1 400px;
   border-radius: 12px;
@@ -143,6 +170,69 @@ h2 {
   object-fit: contain;
   border-radius: 12px;
 }
+
+.form-edicion {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.form-edicion label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #d71920;
+  font-size: 0.95rem;
+}
+
+.form-edicion input,
+.form-edicion textarea {
+  padding: 10px 12px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+  transition: border-color 0.2s ease;
+}
+
+.form-edicion input:focus,
+.form-edicion textarea:focus {
+  border-color: #f7941d;
+  outline: none;
+}
+
+.form-botones {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.instrucciones-mapa {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Animación suave al mostrar el panel de edición */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 
 /* Responsive */

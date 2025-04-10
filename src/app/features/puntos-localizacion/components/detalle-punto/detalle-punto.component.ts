@@ -4,6 +4,7 @@ import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.ser
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
 import mapboxgl from 'mapbox-gl';
 import { environment } from '../../../../../environments/environment'; // asegúrate de tener tu token aquí
+import { Timestamp } from 'firebase/firestore';
 
 @Component({
   standalone: false,
@@ -16,6 +17,9 @@ export class DetallePuntoComponent implements AfterViewInit {
   loading = true;
   error: string = '';
   map!: mapboxgl.Map;
+  modoEdicion = false;
+  fechaLocal = '';
+
 
   constructor(
     private route: ActivatedRoute,
@@ -53,9 +57,31 @@ export class DetallePuntoComponent implements AfterViewInit {
       zoom: 14
     });
 
+
     new mapboxgl.Marker({ color: '#d71920' })
       .setLngLat([this.punto.longitud, this.punto.latitud])
       .addTo(this.map);
+
+      let marker = new mapboxgl.Marker({ color: '#d71920' })
+        .setLngLat([this.punto.longitud, this.punto.latitud])
+        .addTo(this.map);
+
+      // Permitir mover el marcador haciendo clic en el mapa (solo en edición)
+      this.map.on('click', (event) => {
+        if (!this.modoEdicion || !this.punto) return;
+
+        const { lng, lat } = event.lngLat;
+
+        // Actualiza coordenadas en el modelo
+        this.punto.latitud = lat;
+        this.punto.longitud = lng;
+
+
+        // Mueve el marcador
+        marker.setLngLat([lng, lat]);
+        this.map.flyTo({ center: [lng, lat], zoom: 14 });
+
+      });
   }
 
   async eliminar(): Promise<void> {
@@ -77,4 +103,42 @@ export class DetallePuntoComponent implements AfterViewInit {
       hour12: false
     }).replace(',', '');
   }
+
+  toggleEdicion() {
+    this.modoEdicion = !this.modoEdicion;
+
+    // Convertir timestamp a datetime-local si existe
+    if (this.punto?.fechaCreacion?.toDate) {
+      const fecha = this.punto.fechaCreacion.toDate();
+      this.fechaLocal = fecha.toISOString().slice(0, 16); // formato para input[type=datetime-local]
+    }
+  }
+
+  cancelarEdicion() {
+    this.modoEdicion = false;
+
+    if (this.punto?.id) {
+      this.ngAfterViewInit(); // Recargar datos y reinicializar el mapa
+    }
+  }
+
+  async guardarCambios(): Promise<void> {
+    if (!this.punto?.id) return;
+
+
+    const puntoActualizado: PuntoLocalizacion = {
+      ...this.punto,
+    };
+
+    try {
+      await this.puntosService.actualizarPunto(puntoActualizado);
+      this.modoEdicion = false;
+      alert('Punto actualizado con éxito');
+      this.inicializarMapa();
+    } catch (err) {
+      console.error('Error al actualizar el punto', err);
+      alert('Hubo un error al guardar los cambios.');
+    }
+  }
+
 }

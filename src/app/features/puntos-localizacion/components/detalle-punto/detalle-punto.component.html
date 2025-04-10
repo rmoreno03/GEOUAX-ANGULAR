@@ -1,46 +1,96 @@
 <div class="container">
   <div class="detalle-punto-wrapper">
+    <!-- Información del punto -->
     <div class="info-punto">
       <h2>{{ punto?.nombre }}</h2>
 
-      <div class="info">
+      <!-- 🟡 DETALLE -->
+      <div *ngIf="!modoEdicion" class="info">
         <p><strong>Descripción:</strong> {{ punto?.descripcion }}</p>
         <p><strong>Latitud:</strong> {{ punto?.latitud }}</p>
         <p><strong>Longitud:</strong> {{ punto?.longitud }}</p>
-        <p><strong>Fecha de creación:</strong> {{ formatFecha(punto?.fechaCreacion)}}</p>
+        <p><strong>Fecha de creación:</strong> {{ formatFecha(punto?.fechaCreacion) }}</p>
         <p><strong>Usuario creador:</strong> {{ punto?.usuarioCreador }}</p>
-      </div>
 
-      <div class="carrusel-fotos">
-        <!-- Si hay fotos, mostrar el carrusel -->
-        <ngb-carousel *ngIf="punto?.fotos?.length; else sinFotos" [interval]="3000" [wrap]="true" [pauseOnHover]="true">
-          <ng-template ngbSlide *ngFor="let foto of punto?.fotos">
+        <div class="carrusel-fotos">
+          <ngb-carousel *ngIf="punto?.fotos?.length; else sinFotos" [interval]="3000" [wrap]="true" [pauseOnHover]="true">
+            <ng-template ngbSlide *ngFor="let foto of punto?.fotos">
+              <div class="carousel-img-wrapper">
+                <img [src]="foto" alt="Foto del punto" />
+              </div>
+            </ng-template>
+          </ngb-carousel>
+          <ng-template #sinFotos>
             <div class="carousel-img-wrapper">
-              <img [src]="foto" alt="Foto del punto" />
+              <img src="noImage.png" alt="Imagen por defecto" />
             </div>
           </ng-template>
-        </ngb-carousel>
-
-        <!-- Si no hay fotos, mostrar imagen por defecto -->
-        <ng-template #sinFotos>
-          <div class="carousel-img-wrapper">
-            <img src="noImage.png" alt="Imagen por defecto" />
-          </div>
-        </ng-template>
+        </div>
       </div>
 
+      <!-- 🟢 FORMULARIO DE EDICIÓN -->
+      <div *ngIf="modoEdicion" class="form-edicion">
+        <form (ngSubmit)="guardarCambios()">
+          <label>
+            Nombre:
+            <input type="text" [(ngModel)]="punto!.nombre" name="nombre" required />
+          </label>
 
+          <label>
+            Descripción:
+            <textarea [(ngModel)]="punto!.descripcion" name="descripcion"></textarea>
+          </label>
+
+          <label>
+            Latitud:
+            <input type="number" [(ngModel)]="punto!.latitud" name="latitud" step="any" required />
+          </label>
+
+          <label>
+            Longitud:
+            <input type="number" [(ngModel)]="punto!.longitud" name="longitud" step="any" required />
+          </label>
+
+          <div class="instrucciones-mapa">
+            Puedes hacer clic en el mapa para actualizar las coordenadas
+          </div>
+
+          <div class="form-botones">
+            <button class="btn-primary" *ngIf="modoEdicion" type="submit">
+              <i class="pi pi-save"></i> Guardar
+            </button>
+
+            <button type="button" class="btn-secondary" *ngIf="modoEdicion" (click)="cancelarEdicion()">
+              <i class="pi pi-times"></i> Cancelar
+            </button>
+
+          </div>
+        </form>
+      </div>
+
+      <!-- BOTONES -->
       <div class="botones">
-        <button class="btn-primary" (click)="eliminar()">Eliminar</button>
-        <button class="btn-secondary" routerLink="/puntos-localizacion">Volver</button>
+        <button class="btn-primary" *ngIf="!modoEdicion" (click)="eliminar()">
+          <i class="pi pi-trash"></i> Eliminar
+        </button>
+
+        <button class="btn-warning" *ngIf="!modoEdicion" (click)="toggleEdicion()">
+          <i class="pi pi-pencil"></i> Editar
+        </button>
+
+        <button class="btn-secondary" *ngIf="!modoEdicion" routerLink="/puntos-localizacion">
+          <i class="pi pi-arrow-left"></i> Volver
+        </button>
       </div>
     </div>
 
+    <!-- MAPA (siempre visible) -->
     <div class="mapa-preview">
       <div id="map-preview"></div>
     </div>
   </div>
 
+  <!-- LOADING / ERROR -->
   <div *ngIf="loading" class="loading">Cargando punto...</div>
   <div *ngIf="error" class="error">{{ error }}</div>
 </div>

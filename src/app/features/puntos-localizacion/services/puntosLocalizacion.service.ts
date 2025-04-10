@@ -113,10 +113,17 @@ export class PuntosLocalizacionService {
     await addDoc(this.collectionRef, punto);
   }
 
-  async actualizarPunto(id: string, punto: Partial<PuntoLocalizacion>): Promise<void> {
-    const docRef = doc(this.collectionRef, id);
-    await updateDoc(docRef, punto);
+  async actualizarPunto(punto: PuntoLocalizacion): Promise<void> {
+    const docRef = doc(this.collectionRef, punto.id);
+    await updateDoc(docRef, {
+      nombre: punto.nombre,
+      descripcion: punto.descripcion,
+      latitud: punto.latitud,
+      longitud: punto.longitud,
+      fechaCreacion: punto.fechaCreacion,
+    });
   }
+
 
   async eliminarPunto(id: string): Promise<void> {
     const docRef = doc(this.collectionRef, id);
