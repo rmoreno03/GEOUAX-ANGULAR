@@ -1,0 +1,14 @@
+<div class="info-panel" [class.open]="isOpen">
+  <button class="close-btn" (click)="close()">✕</button>
+
+  <div class="info-panel-content">
+    <div class="accordion-section" *ngFor="let item of infoItems">
+      <button (click)="toggle(item)">
+        {{ item.title }}
+      </button>
+      <div class="content" *ngIf="item.open" [innerHTML]="item.content">
+        {{ item.content }}
+      </div>
+    </div>
+  </div>
+</div>

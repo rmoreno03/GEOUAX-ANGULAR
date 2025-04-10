@@ -28,7 +28,8 @@ export class PuntosLocalizacionComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacion();
+      //this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacion(); para ver todos los puntos de todos los usuarios
+      this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacionPorUsuario(this.puntosLocalizacionService.getUserId() || '');
       this.puntosFiltrados = [...this.puntosLocalizacion];
 
       this.filterService.filter$.subscribe(filtro => {
@@ -117,9 +118,6 @@ export class PuntosLocalizacionComponent implements OnInit {
       hour12: false
     }).replace(',', '');
   }
-
-
-
 
 
 

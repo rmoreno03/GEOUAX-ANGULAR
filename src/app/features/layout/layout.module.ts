@@ -6,6 +6,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { FeaturesLayoutComponent } from './pages/features-layout/features-layout.component';
+import { InfoPanelComponent } from './components/footer/info-panel/info-panel.component';
 
 
 
@@ -14,19 +15,24 @@ import { FeaturesLayoutComponent } from './pages/features-layout/features-layout
     SidebarComponent,
     FooterComponent,
     TopBarComponent,
-    FeaturesLayoutComponent
+    FeaturesLayoutComponent,
+    InfoPanelComponent,
+
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    FormsModule
+    FormsModule,
+
+
   ],
   exports: [
     SidebarComponent,
     FooterComponent,
     TopBarComponent,
-    FeaturesLayoutComponent
+    FeaturesLayoutComponent,
+    InfoPanelComponent
   ]
 })
 export class LayoutModule { }

@@ -80,6 +80,40 @@
   color: #999;
 }
 
+.footer-link {
+  all: unset; /* elimina todos los estilos por defecto del botón */
+  color: #d71920;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+
+.footer-link::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  left: 0;
+  bottom: -3px;
+  background-color: #f7941d;
+  transition: width 0.3s ease-in-out;
+}
+
+.footer-link:hover {
+  color: #f7941d;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+
+
+
 /* Responsive */
 @media (max-width: 600px) {
   .footer {

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+
 @Component({
   selector: 'app-footer',
   standalone: false,
@@ -7,5 +8,15 @@ import { Component } from '@angular/core';
   styleUrl: './footer.component.css'
 })
 export class FooterComponent {
+
+  isInfoPanelOpen = false;
+
+  openInfoPanel() {
+    this.isInfoPanelOpen = true;
+  }
+
+  closeInfoPanel() {
+    this.isInfoPanelOpen = false;
+  }
 
 }

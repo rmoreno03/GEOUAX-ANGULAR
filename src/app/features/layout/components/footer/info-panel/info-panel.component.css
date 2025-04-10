@@ -1,0 +1,122 @@
+.info-panel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 320px;
+  height: 100%;
+  background: #ffffff;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+  transition: right 0.4s ease;
+  padding: 1.5rem;
+  z-index: 999;
+  font-family: 'Poppins', sans-serif;
+  border-left: 0 solid transparent;
+}
+.info-panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: linear-gradient(to bottom, #6a0dad, #bb1c9d, #f3722c);
+  z-index: 1;
+  border-radius: 0 4px 4px 0;
+}
+.info-panel.open {
+  right: 0;
+}
+
+
+.close-btn {
+  float: right;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #bb1c9d;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.close-btn:hover {
+  transform: scale(1.2);
+}
+
+.accordion-section {
+  margin-top: 2rem;
+}
+
+.accordion-section button {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  color: #d71920;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s ease;
+}
+.accordion-section button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: #f7941d;
+  transition: width 0.3s ease-in-out;
+}
+.accordion-section button:hover {
+  color: #f7941d;
+}
+.accordion-section button:hover::after {
+  width: 100%;
+}
+
+.content {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #444;
+  padding-left: 0.5rem;
+  border-left: 2px solid #f7941d;
+}
+
+.info-panel-content {
+  max-height: calc(100% - 40px); /* deja espacio para el botón cerrar */
+  overflow-y: auto;
+  padding-right: 0.5rem; /* espacio para que no se solape con scroll */
+}
+
+/* Personalización del scrollbar (opcional y moderno) */
+.info-panel-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.info-panel-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6a0dad, #bb1c9d, #f3722c);
+  border-radius: 3px;
+}
+
+
+.info-panel-content::-webkit-scrollbar-track {
+  background: #f2f2f2;
+}
+
+.content p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.content ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.content li {
+  margin-bottom: 0.5rem;
+  list-style: disc;
+}
+
+

@@ -4,6 +4,7 @@ import { db } from '../../../app.module';
 import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuth } from 'firebase/auth';
 
 @Injectable({
   providedIn: 'root'
@@ -12,12 +13,33 @@ export class PuntosLocalizacionService {
 
   private collectionRef = collection(db, 'puntos_localizacion');
 
+
+
   constructor() {}
 
   async cargarPuntosLocalizacion(): Promise<PuntoLocalizacion[]> {
     const puntosSnapshot = await getDocs(this.collectionRef);
 
     return puntosSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        nombre: (data['nombre'] || '').replace(/^"|"$/g, ''),
+        descripcion: (data['descripcion'] || '').replace(/^"|"$/g, ''),
+        latitud: data['latitud'] || 0,
+        longitud: data['longitud'] || 0,
+        fechaCreacion: data['fechaCreacion'] || '',
+        foto: data['foto'] || '',
+        usuarioCreador: data['usuarioCreador'] || ''
+      };
+    });
+  }
+
+  async cargarPuntosLocalizacionPorUsuario(usuarioId: string): Promise<PuntoLocalizacion[]> {
+    const q = query(this.collectionRef, where('usuarioCreador', '==', usuarioId));
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -80,7 +102,7 @@ export class PuntosLocalizacionService {
       latitud: data['latitud'],
       longitud: data['longitud'],
       fechaCreacion: data['fechaCreacion'] || '',
-      fotos: data['fotos'] || [], // 🔥 usamos array de imágenes
+      fotos: data['fotos'] || [],
       usuarioCreador: data['usuarioCreador']
     };
   }
@@ -112,5 +134,11 @@ export class PuntosLocalizacionService {
     // Obtener la URL pública
     const url = await getDownloadURL(snapshot.ref);
     return url;
+  }
+
+  public getUserId(): string | null {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    return user ? user.uid : null;
   }
 }

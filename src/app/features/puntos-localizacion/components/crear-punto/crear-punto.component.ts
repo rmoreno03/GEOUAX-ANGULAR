@@ -5,6 +5,7 @@ import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.ser
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
 import { Router } from '@angular/router';
 import { Timestamp } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 @Component({
   selector: 'app-crear-punto',
@@ -18,12 +19,15 @@ export class CrearPuntoComponent implements AfterViewInit {
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
   uploading = false;
+  private auth = getAuth();
+  private user = this.auth.currentUser;
+  private uid = this.user?.uid;
 
 
   punto: Partial<PuntoLocalizacion> = {
     nombre: '',
     descripcion: '',
-    usuarioCreador: '1',
+    usuarioCreador: this.uid,
     latitud: 0,
     longitud: 0,
     fechaCreacion: Timestamp.now(),

@@ -12,6 +12,9 @@ import { SharedModule } from './shared/shared.module';
 import { FeaturesLayoutComponent } from './features/layout/pages/features-layout/features-layout.component';
 import { AuthLayoutComponent } from './features/layout/pages/auth-layout/auth-layout.component';
 import { LayoutModule } from './features/layout/layout.module';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeng/themes/aura';
 
 // Inicializar Firebase
 const app = initializeApp(environment.firebase);
@@ -30,7 +33,14 @@ export const auth = getAuth(app);
     CommonModule,
     LayoutModule
   ],
-  providers: [],
+  providers: [
+    provideAnimationsAsync(),
+        providePrimeNG({
+            theme: {
+                preset: Aura
+            }
+        })
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

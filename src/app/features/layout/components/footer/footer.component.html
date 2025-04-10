@@ -6,6 +6,11 @@
       <a href="https://www.cimpa.com/es" target="_blank" rel="noopener noreferrer">CIMPA</a>
       <span>|</span>
       <a href="https://www.uax.com" target="_blank" rel="noopener noreferrer">Universidad Alfonso X el Sabio (UAX)</a>
+      <span>|</span>
+      <button (click)="openInfoPanel()" class="footer-link">Información</button>
     </div>
   </div>
 </footer>
+
+<!-- Panel lateral fuera del footer -->
+<app-info-panel [isOpen]="isInfoPanelOpen" (closePanel)="closeInfoPanel()"></app-info-panel>
