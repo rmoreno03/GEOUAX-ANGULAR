@@ -54,7 +54,7 @@ export class DetallePuntoComponent implements AfterViewInit {
       container: 'map-preview',
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [this.punto.longitud, this.punto.latitud],
-      zoom: 14
+      zoom: 16
     });
 
 

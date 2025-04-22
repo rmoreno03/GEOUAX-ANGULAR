@@ -20,7 +20,7 @@ export class MapaPuntosComponent implements AfterViewInit {
 
   async ngAfterViewInit(): Promise<void> {
     try {
-      this.puntos = await this.puntosService.cargarPuntosLocalizacion();
+      this.puntos = await this.puntosService.cargarPuntosLocalizacionPorUsuario(this.puntosService.getUserId() || '');
       this.initMapa();
     } catch (error) {
       this.error = 'No se pudieron cargar los puntos.';

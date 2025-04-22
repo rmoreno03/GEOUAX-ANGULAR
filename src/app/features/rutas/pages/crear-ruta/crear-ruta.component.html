@@ -1,0 +1,60 @@
+<div class="container">
+  <h2>Crear Nueva Ruta</h2>
+  <div class="crear-punto-wrapper">
+    <!-- FORMULARIO -->
+    <div class="formulario">
+      <form [formGroup]="formulario" (ngSubmit)="guardarRuta()">
+        <label for="nombre">Nombre de la Ruta</label>
+        <input type="text" formControlName="nombre" id="nombre" placeholder="Ej. Ruta por el centro" required />
+
+        <label for="tipoRuta">Tipo de Ruta</label>
+          <p-dropdown
+            formControlName="tipoRuta"
+            [options]="tiposRuta"
+            optionLabel="label"
+            [style]="{ width: '100%' }"
+            placeholder="Selecciona el tipo de ruta"
+            inputId="tipoRuta"
+            [filter]="false"
+            [showClear]="false"
+            [dropdownIcon]="'pi pi-chevron-down'"
+            [styleClass]="'dropdown-custom'"
+          >
+            <ng-template let-option pTemplate="selectedItem">
+              <i [ngClass]="option.icon" style="margin-right: 8px"></i>
+              {{ option.label }}
+            </ng-template>
+            <ng-template let-option pTemplate="item">
+              <i [ngClass]="option.icon" style="margin-right: 8px"></i>
+              {{ option.label }}
+            </ng-template>
+          </p-dropdown>
+
+
+
+        <label class="subtitulo">Selecciona los puntos</label>
+        <div class="lista-puntos">
+          <div
+            *ngFor="let punto of puntos"
+            (click)="toggleSeleccion(punto)"
+            [class.seleccionado]="estaSeleccionado(punto)"
+            class="punto"
+          >
+            <strong>{{ punto.nombre }}</strong><br />
+            <small>{{ punto.descripcion }}</small>
+          </div>
+        </div>
+
+        <div class="botones">
+          <button type="submit" class="btn-primary">Guardar Ruta</button>
+          <button type="button" class="btn-secondary" routerLink="/rutas/mis-rutas">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- MAPA -->
+    <div class="mapa-preview">
+      <div id="map-preview"></div>
+    </div>
+  </div>
+</div>
