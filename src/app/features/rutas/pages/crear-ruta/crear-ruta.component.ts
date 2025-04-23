@@ -40,13 +40,17 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
       tipoRuta: ['driving']
     });
 
-    const userId = this.puntosService.getUserId();
-      if (userId) {
-        this.puntosService.cargarPuntosLocalizacionPorUsuario(userId).then(data => {
-          this.puntos = data;
-        });
-      }
+    // 🔁 Recalcular ruta automáticamente al cambiar tipo de ruta
+    this.formulario.get('tipoRuta')?.valueChanges.subscribe(() => {
+      setTimeout(() => this.actualizarMapa(), 0);
+    });
 
+    const userId = this.puntosService.getUserId();
+    if (userId) {
+      this.puntosService.cargarPuntosLocalizacionPorUsuario(userId).then(data => {
+        this.puntos = data;
+      });
+    }
   }
 
   ngAfterViewInit(): void {
@@ -54,7 +58,7 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
     this.map = new mapboxgl.Map({
       container: 'map-preview',
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-3.7038, 40.4168], // Madrid
+      center: [-3.7038, 40.4168],
       zoom: 6
     });
   }
@@ -66,26 +70,18 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
     } else {
       this.puntosSeleccionados.push(punto);
     }
-
     this.actualizarMapa();
   }
 
   async actualizarMapa() {
     if (!this.map) return;
 
-    // Limpiar marcadores
     const markers = document.getElementsByClassName('mapboxgl-marker');
     while (markers.length > 0) markers[0].remove();
 
-    // Eliminar línea anterior
-    if (this.map.getLayer(this.lineLayerId)) {
-      this.map.removeLayer(this.lineLayerId);
-    }
-    if (this.map.getSource(this.lineLayerId)) {
-      this.map.removeSource(this.lineLayerId);
-    }
+    if (this.map.getLayer(this.lineLayerId)) this.map.removeLayer(this.lineLayerId);
+    if (this.map.getSource(this.lineLayerId)) this.map.removeSource(this.lineLayerId);
 
-    // Añadir marcadores
     this.puntosSeleccionados.forEach(punto => {
       new mapboxgl.Marker({ color: '#d71920' })
         .setLngLat([punto.longitud, punto.latitud])
@@ -93,55 +89,31 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
         .addTo(this.map);
     });
 
-    // Dibujar ruta lógica si hay al menos 2 puntos
     if (this.puntosSeleccionados.length >= 2) {
-      const waypoints = this.puntosSeleccionados
-        .filter(p => p.latitud !== 0 && p.longitud !== 0)
-        .map(p => ({
-          coordinates: [p.longitud, p.latitud]
-        }));
-
-      if (waypoints.length < 2) {
-        console.warn('No hay suficientes puntos válidos para trazar una ruta lógica.');
-        return;
-      }
-
+      const waypoints = this.puntosSeleccionados.map(p => ({ coordinates: [p.longitud, p.latitud] }));
 
       try {
+        const tipoRuta = this.formulario.value.tipoRuta?.value || this.formulario.value.tipoRuta || 'driving';
         const response = await this.directionsClient.getDirections({
-          profile: this.formulario.value.tipoRuta || 'driving',
+          profile: tipoRuta,
           waypoints,
           geometries: 'geojson'
         }).send();
 
-        console.log('RUTA GENERADA:', response.body);
-
         const geojson = response.body.routes[0].geometry;
-
-        this.map.addSource(this.lineLayerId, {
-          type: 'geojson',
-          data: geojson
-        });
-
+        this.map.addSource(this.lineLayerId, { type: 'geojson', data: geojson });
         this.map.addLayer({
           id: this.lineLayerId,
           type: 'line',
           source: this.lineLayerId,
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#f7941d',
-            'line-width': 5
-          }
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': '#f7941d', 'line-width': 5 }
         });
       } catch (error) {
         console.error('Error al calcular ruta lógica:', error);
       }
     }
 
-    // Centrar en el último punto
     if (this.puntosSeleccionados.length > 0) {
       const ultimo = this.puntosSeleccionados[this.puntosSeleccionados.length - 1];
       this.map.flyTo({ center: [ultimo.longitud, ultimo.latitud], zoom: 12 });
@@ -158,11 +130,11 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
     await this.rutasService.crearRuta({
       nombre,
       puntos: this.puntosSeleccionados,
-      tipoRuta: this.formulario.value.tipoRuta,
+      tipoRuta: this.formulario.value.tipoRuta?.value || this.formulario.value.tipoRuta || 'driving',
     });
 
     alert('Ruta guardada correctamente');
-    this.formulario.reset();
+    this.formulario.reset({ tipoRuta: 'driving' });
     this.puntosSeleccionados = [];
     this.actualizarMapa();
   }
