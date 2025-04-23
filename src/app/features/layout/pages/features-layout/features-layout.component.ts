@@ -12,6 +12,6 @@ export class FeaturesLayoutComponent {
 
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
+    localStorage.setItem('sidebarCollapsed', this.sidebarCollapsed.toString());
   }
-
 }

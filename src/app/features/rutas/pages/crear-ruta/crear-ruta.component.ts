@@ -19,9 +19,9 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
   puntosSeleccionados: PuntoLocalizacion[] = [];
 
   tiposRuta = [
-    { label: 'Conduciendo', value: 'driving', icon: 'pi pi-car' },
-    { label: 'Caminando', value: 'walking', icon: 'pi pi-walking' },
-    { label: 'En bicicleta', value: 'cycling', icon: 'pi pi-directions' }
+    { label: 'Conduciendo', value: 'driving', icon: 'fa-solid fa-car' },
+    { label: 'Caminando', value: 'walking', icon: 'fa-solid fa-person-walking' },
+    { label: 'En bicicleta', value: 'cycling', icon: 'fa-solid fa-bicycle' }
   ];
 
   map!: mapboxgl.Map;

@@ -1,13 +1,15 @@
-* {
+/* Aplica Poppins a todo, menos a los iconos de Font Awesome */
+*:not(i[class^="fa"]) {
   font-family: 'Poppins', sans-serif;
   box-sizing: border-box;
 }
 
+
 body {
   background: #f4f4f4;
-  color: #1a1a1a;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 .container {
@@ -141,33 +143,41 @@ input[type='text']:focus {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 
-/* Estilo visual integrado para el dropdown PrimeNG */
+/* Reemplaza este selector si ya tienes algo similar */
 .dropdown-custom.p-dropdown {
+  position: relative;
   border-radius: 10px;
   border: 1px solid #ccc;
   font-size: 1rem;
   padding: 6px 12px;
   height: 48px;
   box-shadow: none;
+  background: #fff;
 }
 
-.dropdown-custom.p-dropdown:focus-within {
-  border-color: #f7941d;
-  box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.2);
+/* Flecha de FontAwesome a la derecha */
+.dropdown-custom.p-dropdown::after {
+  content: '\f078'; /* Unicode de fa-chevron-down */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #f7941d;
+  font-size: 1rem;
 }
 
+/* Espacio para que no se solape la flecha con el texto */
 .dropdown-custom .p-dropdown-label {
-  padding: 0 12px;
-  line-height: 1.5rem;
+  padding-right: 28px;
 }
 
-.dropdown-custom .p-dropdown-panel {
-  border-radius: 12px;
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
-}
-
-.p-dropdown-item i {
-  margin-right: 10px;
+/* Iconos de las opciones */
+.fa-dropdown-icon {
+  margin-right: 8px;
+  color: #f7941d;
 }
 
 

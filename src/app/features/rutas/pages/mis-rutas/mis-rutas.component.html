@@ -1,0 +1,19 @@
+<div class="container">
+  <h2>Mis Rutas</h2>
+  <div class="rutas-grid">
+    <div class="tarjeta-ruta" *ngFor="let ruta of rutas">
+      <div class="mapa-ruta" [id]="'map-' + ruta.id"></div>
+      <div class="contenido">
+        <div class="header">
+          <h3>{{ ruta.nombre }}</h3>
+          <span class="tipo">
+            <i [class]="getIconoRuta(ruta.tipoRuta)"></i>
+            {{ ruta.tipoRuta | titlecase }}
+          </span>
+        </div>
+        <p><strong>Puntos:</strong> {{ ruta.puntos.length }}</p>
+        <p><strong>Creada:</strong> {{ ruta.fechaCreacion.toDate() | date: 'mediumDate' }}</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -8,29 +8,27 @@
         <input type="text" formControlName="nombre" id="nombre" placeholder="Ej. Ruta por el centro" required />
 
         <label for="tipoRuta">Tipo de Ruta</label>
-          <p-dropdown
-            formControlName="tipoRuta"
-            [options]="tiposRuta"
-            optionLabel="label"
-            [style]="{ width: '100%' }"
-            placeholder="Selecciona el tipo de ruta"
-            inputId="tipoRuta"
-            [filter]="false"
-            [showClear]="false"
-            [dropdownIcon]="'pi pi-chevron-down'"
-            [styleClass]="'dropdown-custom'"
-          >
-            <ng-template let-option pTemplate="selectedItem">
-              <i [ngClass]="option.icon" style="margin-right: 8px"></i>
-              {{ option.label }}
-            </ng-template>
-            <ng-template let-option pTemplate="item">
-              <i [ngClass]="option.icon" style="margin-right: 8px"></i>
-              {{ option.label }}
-            </ng-template>
-          </p-dropdown>
-
-
+        <p-dropdown
+          formControlName="tipoRuta"
+          [options]="tiposRuta"
+          optionLabel="label"
+          [style]="{ width: '100%' }"
+          placeholder="Selecciona el tipo de ruta"
+          inputId="tipoRuta"
+          [filter]="false"
+          [showClear]="false"
+          [dropdownIcon]="'pi pi-chevron-down'"
+          [styleClass]="'dropdown-custom'"
+        >
+          <ng-template let-option pTemplate="selectedItem">
+            <i [ngClass]="option.icon" class="fa-dropdown-icon"></i>
+            {{ option.label }}
+          </ng-template>
+          <ng-template let-option pTemplate="item">
+            <i [ngClass]="option.icon" class="fa-dropdown-icon"></i>
+            {{ option.label }}
+          </ng-template>
+        </p-dropdown>
 
         <label class="subtitulo">Selecciona los puntos</label>
         <div class="lista-puntos">
