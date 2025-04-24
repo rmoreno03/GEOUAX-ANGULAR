@@ -195,22 +195,4 @@ input[type='text']:focus {
   height: 72.5vh;
 }
 
-@media (max-width: 768px) {
-  .container {
-    padding: 20px;
-  }
 
-  h2 {
-    font-size: 1.6rem;
-  }
-
-  .crear-punto-wrapper {
-    flex-direction: column;
-  }
-
-  .btn-primary,
-  .btn-secondary {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-  }
-}

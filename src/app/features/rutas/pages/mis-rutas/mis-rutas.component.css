@@ -84,6 +84,49 @@ h2 {
   margin-right: 6px;
 }
 
+.acciones-tarjeta {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 1rem;
+  border-top: 1px solid #eaeaea;
+  margin-top: auto;
+  gap: 1rem;
+}
+
+.acciones-tarjeta button {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 10px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-detalle {
+  background: linear-gradient(135deg, #1f77b4, #4bb5f5);
+  color: white;
+}
+
+.btn-eliminar {
+  background: linear-gradient(135deg, #d71920, #f77c7c);
+  color: white;
+}
+
+.acciones-tarjeta button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {

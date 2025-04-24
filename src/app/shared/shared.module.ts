@@ -3,28 +3,31 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { DuracionPipe } from './pipes/duracion.pipe';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { PopupExitoComponent } from './components/popup-exito/popup-exito.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 
 
 @NgModule({
   declarations: [
-    DuracionPipe
+    DuracionPipe,
+    PopupExitoComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
     FormsModule,
-    ToastModule
+
   ],
   exports: [
     DuracionPipe,
-    ToastModule,
+    PopupExitoComponent,
+    ConfirmDialogComponent,
   ],
   providers: [
-    MessageService
+
   ],
 })
 export class SharedModule { }

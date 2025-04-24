@@ -4,6 +4,7 @@ import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.ser
 import { FilterService } from '../../../../core/services/filter.service';
 import { Timestamp } from 'firebase/firestore';
 import { OrdenService } from '../../../../core/services/orden.service';
+import { MessageService } from '../../../../core/services/message.service';
 
 
 @Component({
@@ -19,14 +20,26 @@ export class PuntosLocalizacionComponent implements OnInit {
   error = '';
   ordenCampo: string = '';
   ordenDireccion: 'asc' | 'desc' = 'asc';
+  mensajeTexto = '';
+  mostrarMensaje = false;
+  tipoMensaje: 'exito' | 'eliminado' | 'warning' = 'exito';
 
   constructor(
     private puntosLocalizacionService: PuntosLocalizacionService,
     private filterService: FilterService,
-    private ordenService: OrdenService
-  ) { }
+    private ordenService: OrdenService,
+    private messageService: MessageService
+  ) {}
 
   async ngOnInit(): Promise<void> {
+    const recibido = this.messageService.getMensaje();
+    if (recibido.texto) {
+      this.mensajeTexto = recibido.texto;
+      this.tipoMensaje = recibido.tipo;
+      this.mostrarMensaje = true;
+
+      setTimeout(() => this.mostrarMensaje = false, 3500);
+    }
     try {
       //this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacion(); para ver todos los puntos de todos los usuarios
       this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacionPorUsuario(this.puntosLocalizacionService.getUserId() || '');

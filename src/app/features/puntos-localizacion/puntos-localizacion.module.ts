@@ -7,6 +7,7 @@ import { DetallePuntoComponent } from './components/detalle-punto/detalle-punto.
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { MapaPuntosComponent } from './components/mapa-puntos/mapa-puntos.component';
+import { SharedModule } from '../../shared/shared.module';
 
 
 
@@ -26,7 +27,8 @@ import { MapaPuntosComponent } from './components/mapa-puntos/mapa-puntos.compon
     PuntosLocalizacionRoutingModule,
     ReactiveFormsModule,
     FormsModule,
-    NgbCarouselModule
+    NgbCarouselModule,
+    SharedModule
 
   ]
 })

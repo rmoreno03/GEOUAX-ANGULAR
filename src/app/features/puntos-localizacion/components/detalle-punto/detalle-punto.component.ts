@@ -3,8 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.service';
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
 import mapboxgl from 'mapbox-gl';
-import { environment } from '../../../../../environments/environment'; // asegúrate de tener tu token aquí
+import { environment } from '../../../../../environments/environment';
 import { Timestamp } from 'firebase/firestore';
+import { MessageService } from '../../../../core/services/message.service';
 
 @Component({
   standalone: false,
@@ -14,17 +15,22 @@ import { Timestamp } from 'firebase/firestore';
 })
 export class DetallePuntoComponent implements AfterViewInit {
   punto?: PuntoLocalizacion;
+  puntoOriginal: PuntoLocalizacion | null = null;
   loading = true;
   error: string = '';
   map!: mapboxgl.Map;
   modoEdicion = false;
   fechaLocal = '';
-
+  mostrarConfirmacion = false;
+  mensajeTexto = '';
+  mostrarMensaje = false;
+  tipoMensaje: 'exito' | 'warning' = 'exito';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private puntosService: PuntosLocalizacionService
+    private puntosService: PuntosLocalizacionService,
+    private messageService: MessageService
   ) {}
 
   async ngAfterViewInit(): Promise<void> {
@@ -33,6 +39,7 @@ export class DetallePuntoComponent implements AfterViewInit {
       try {
         const punto = await this.puntosService.obtenerPuntoPorId(id);
         this.punto = punto ?? undefined;
+        this.puntoOriginal = JSON.parse(JSON.stringify(punto));
 
         if (this.punto) {
           this.inicializarMapa();
@@ -57,39 +64,38 @@ export class DetallePuntoComponent implements AfterViewInit {
       zoom: 16
     });
 
-
-    new mapboxgl.Marker({ color: '#d71920' })
+    let marker = new mapboxgl.Marker({ color: '#d71920' })
       .setLngLat([this.punto.longitud, this.punto.latitud])
       .addTo(this.map);
 
-      let marker = new mapboxgl.Marker({ color: '#d71920' })
-        .setLngLat([this.punto.longitud, this.punto.latitud])
-        .addTo(this.map);
-
-      // Permitir mover el marcador haciendo clic en el mapa (solo en edición)
-      this.map.on('click', (event) => {
-        if (!this.modoEdicion || !this.punto) return;
-
-        const { lng, lat } = event.lngLat;
-
-        // Actualiza coordenadas en el modelo
-        this.punto.latitud = lat;
-        this.punto.longitud = lng;
-
-
-        // Mueve el marcador
-        marker.setLngLat([lng, lat]);
-        this.map.flyTo({ center: [lng, lat], zoom: 14 });
-
-      });
+    this.map.on('click', (event) => {
+      if (!this.modoEdicion || !this.punto) return;
+      const { lng, lat } = event.lngLat;
+      this.punto.latitud = lat;
+      this.punto.longitud = lng;
+      marker.setLngLat([lng, lat]);
+      this.map.flyTo({ center: [lng, lat], zoom: 14 });
+    });
   }
 
   async eliminar(): Promise<void> {
-    if (this.punto?.id && confirm('¿Estás seguro de que deseas eliminar este punto?')) {
-      await this.puntosService.eliminarPunto(this.punto.id);
-      this.router.navigate(['/puntos-localizacion']);
-    }
+    this.mostrarConfirmacion = true;
   }
+
+  confirmarEliminacion() {
+    if (this.punto?.id) {
+      this.puntosService.eliminarPunto(this.punto.id).then(() => {
+        this.messageService.setMensaje('Punto eliminado correctamente', 'eliminado');
+        this.router.navigate(['/puntos-localizacion']);
+      });
+    }
+    this.mostrarConfirmacion = false;
+  }
+
+  cancelarEliminacion() {
+    this.mostrarConfirmacion = false;
+  }
+
   formatFecha(fecha: any): string {
     if (!fecha?.toDate) return '';
     const date = fecha.toDate();
@@ -107,38 +113,54 @@ export class DetallePuntoComponent implements AfterViewInit {
   toggleEdicion() {
     this.modoEdicion = !this.modoEdicion;
 
-    // Convertir timestamp a datetime-local si existe
     if (this.punto?.fechaCreacion?.toDate) {
       const fecha = this.punto.fechaCreacion.toDate();
-      this.fechaLocal = fecha.toISOString().slice(0, 16); // formato para input[type=datetime-local]
+      this.fechaLocal = fecha.toISOString().slice(0, 16);
     }
   }
 
   cancelarEdicion() {
     this.modoEdicion = false;
-
     if (this.punto?.id) {
-      this.ngAfterViewInit(); // Recargar datos y reinicializar el mapa
+      this.ngAfterViewInit();
     }
   }
 
   async guardarCambios(): Promise<void> {
     if (!this.punto?.id) return;
 
+    if (!this.punto.nombre?.trim() || !this.punto.descripcion?.trim()) {
+      this.mensajeTexto = 'Completa todos los campos obligatorios.';
+      this.tipoMensaje = 'warning';
+      this.mostrarMensaje = true;
+      setTimeout(() => this.mostrarMensaje = false, 3500);
+      return;
+    }
 
-    const puntoActualizado: PuntoLocalizacion = {
-      ...this.punto,
-    };
+    const haCambiado = JSON.stringify(this.punto) !== JSON.stringify(this.puntoOriginal);
+    if (!haCambiado) {
+      this.mensajeTexto = 'No se han realizado cambios.';
+      this.tipoMensaje = 'warning';
+      this.mostrarMensaje = true;
+      setTimeout(() => this.mostrarMensaje = false, 3500);
+      return;
+    }
 
     try {
-      await this.puntosService.actualizarPunto(puntoActualizado);
+      await this.puntosService.actualizarPunto(this.punto);
       this.modoEdicion = false;
-      alert('Punto actualizado con éxito');
+      this.mensajeTexto = 'Punto actualizado con éxito';
+      this.tipoMensaje = 'exito';
+      this.mostrarMensaje = true;
+      setTimeout(() => this.mostrarMensaje = false, 3500);
+      this.puntoOriginal = JSON.parse(JSON.stringify(this.punto));
       this.inicializarMapa();
     } catch (err) {
       console.error('Error al actualizar el punto', err);
-      alert('Hubo un error al guardar los cambios.');
+      this.mensajeTexto = 'Hubo un error al guardar los cambios.';
+      this.tipoMensaje = 'warning';
+      this.mostrarMensaje = true;
+      setTimeout(() => this.mostrarMensaje = false, 3500);
     }
   }
-
 }

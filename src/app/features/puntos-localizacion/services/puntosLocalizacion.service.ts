@@ -121,6 +121,7 @@ export class PuntosLocalizacionService {
       latitud: punto.latitud,
       longitud: punto.longitud,
       fechaCreacion: punto.fechaCreacion,
+      fotos: punto.fotos,
     });
   }
 
@@ -131,16 +132,11 @@ export class PuntosLocalizacionService {
   }
 
   async subirFoto(file: File): Promise<string> {
-    const storage = getStorage(); // usa el Firebase Storage inicializado
+    const storage = getStorage();
     const nombreArchivo = `puntos/${uuidv4()}-${file.name}`;
     const storageRef = ref(storage, nombreArchivo);
-
-    // Subir el archivo
     const snapshot = await uploadBytes(storageRef, file);
-
-    // Obtener la URL pública
-    const url = await getDownloadURL(snapshot.ref);
-    return url;
+    return await getDownloadURL(snapshot.ref);
   }
 
   public getUserId(): string | null {

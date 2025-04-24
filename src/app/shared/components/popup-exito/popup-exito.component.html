@@ -1,0 +1,10 @@
+<div class="custom-toast" [ngClass]="tipo" *ngIf="mostrar">
+  <i class="fa-solid" [ngClass]="{
+    'fa-check-circle': tipo === 'exito',
+    'fa-trash': tipo === 'eliminado',
+    'fa-triangle-exclamation': tipo === 'warning'
+  }"></i>
+  <div>
+    <strong>{{ mensaje }}</strong>
+  </div>
+</div>

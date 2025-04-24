@@ -1,0 +1,53 @@
+.custom-toast {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background-color: #4BB543;
+  color: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  z-index: 99999;
+  animation: fadeInOut 4s ease-in-out;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  max-width: 400px;
+  min-width: 300px;
+
+  /* aplica Poppins a todo excepto íconos */
+  font-family: 'Poppins', sans-serif;
+}
+
+.custom-toast *:not(i[class^="fa"]) {
+  font-family: 'Poppins', sans-serif;
+}
+
+.custom-toast i {
+  font-size: 2rem;
+  font-family: 'Font Awesome 6 Free'; /* asegura que use FA correctamente */
+  font-weight: 900;
+}
+
+/* colores según tipo */
+.custom-toast.exito {
+  background-color: #4BB543;
+}
+
+.custom-toast.eliminado {
+  background-color: #d71920;
+}
+
+.custom-toast.warning {
+  background-color: #f8d775;
+  color: #5c3c00;
+}
+
+/* animación elegante de entrada-salida */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(100px); }
+  10% { opacity: 1; transform: translateX(0); }
+  65% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(100px); }
+}

@@ -1,0 +1,14 @@
+<div class="dialog-backdrop" *ngIf="visible">
+  <div class="dialog-box">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: #d71920; margin-bottom: 15px;"></i>
+    <p>{{ mensaje }}</p>
+    <div class="botones">
+      <button class="btn-danger" (click)="onConfirmar()">
+        <i class="fa-solid fa-trash"></i> Sí, eliminar
+      </button>
+      <button class="btn-secondary" (click)="onCancelar()">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>

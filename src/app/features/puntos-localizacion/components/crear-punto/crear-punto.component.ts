@@ -6,6 +6,7 @@ import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
 import { Router } from '@angular/router';
 import { Timestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { MessageService } from '../../../../core/services/message.service';
 
 @Component({
   selector: 'app-crear-punto',
@@ -19,6 +20,10 @@ export class CrearPuntoComponent implements AfterViewInit {
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
   uploading = false;
+  mostrarMensaje = false;
+  mensajeTexto = '';
+  tipoMensaje: 'exito' | 'eliminado' | 'warning' = 'exito';
+
   private auth = getAuth();
   private user = this.auth.currentUser;
   private uid = this.user?.uid;
@@ -36,7 +41,8 @@ export class CrearPuntoComponent implements AfterViewInit {
 
   constructor(
     private puntosService: PuntosLocalizacionService,
-    private router: Router
+    private router: Router,
+    private mensajeService: MessageService
   ) {}
 
   ngAfterViewInit(): void {
@@ -72,27 +78,29 @@ export class CrearPuntoComponent implements AfterViewInit {
       this.punto.descripcion &&
       this.punto.usuarioCreador &&
       this.punto.latitud !== undefined &&
-      this.punto.longitud !== undefined &&
-      this.punto.fechaCreacion
+      this.punto.longitud !== undefined
     ) {
       this.uploading = true;
-
-      // Subimos todas las fotos (puedes usar Firebase Storage aquí)
       const urls: string[] = [];
 
       for (const file of this.selectedFiles) {
-        const url = await this.puntosService.subirFoto(file); // implementa este método
+        const url = await this.puntosService.subirFoto(file);
         urls.push(url);
       }
 
       this.punto.fotos = urls;
 
       await this.puntosService.crearPunto(this.punto as PuntoLocalizacion);
-      this.uploading = false;
-      this.router.navigate(['/puntos']);
+      this.mensajeService.setMensaje('Punto creado con éxito!', 'exito');
+      this.router.navigate(['/puntos-localizacion']);
     } else {
-      alert('Por favor, completa todos los campos y selecciona una ubicación.');
+      this.mensajeTexto = 'Por favor, completa todos los campos y selecciona una ubicación.';
+      this.tipoMensaje = 'warning';
+      this.mostrarMensaje = true;
+      setTimeout(() => (this.mostrarMensaje = false), 3500);
     }
+
+    this.uploading = false;
   }
 
   onFotosSeleccionadas(event: any): void {
@@ -109,6 +117,4 @@ export class CrearPuntoComponent implements AfterViewInit {
       reader.readAsDataURL(file);
     });
   }
-
-
 }

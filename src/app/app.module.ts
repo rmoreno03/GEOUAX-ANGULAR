@@ -6,6 +6,7 @@ import { environment } from '../environments/environment';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from './shared/shared.module';
@@ -19,6 +20,7 @@ import Aura from '@primeng/themes/aura';
 const app = initializeApp(environment.firebase);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 
 @NgModule({
   declarations: [

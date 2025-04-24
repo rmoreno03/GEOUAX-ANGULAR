@@ -94,3 +94,19 @@
   <div *ngIf="loading" class="loading">Cargando punto...</div>
   <div *ngIf="error" class="error">{{ error }}</div>
 </div>
+
+
+<app-confirm-dialog
+  [visible]="mostrarConfirmacion"
+  mensaje="¿Estás seguro de que deseas eliminar este punto?"
+  (confirmar)="confirmarEliminacion()"
+  (cancelar)="cancelarEliminacion()">
+</app-confirm-dialog>
+
+<app-popup-exito
+  [mostrar]="mostrarMensaje"
+  [mensaje]="mensajeTexto"
+  [tipo]="tipoMensaje">
+</app-popup-exito>
+
+

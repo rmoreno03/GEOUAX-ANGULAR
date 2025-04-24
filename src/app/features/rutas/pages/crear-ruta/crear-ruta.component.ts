@@ -6,6 +6,8 @@ import { RutasService } from '../../services/rutas.service';
 import { environment } from '../../../../../environments/environment';
 import mapboxgl from 'mapbox-gl';
 import mbxDirections from '@mapbox/mapbox-sdk/services/directions';
+import { MessageService } from '../../../../core/services/message.service';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: false,
@@ -17,6 +19,9 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
   formulario!: FormGroup;
   puntos: PuntoLocalizacion[] = [];
   puntosSeleccionados: PuntoLocalizacion[] = [];
+  mostrarMensaje = false;
+  mensajeTexto = '';
+  tipoMensaje: 'exito' | 'eliminado' | 'warning' = 'exito';
 
   tiposRuta = [
     { label: 'Conduciendo', value: 'driving', icon: 'fa-solid fa-car' },
@@ -31,7 +36,9 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private puntosService: PuntosLocalizacionService,
-    private rutasService: RutasService
+    private rutasService: RutasService,
+    private mensajeService: MessageService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -40,7 +47,6 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
       tipoRuta: ['driving']
     });
 
-    // 🔁 Recalcular ruta automáticamente al cambiar tipo de ruta
     this.formulario.get('tipoRuta')?.valueChanges.subscribe(() => {
       setTimeout(() => this.actualizarMapa(), 0);
     });
@@ -123,9 +129,13 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
   async guardarRuta() {
     const nombre = this.formulario.value.nombre.trim();
     if (!nombre || this.puntosSeleccionados.length === 0) {
-      alert('Debes introducir un nombre y seleccionar al menos un punto.');
+      this.mensajeTexto = 'Debes introducir un nombre y seleccionar al menos un punto.';
+      this.tipoMensaje = 'warning';
+      this.mostrarMensaje = true;
+      setTimeout(() => this.mostrarMensaje = false, 3500);
       return;
     }
+
 
     await this.rutasService.crearRuta({
       nombre,
@@ -133,10 +143,17 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
       tipoRuta: this.formulario.value.tipoRuta?.value || this.formulario.value.tipoRuta || 'driving',
     });
 
-    alert('Ruta guardada correctamente');
+    this.mensajeService.setMensaje('Ruta guardada correctamente.', 'exito');
     this.formulario.reset({ tipoRuta: 'driving' });
     this.puntosSeleccionados = [];
-    this.actualizarMapa();
+    this.router.navigate(['/rutas/mis-rutas']);
+
+  }
+
+  mostrarPopupPersonalizado(texto: string) {
+    this.mensajeTexto = texto;
+    this.mostrarMensaje = true;
+    setTimeout(() => this.mostrarMensaje = false, 4000);
   }
 
   estaSeleccionado(punto: PuntoLocalizacion): boolean {
