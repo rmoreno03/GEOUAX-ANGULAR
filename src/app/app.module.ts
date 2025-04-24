@@ -9,13 +9,11 @@ import { getAuth } from 'firebase/auth';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from './shared/shared.module';
-import { FeaturesLayoutComponent } from './features/layout/pages/features-layout/features-layout.component';
 import { AuthLayoutComponent } from './features/layout/pages/auth-layout/auth-layout.component';
 import { LayoutModule } from './features/layout/layout.module';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
-import { ToastModule } from 'primeng/toast';
 
 // Inicializar Firebase
 const app = initializeApp(environment.firebase);
@@ -33,7 +31,7 @@ export const auth = getAuth(app);
     FormsModule,
     CommonModule,
     LayoutModule,
-    ToastModule
+    SharedModule,
   ],
   providers: [
     provideAnimationsAsync(),
@@ -41,7 +39,7 @@ export const auth = getAuth(app);
             theme: {
                 preset: Aura
             }
-        })
+        }),
   ],
   bootstrap: [AppComponent]
 })

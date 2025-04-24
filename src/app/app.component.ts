@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './app.module';
