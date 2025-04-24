@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { Ruta } from '../../../models/ruta.model';
+import { inject, Injectable } from '@angular/core';
 import {
+  Firestore,
   collection,
   addDoc,
   getDocs,
@@ -10,28 +10,27 @@ import {
   Timestamp,
   updateDoc,
   query,
-  where,
-} from 'firebase/firestore';
-import { db } from '../../../app.module';
-import { getAuth } from 'firebase/auth';
+  where
+} from '@angular/fire/firestore';
+import { Auth } from '@angular/fire/auth';
 import mbxDirections from '@mapbox/mapbox-sdk/services/directions';
 import { environment } from '../../../../environments/environment';
+import { Ruta } from '../../../models/ruta.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RutasService {
-
-  private rutasRef = collection(db, 'rutas');
+  private firestore = inject(Firestore);
+  private auth = inject(Auth);
+  private rutasRef = collection(this.firestore, 'rutas');
 
   directionsClient = mbxDirections({ accessToken: environment.mapbox_key });
 
   constructor() {}
 
   private getUserId(): string | null {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    return user ? user.uid : null;
+    return this.auth.currentUser?.uid ?? null;
   }
 
   async crearRuta(rutaParcial: Omit<Ruta, 'fechaCreacion' | 'usuarioCreador' | 'distanciaKm' | 'duracionMin'>): Promise<void> {
@@ -63,16 +62,20 @@ export class RutasService {
   async cargarRutasPorUsuario(usuarioId: string): Promise<Ruta[]> {
     const q = query(this.rutasRef, where('usuarioCreador', '==', usuarioId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      nombre: doc.data()['nombre'],
-      tipoRuta: doc.data()['tipoRuta'],
-      puntos: doc.data()['puntos'],
-      fechaCreacion: doc.data()['fechaCreacion'],
-      usuarioCreador: doc.data()['usuarioCreador'],
-      distanciaKm: doc.data()['distanciaKm'],
-      duracionMin: doc.data()['duracionMin']
-    }) as Ruta);
+
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        nombre: data['nombre'],
+        tipoRuta: data['tipoRuta'],
+        puntos: data['puntos'],
+        fechaCreacion: data['fechaCreacion'],
+        usuarioCreador: data['usuarioCreador'],
+        distanciaKm: data['distanciaKm'],
+        duracionMin: data['duracionMin']
+      } as Ruta;
+    });
   }
 
   async obtenerRutaPorId(id: string): Promise<Ruta | null> {
@@ -100,7 +103,4 @@ export class RutasService {
     const rutaDoc = doc(this.rutasRef, id);
     await deleteDoc(rutaDoc);
   }
-
-
-
 }

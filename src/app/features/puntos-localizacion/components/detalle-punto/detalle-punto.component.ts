@@ -1,11 +1,12 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, Inject, forwardRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.service';
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
 import mapboxgl from 'mapbox-gl';
 import { environment } from '../../../../../environments/environment';
-import { Timestamp } from 'firebase/firestore';
 import { MessageService } from '../../../../core/services/message.service';
+import { finalize } from 'rxjs/operators';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 
 @Component({
   standalone: false,
@@ -26,11 +27,16 @@ export class DetallePuntoComponent implements AfterViewInit {
   mostrarMensaje = false;
   tipoMensaje: 'exito' | 'warning' = 'exito';
 
+  fotosAEliminar: boolean[] = []; // Array para controlar las fotos marcadas para eliminar
+  nuevasFotos: string[] = []; // Array para almacenar las URLs de las nuevas fotos
+  subiendoFotos = false; // Controla el estado de carga de fotos
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private puntosService: PuntosLocalizacionService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    @Inject(forwardRef(() => AngularFireStorage)) private storage: AngularFireStorage // Usar forwardRef para romper la dependencia circular
   ) {}
 
   async ngAfterViewInit(): Promise<void> {
@@ -40,6 +46,11 @@ export class DetallePuntoComponent implements AfterViewInit {
         const punto = await this.puntosService.obtenerPuntoPorId(id);
         this.punto = punto ?? undefined;
         this.puntoOriginal = JSON.parse(JSON.stringify(punto));
+
+        // Inicializar el array de fotos a eliminar
+        if (this.punto?.fotos) {
+          this.fotosAEliminar = new Array(this.punto.fotos.length).fill(false);
+        }
 
         if (this.punto) {
           this.inicializarMapa();
@@ -121,14 +132,101 @@ export class DetallePuntoComponent implements AfterViewInit {
 
   cancelarEdicion() {
     this.modoEdicion = false;
-    if (this.punto?.id) {
-      this.ngAfterViewInit();
+    // Restablecer el punto a su estado original
+    if (this.puntoOriginal) {
+      this.punto = JSON.parse(JSON.stringify(this.puntoOriginal));
     }
+    // Reiniciar el array de fotos a eliminar
+    if (this.punto?.fotos) {
+      this.fotosAEliminar = new Array(this.punto.fotos.length).fill(false);
+    }
+    // Limpiar las nuevas fotos
+    this.nuevasFotos = [];
+  }
+
+  onFileChange(event: any) {
+    const files: File[] = Array.from(event.target.files);
+
+    if (files.length === 0) return;
+
+    this.subiendoFotos = true;
+    const uploadPromises: Promise<string>[] = [];
+
+    files.forEach(file => {
+      if (!file.type.includes('image/')) {
+        console.error(`El archivo ${file.name} no es una imagen`);
+        return;
+      }
+
+      // Crear un nombre único para la imagen
+      const nombreArchivo = `puntos/${this.punto?.id}/fotos/${new Date().getTime()}_${file.name}`;
+      const fileRef = this.storage.ref(nombreArchivo);
+      const task = this.storage.upload(nombreArchivo, file);
+
+      // Crear una promesa que resuelve con la URL de descarga
+      const uploadPromise = new Promise<string>((resolve, reject) => {
+        task.snapshotChanges().pipe(
+          finalize(() => {
+            fileRef.getDownloadURL().subscribe(
+              url => {
+                resolve(url);
+              },
+              error => {
+                console.error('Error al obtener URL de descarga', error);
+                reject(error);
+              }
+            );
+          })
+        ).subscribe(
+          () => {},
+          error => {
+            console.error('Error al subir archivo', error);
+            reject(error);
+          }
+        );
+      });
+
+      uploadPromises.push(uploadPromise);
+    });
+
+    // Esperar a que todas las fotos se suban
+    Promise.all(uploadPromises)
+      .then(urls => {
+        this.nuevasFotos = urls;
+
+        // Añadir las nuevas fotos al punto
+        if (!this.punto!.fotos) {
+          this.punto!.fotos = [];
+        }
+        this.punto!.fotos = [...this.punto!.fotos, ...this.nuevasFotos];
+
+        // Actualizar el array de fotos a eliminar
+        this.fotosAEliminar = new Array(this.punto!.fotos.length).fill(false);
+
+        this.subiendoFotos = false;
+
+        // Mostrar mensaje de éxito
+        this.mensajeTexto = 'Imágenes subidas correctamente. No olvides guardar los cambios.';
+        this.tipoMensaje = 'exito';
+        this.mostrarMensaje = true;
+        setTimeout(() => this.mostrarMensaje = false, 3500);
+      })
+      .catch(error => {
+        console.error('Error al subir imágenes', error);
+        this.subiendoFotos = false;
+
+        // Mostrar mensaje de error
+        this.mensajeTexto = 'Error al subir las imágenes.';
+        this.tipoMensaje = 'warning';
+        this.mostrarMensaje = true;
+        setTimeout(() => this.mostrarMensaje = false, 3500);
+      });
   }
 
   async guardarCambios(): Promise<void> {
     if (!this.punto?.id) return;
 
+    // Verificar campos obligatorios
     if (!this.punto.nombre?.trim() || !this.punto.descripcion?.trim()) {
       this.mensajeTexto = 'Completa todos los campos obligatorios.';
       this.tipoMensaje = 'warning';
@@ -137,13 +235,31 @@ export class DetallePuntoComponent implements AfterViewInit {
       return;
     }
 
+    // Verificar si hay cambios o fotos marcadas para eliminar
     const haCambiado = JSON.stringify(this.punto) !== JSON.stringify(this.puntoOriginal);
-    if (!haCambiado) {
+    const hayFotosParaEliminar = this.fotosAEliminar.some(Boolean);
+
+    if (!haCambiado && !hayFotosParaEliminar && this.nuevasFotos.length === 0) {
       this.mensajeTexto = 'No se han realizado cambios.';
       this.tipoMensaje = 'warning';
       this.mostrarMensaje = true;
       setTimeout(() => this.mostrarMensaje = false, 3500);
       return;
+    }
+
+    // Si hay subidas de fotos en progreso, esperar
+    if (this.subiendoFotos) {
+      this.mensajeTexto = 'Espera a que se completen las subidas de imágenes.';
+      this.tipoMensaje = 'warning';
+      this.mostrarMensaje = true;
+      setTimeout(() => this.mostrarMensaje = false, 3500);
+      return;
+    }
+
+    // Eliminar las fotos que están marcadas para eliminar
+    if (hayFotosParaEliminar && this.punto?.fotos) {
+      // Filtrar las fotos que no están marcadas para eliminar
+      this.punto.fotos = this.punto.fotos.filter((_, index) => !this.fotosAEliminar[index]);
     }
 
     try {
@@ -153,7 +269,16 @@ export class DetallePuntoComponent implements AfterViewInit {
       this.tipoMensaje = 'exito';
       this.mostrarMensaje = true;
       setTimeout(() => this.mostrarMensaje = false, 3500);
+
+      // Actualizar el punto original con los cambios guardados
       this.puntoOriginal = JSON.parse(JSON.stringify(this.punto));
+
+      // Reiniciar arrays de control
+      if (this.punto?.fotos) {
+        this.fotosAEliminar = new Array(this.punto.fotos.length).fill(false);
+      }
+      this.nuevasFotos = [];
+
       this.inicializarMapa();
     } catch (err) {
       console.error('Error al actualizar el punto', err);

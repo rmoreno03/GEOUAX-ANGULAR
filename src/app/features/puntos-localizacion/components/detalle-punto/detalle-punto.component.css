@@ -1,11 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 @import "primeicons/primeicons.css";
 
+/* Reset y configuración base */
 * {
   font-family: 'Poppins', sans-serif;
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+body {
+  background-color: #f5f5f5;
+}
+
+/* Contenedor principal */
 .container {
   padding: 32px;
   max-width: 100%;
@@ -20,6 +28,7 @@
   overflow-x: hidden;
 }
 
+/* Estilos de encabezados */
 h2 {
   font-size: 2rem;
   font-weight: 600;
@@ -28,8 +37,10 @@ h2 {
   border-left: 6px solid #f7941d;
   padding-left: 16px;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* Estructura de layout */
 .detalle-punto-wrapper {
   display: flex;
   gap: 32px;
@@ -42,18 +53,40 @@ h2 {
   flex-direction: column;
   gap: 16px;
   height: 73vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d71920 #f0f0f0;
 }
 
+.info-punto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.info-punto::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.info-punto::-webkit-scrollbar-thumb {
+  background-color: #d71920;
+  border-radius: 10px;
+  border: 2px solid #f0f0f0;
+}
+
+/* Estilos para la información en modo vista */
 .info p {
   font-size: 1rem;
   margin: 8px 0;
   color: #333;
+  line-height: 1.6;
 }
 
 .info strong {
   color: #d71920;
+  font-weight: 600;
 }
 
+/* Estilos para los botones de acción */
 .botones {
   display: flex;
   gap: 12px;
@@ -66,37 +99,47 @@ h2 {
   color: #fff;
   border: none;
   border-radius: 10px;
-  padding: 6px 14px;
+  padding: 10px 18px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(215, 25, 32, 0.25);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btn-primary:hover {
-  transform: scale(1.05);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(215, 25, 32, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #f4f4f4, #ddd);
+  background: linear-gradient(135deg, #f8f8f8, #e8e8e8);
   color: #333;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 10px;
-  padding: 6px 14px;
+  padding: 10px 18px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btn-secondary:hover {
-  transform: scale(1.05);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.15);
+}
+
+.btn-secondary:active {
+  transform: translateY(1px);
 }
 
 .btn-warning {
@@ -104,27 +147,39 @@ h2 {
   color: #fff;
   border: none;
   border-radius: 10px;
-  padding: 6px 14px;
+  padding: 10px 18px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(243, 114, 44, 0.25);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btn-warning:hover {
-  transform: scale(1.05);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(243, 114, 44, 0.35);
+}
+
+.btn-warning:active {
+  transform: translateY(1px);
 }
 
 button i {
-  margin-right: 6px;
+  margin-right: 8px;
   vertical-align: middle;
+  font-size: 1.1rem;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
 
-
+/* Estilos para el mapa */
 .mapa-preview {
   flex: 1 1 400px;
   border-radius: 12px;
@@ -132,6 +187,7 @@ button i {
   overflow: hidden;
   min-height: 500px;
   background: #fff;
+  border: 1px solid #eaeaea;
 }
 
 #map-preview {
@@ -139,6 +195,7 @@ button i {
   height: 72.5vh;
 }
 
+/* Estilos para estados de carga y error */
 .loading, .error {
   text-align: center;
   margin-top: 40px;
@@ -146,39 +203,122 @@ button i {
   font-weight: 500;
 }
 
+.loading {
+  color: #f7941d;
+}
+
 .error {
   color: #d71920;
 }
-.carrusel-fotos {
-  margin-top: 20px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
 
-.carousel-img-wrapper {
-  height: 300px;
+/* ===== ESTILOS MEJORADOS PARA IMÁGENES Y CHECKBOXES ===== */
+.imagenes {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #f4f4f4;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 16px;
+  padding: 10px 0;
 }
 
-.carousel-img-wrapper img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
+.foto-container {
+  position: relative;
+  transition: all 0.3s ease;
+  perspective: 1000px;
+  max-width: 170px;
+}
+
+.foto-container:hover {
+  transform: translateY(-5px);
+}
+
+.foto-punto {
+  width: 170px;
+  height: 170px;
+  object-fit: cover;
   border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
 }
 
+.foto-punto:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilo para los checkboxes */
+.foto-container input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d71920;
+  border-radius: 4px;
+  margin-right: 8px;
+  cursor: pointer;
+  position: relative;
+  top: 2px;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.foto-container input[type="checkbox"]:checked {
+  background-color: #d71920;
+  border-color: #d71920;
+}
+
+.foto-container input[type="checkbox"]:checked::before {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Contenedor para el checkbox y texto */
+.foto-container div {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  padding: 5px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-size: 0.9rem;
+  color: #333;
+  justify-content: center;
+}
+
+/* Efecto visual cuando una foto está marcada para eliminar */
+.foto-container input[type="checkbox"]:checked + .foto-punto,
+.foto-container input[type="checkbox"]:checked ~ .foto-punto {
+  border-color: #d71920;
+  opacity: 0.7;
+  filter: grayscale(50%);
+}
+
+/* Animación para las fotos marcadas para eliminar */
+@keyframes pulseDelete {
+  0% { opacity: 0.7; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.7; }
+}
+
+.foto-container input[type="checkbox"]:checked ~ img {
+  animation: pulseDelete 2s infinite;
+}
+
+/* Estilos para el formulario de edición */
 .form-edicion {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
+  gap: 20px;
+  padding: 24px;
   background: #f9f9f9;
   border-radius: 12px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
   animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -187,38 +327,92 @@ button i {
   flex-direction: column;
   font-weight: 500;
   color: #d71920;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .form-edicion input,
 .form-edicion textarea {
-  padding: 10px 12px;
-  margin-top: 6px;
-  border: 1px solid #ccc;
+  padding: 12px 14px;
+  margin-top: 8px;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-family: 'Poppins', sans-serif;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
+  background-color: white;
 }
 
 .form-edicion input:focus,
 .form-edicion textarea:focus {
   border-color: #f7941d;
   outline: none;
+  box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.2);
+}
+
+.form-edicion textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Estilo mejorado para input file */
+.form-edicion input[type="file"] {
+  padding: 10px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  background-color: #fcfcfc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.form-edicion input[type="file"]:hover {
+  border-color: #f7941d;
+  background-color: #fff9f4;
+}
+
+.form-edicion input[type="file"]:disabled {
+  border-color: #ddd;
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
 .form-botones {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
-.instrucciones-mapa {
-  font-size: 0.85rem;
-  color: #888;
-  margin-top: 4px;
-  font-style: italic;
+/* Estilos para indicador de carga de fotos */
+.cargando-fotos {
+  margin: 16px 0;
+  text-align: center;
+  padding: 16px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.cargando-fotos p {
+  color: #f7941d;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.loader {
+  border: 4px solid rgba(215, 25, 32, 0.1);
+  border-top: 4px solid #d71920;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+  margin: 10px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Animación suave al mostrar el panel de edición */
@@ -233,12 +427,30 @@ button i {
   }
 }
 
-
-
 /* Responsive */
+@media (max-width: 1200px) {
+  #map-preview {
+    width: 100%;
+    height: 500px;
+  }
+}
+
+@media (max-width: 992px) {
+  .container {
+    height: auto;
+    padding: 24px;
+  }
+
+  .info-punto {
+    height: auto;
+    max-height: 70vh;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 20px;
+    border-radius: 12px;
   }
 
   h2 {
@@ -250,13 +462,55 @@ button i {
   }
 
   .btn-primary,
-  .btn-secondary {
-    padding: 6px 10px;
-    font-size: 0.8rem;
+  .btn-secondary,
+  .btn-warning {
+    padding: 8px 14px;
+    font-size: 0.9rem;
   }
 
   #map-preview {
-    width: 100%;
+    height: 350px;
+  }
+
+  .form-edicion {
+    padding: 16px;
+  }
+
+  .imagenes {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .foto-container {
+    max-width: 140px;
+  }
+
+  .foto-punto {
+    width: 140px;
+    height: 140px;
+  }
+
+  #map-preview {
     height: 300px;
+  }
+
+  .form-botones {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-warning {
+    width: 100%;
+    text-align: center;
   }
 }

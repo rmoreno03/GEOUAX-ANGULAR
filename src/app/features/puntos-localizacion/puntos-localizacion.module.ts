@@ -8,6 +8,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { MapaPuntosComponent } from './components/mapa-puntos/mapa-puntos.component';
 import { SharedModule } from '../../shared/shared.module';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireStorageModule } from '@angular/fire/compat/storage';
+import { environment } from '../../../environments/environment';
 
 
 
@@ -28,7 +31,9 @@ import { SharedModule } from '../../shared/shared.module';
     ReactiveFormsModule,
     FormsModule,
     NgbCarouselModule,
-    SharedModule
+    SharedModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireStorageModule
 
   ]
 })

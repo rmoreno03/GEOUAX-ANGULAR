@@ -1,25 +1,40 @@
-import { Injectable } from '@angular/core';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, QueryConstraint, where, Timestamp} from 'firebase/firestore';
-import { db } from '../../../app.module';
+import { inject, Injectable } from '@angular/core';
+import {
+  Firestore,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  getDoc,
+  query,
+  where,
+  QueryConstraint,
+  Timestamp
+} from '@angular/fire/firestore';
+import {
+  Storage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from '@angular/fire/storage';
+import { Auth } from '@angular/fire/auth';
 import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
-import { getAuth } from 'firebase/auth';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class PuntosLocalizacionService {
+  private firestore = inject(Firestore);
+  private storage = inject(Storage);
+  private auth = inject(Auth);
 
-  private collectionRef = collection(db, 'puntos_localizacion');
-
-
+  private collectionRef = collection(this.firestore, 'puntos_localizacion');
 
   constructor() {}
 
   async cargarPuntosLocalizacion(): Promise<PuntoLocalizacion[]> {
     const puntosSnapshot = await getDocs(this.collectionRef);
-
     return puntosSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -37,7 +52,6 @@ export class PuntosLocalizacionService {
 
   async cargarPuntosLocalizacionPorUsuario(usuarioId: string): Promise<PuntoLocalizacion[]> {
     const q = query(this.collectionRef, where('usuarioCreador', '==', usuarioId));
-
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => {
       const data = doc.data();
@@ -55,24 +69,14 @@ export class PuntosLocalizacionService {
   }
 
   async cargarPuntosConFiltros(filtros: Partial<PuntoLocalizacion>): Promise<PuntoLocalizacion[]> {
-    let constraints: QueryConstraint[] = [];
-
-    if (filtros.nombre) {
-      constraints.push(where('nombre', '==', filtros.nombre));
-    }
-    if (filtros.descripcion) {
-      constraints.push(where('descripcion', '==', filtros.descripcion));
-    }
-    if (filtros.fechaCreacion) {
-      constraints.push(where('fechaCreacion', '==', filtros.fechaCreacion));
-    }
-    if (filtros.usuarioCreador) {
-      constraints.push(where('usuarioCreador', '==', filtros.usuarioCreador));
-    }
+    const constraints: QueryConstraint[] = [];
+    if (filtros.nombre) constraints.push(where('nombre', '==', filtros.nombre));
+    if (filtros.descripcion) constraints.push(where('descripcion', '==', filtros.descripcion));
+    if (filtros.fechaCreacion) constraints.push(where('fechaCreacion', '==', filtros.fechaCreacion));
+    if (filtros.usuarioCreador) constraints.push(where('usuarioCreador', '==', filtros.usuarioCreador));
 
     const q = query(this.collectionRef, ...constraints);
     const puntosSnapshot = await getDocs(q);
-
     return puntosSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -91,9 +95,7 @@ export class PuntosLocalizacionService {
   async obtenerPuntoPorId(id: string): Promise<PuntoLocalizacion | null> {
     const docRef = doc(this.collectionRef, id);
     const puntoSnap = await getDoc(docRef);
-
     if (!puntoSnap.exists()) return null;
-
     const data = puntoSnap.data();
     return {
       id: puntoSnap.id,
@@ -106,7 +108,6 @@ export class PuntosLocalizacionService {
       usuarioCreador: data['usuarioCreador']
     };
   }
-
 
   async crearPunto(punto: PuntoLocalizacion): Promise<void> {
     punto.fechaCreacion = Timestamp.now();
@@ -121,10 +122,9 @@ export class PuntosLocalizacionService {
       latitud: punto.latitud,
       longitud: punto.longitud,
       fechaCreacion: punto.fechaCreacion,
-      fotos: punto.fotos,
+      fotos: punto.fotos
     });
   }
-
 
   async eliminarPunto(id: string): Promise<void> {
     const docRef = doc(this.collectionRef, id);
@@ -132,16 +132,14 @@ export class PuntosLocalizacionService {
   }
 
   async subirFoto(file: File): Promise<string> {
-    const storage = getStorage();
     const nombreArchivo = `puntos/${uuidv4()}-${file.name}`;
-    const storageRef = ref(storage, nombreArchivo);
+    const storageRef = ref(this.storage, nombreArchivo);
     const snapshot = await uploadBytes(storageRef, file);
     return await getDownloadURL(snapshot.ref);
   }
 
   public getUserId(): string | null {
-    const auth = getAuth();
-    const user = auth.currentUser;
+    const user = this.auth.currentUser;
     return user ? user.uid : null;
   }
 }

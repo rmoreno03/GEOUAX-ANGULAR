@@ -83,12 +83,23 @@ export class CrearPuntoComponent implements AfterViewInit {
       this.uploading = true;
       const urls: string[] = [];
 
-      for (const file of this.selectedFiles) {
-        const url = await this.puntosService.subirFoto(file);
-        urls.push(url);
+      try {
+        for (const file of this.selectedFiles) {
+          const url = await this.puntosService.subirFoto(file);
+          urls.push(url);
+        }
+      } catch (error) {
+        console.error('Error subiendo la foto:', error); // 👈 Este log es CLAVE
+        this.mensajeTexto = 'Error al subir las fotos. Revisa la consola.';
+        this.tipoMensaje = 'warning';
+        this.mostrarMensaje = true;
+        return;
       }
 
+
       this.punto.fotos = urls;
+      console.log('Archivos seleccionados:', this.selectedFiles);
+
 
       await this.puntosService.crearPunto(this.punto as PuntoLocalizacion);
       this.mensajeService.setMensaje('Punto creado con éxito!', 'exito');
