@@ -15,6 +15,7 @@ import { LayoutModule } from './features/layout/layout.module';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import { ToastModule } from 'primeng/toast';
 
 // Inicializar Firebase
 const app = initializeApp(environment.firebase);
@@ -31,7 +32,8 @@ export const auth = getAuth(app);
     AppRoutingModule,
     FormsModule,
     CommonModule,
-    LayoutModule
+    LayoutModule,
+    ToastModule
   ],
   providers: [
     provideAnimationsAsync(),

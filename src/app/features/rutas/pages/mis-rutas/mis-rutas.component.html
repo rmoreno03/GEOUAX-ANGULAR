@@ -13,6 +13,8 @@
         </div>
         <p><strong>Puntos:</strong> {{ ruta.puntos.length }}</p>
         <p><strong>Creada:</strong> {{ ruta.fechaCreacion.toDate() | date: 'mediumDate' }}</p>
+        <p><strong>Distancia:</strong> {{ ruta.distanciaKm }} km</p>
+        <p><strong>Duración:</strong> {{ (ruta.duracionMin || 0) | duracion }}</p>
       </div>
     </div>
   </div>

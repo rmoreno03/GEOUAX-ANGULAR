@@ -8,6 +8,9 @@ import { DropdownModule } from 'primeng/dropdown';
 import { MisRutasComponent } from './pages/mis-rutas/mis-rutas.component';
 import { VerTodasComponent } from './pages/ver-todas/ver-todas.component';
 import { DetalleRutaComponent } from './pages/detalle-ruta/detalle-ruta.component';
+import { SharedModule } from '../../shared/shared.module';
+
+
 
 
 @NgModule({
@@ -21,7 +24,8 @@ import { DetalleRutaComponent } from './pages/detalle-ruta/detalle-ruta.componen
     CommonModule,
     RutasRoutingModule,
     ReactiveFormsModule,
-    DropdownModule
-  ]
+    DropdownModule,
+    SharedModule
+]
 })
 export class RutasModule { }

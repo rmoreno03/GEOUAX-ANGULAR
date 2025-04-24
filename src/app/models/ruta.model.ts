@@ -8,4 +8,6 @@ export interface Ruta {
   fechaCreacion: Timestamp;
   usuarioCreador: string;
   tipoRuta: 'driving' | 'walking' | 'cycling';
+  distanciaKm?: number;
+  duracionMin?: number;
 }

@@ -14,12 +14,17 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../../app.module';
 import { getAuth } from 'firebase/auth';
+import mbxDirections from '@mapbox/mapbox-sdk/services/directions';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RutasService {
+
   private rutasRef = collection(db, 'rutas');
+
+  directionsClient = mbxDirections({ accessToken: environment.mapbox_key });
 
   constructor() {}
 
@@ -29,11 +34,27 @@ export class RutasService {
     return user ? user.uid : null;
   }
 
-  async crearRuta(rutaParcial: Omit<Ruta, 'fechaCreacion' | 'usuarioCreador'>): Promise<void> {
+  async crearRuta(rutaParcial: Omit<Ruta, 'fechaCreacion' | 'usuarioCreador' | 'distanciaKm' | 'duracionMin'>): Promise<void> {
+    const waypoints = rutaParcial.puntos.map(p => ({
+      coordinates: [p.longitud, p.latitud]
+    }));
+
+    const res = await this.directionsClient.getDirections({
+      profile: rutaParcial.tipoRuta,
+      waypoints,
+      geometries: 'geojson'
+    }).send();
+
+    const data = res.body.routes[0];
+    const distanciaKm = +(data.distance / 1000).toFixed(2); // metros → km
+    const duracionMin = +(data.duration / 60).toFixed(1);   // segundos → min
+
     const ruta: Ruta = {
       ...rutaParcial,
       fechaCreacion: Timestamp.now(),
-      usuarioCreador: this.getUserId() ?? 'desconocido'
+      usuarioCreador: this.getUserId() ?? 'desconocido',
+      distanciaKm,
+      duracionMin
     };
 
     await addDoc(this.rutasRef, ruta);
@@ -48,7 +69,9 @@ export class RutasService {
       tipoRuta: doc.data()['tipoRuta'],
       puntos: doc.data()['puntos'],
       fechaCreacion: doc.data()['fechaCreacion'],
-      usuarioCreador: doc.data()['usuarioCreador']
+      usuarioCreador: doc.data()['usuarioCreador'],
+      distanciaKm: doc.data()['distanciaKm'],
+      duracionMin: doc.data()['duracionMin']
     }) as Ruta);
   }
 
@@ -64,7 +87,9 @@ export class RutasService {
         tipoRuta: data['tipoRuta'],
         puntos: data['puntos'],
         fechaCreacion: data['fechaCreacion'],
-        usuarioCreador: data['usuarioCreador']
+        usuarioCreador: data['usuarioCreador'],
+        distanciaKm: data['distanciaKm'],
+        duracionMin: data['duracionMin']
       } as Ruta;
     }
 
@@ -75,4 +100,7 @@ export class RutasService {
     const rutaDoc = doc(this.rutasRef, id);
     await deleteDoc(rutaDoc);
   }
+
+
+
 }

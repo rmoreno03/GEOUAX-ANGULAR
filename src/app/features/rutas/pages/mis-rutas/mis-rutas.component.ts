@@ -67,7 +67,7 @@ export class MisRutasComponent implements OnInit {
             type: 'line',
             source: `ruta-${ruta.id}`,
             layout: { 'line-cap': 'round', 'line-join': 'round' },
-            paint: { 'line-color': '#f7941d', 'line-width': 4 }
+            paint: { 'line-color': this.getColorRuta(ruta.tipoRuta) , 'line-width': 4 }
           });
 
           // Añadir marcadores
@@ -100,4 +100,21 @@ export class MisRutasComponent implements OnInit {
         return 'fa-solid fa-route';
     }
   }
+
+  getColorRuta(tipo: string): string {
+    switch (tipo) {
+      case 'driving':
+        return '#f7941d';
+      case 'walking':
+        return '#d71920';
+      case 'cycling':
+        return '#1f77b4';
+      default:
+        return '#000000';
+    }
+  }
+
+
+
+
 }
