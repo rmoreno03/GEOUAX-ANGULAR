@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { DuracionPipe } from './pipes/duracion.pipe';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 
 
@@ -14,10 +16,15 @@ import { DuracionPipe } from './pipes/duracion.pipe';
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    FormsModule
+    FormsModule,
+    ToastModule
   ],
   exports: [
-    DuracionPipe
-  ]
+    DuracionPipe,
+    ToastModule,
+  ],
+  providers: [
+    MessageService
+  ],
 })
 export class SharedModule { }
