@@ -41,7 +41,10 @@ export class AuthService {
 
   logout(): Promise<void> {
     return signOut(this.auth)
-      .then(() => this.isLoggedInSubject.next(false))
+      .then(() => {
+        this.isLoggedInSubject.next(false);
+        this.router.navigate(['/auth/login']);
+      })
       .catch(error => {
         console.error('❌ Error al cerrar sesión:', error);
         throw error;
