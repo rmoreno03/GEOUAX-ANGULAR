@@ -40,5 +40,11 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Ignorar archivos de Firebase
 firebase-debug.log
+
+# Ignorar logs
+*.log
+
 
