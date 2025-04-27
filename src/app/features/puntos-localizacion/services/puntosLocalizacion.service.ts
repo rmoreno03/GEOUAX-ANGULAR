@@ -31,8 +31,6 @@ export class PuntosLocalizacionService {
 
   private collectionRef = collection(this.firestore, 'puntos_localizacion');
 
-  constructor() {}
-
   async cargarPuntosLocalizacion(): Promise<PuntoLocalizacion[]> {
     const puntosSnapshot = await getDocs(this.collectionRef);
     return puntosSnapshot.docs.map(doc => {

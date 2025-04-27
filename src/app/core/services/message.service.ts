@@ -4,7 +4,7 @@ export type TipoMensaje = 'exito' | 'eliminado' | 'warning';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
-  mensaje: string = '';
+  mensaje = '';
   tipo: TipoMensaje = 'exito';
 
   setMensaje(texto: string, tipo: TipoMensaje = 'exito') {

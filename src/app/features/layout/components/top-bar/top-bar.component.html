@@ -52,23 +52,23 @@
   <form [formGroup]="filtroForm" (ngSubmit)="aplicarFiltro()">
     <div class="filter-grid">
       <div class="filter-group">
-        <label>Nombre:</label>
-        <input type="text" formControlName="nombre" placeholder="Buscar por nombre">
+        <label for="nombre">Nombre:</label>
+        <input id="nombre" type="text" formControlName="nombre" placeholder="Buscar por nombre">
       </div>
 
       <div class="filter-group">
-        <label>Descripción:</label>
-        <input type="text" formControlName="descripcion" placeholder="Buscar por descripción">
+        <label for="descripcion">Descripción:</label>
+        <input id="descripcion" type="text" formControlName="descripcion" placeholder="Buscar por descripción">
       </div>
 
       <div class="filter-group">
-        <label>Fecha:</label>
-        <input type="date" formControlName="fecha">
+        <label for="fecha">Fecha:</label>
+        <input id="fecha" type="date" formControlName="fecha">
       </div>
 
       <div class="filter-group">
-        <label>Usuario:</label>
-        <input type="number" formControlName="usuario" placeholder="ID de usuario">
+        <label for="usuario">Usuario:</label>
+        <input id="usuario" type="number" formControlName="usuario" placeholder="ID de usuario">
       </div>
 
       <div class="filter-group full-width">

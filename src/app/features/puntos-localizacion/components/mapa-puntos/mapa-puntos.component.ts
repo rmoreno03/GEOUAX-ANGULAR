@@ -24,6 +24,7 @@ export class MapaPuntosComponent implements AfterViewInit {
       this.initMapa();
     } catch (error) {
       this.error = 'No se pudieron cargar los puntos.';
+      console.error('Error al cargar los puntos de localización:', error);
     } finally {
       this.loading = false;
     }

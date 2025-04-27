@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { AuthService } from '../../../../auth/services/auth.service';
 
 

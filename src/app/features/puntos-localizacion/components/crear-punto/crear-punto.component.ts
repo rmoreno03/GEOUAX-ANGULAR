@@ -114,8 +114,11 @@ export class CrearPuntoComponent implements AfterViewInit {
     this.uploading = false;
   }
 
-  onFotosSeleccionadas(event: any): void {
-    this.selectedFiles = Array.from(event.target.files);
+  onFotosSeleccionadas(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+
+    this.selectedFiles = Array.from(input.files);
     this.previewUrls = [];
 
     this.selectedFiles.forEach(file => {
@@ -128,4 +131,5 @@ export class CrearPuntoComponent implements AfterViewInit {
       reader.readAsDataURL(file);
     });
   }
+
 }

@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { PuntosLocalizacionService } from '../../../puntos-localizacion/services/puntosLocalizacion.service';
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
 import { FilterService } from '../../../../core/services/filter.service';
 import { OrdenService } from '../../../../core/services/orden.service';
@@ -15,15 +14,15 @@ import { OrdenService } from '../../../../core/services/orden.service';
 
 export class TopBarComponent {
 
-  @Output() onFiltrar = new EventEmitter<Partial<PuntoLocalizacion>>();
-  @Output() onOrdenar = new EventEmitter<{ campo: string, orden: 'asc' | 'desc' }>();
+  @Output() filtrar = new EventEmitter<Partial<PuntoLocalizacion>>();
+  @Output() ordenar = new EventEmitter<{ campo: string, orden: 'asc' | 'desc' }>();
   @Output() toggleSidebar = new EventEmitter<void>();
 
   title = '';
   showFilter = false;
   showOrdenar = false;
   ordenSelected: 'asc' | 'desc' = 'asc';
-  ordenSeleccionadoCampo: string = '';
+  ordenSeleccionadoCampo = '';
   menuOptions: { label: string; icon?: string; action: () => void }[] = [];
   filtroForm: FormGroup;
   camposOrdenables: string[] = ['nombre', 'descripcion', 'fechaCreacion', 'latitud', 'longitud', 'usuarioCreador'];
@@ -160,7 +159,13 @@ export class TopBarComponent {
 
   resetearTodo() {
     this.filtroForm.reset();
-    this.filterService.setFilter('');
+    this.filterService.setFilter({
+      nombre: '',
+      descripcion: '',
+      fecha: '',
+      usuario: ''
+    });
+
     this.ordenService.resetOrden();
     this.showFilter = false;
     this.showOrdenar = false;
@@ -170,7 +175,13 @@ export class TopBarComponent {
 
   resetearFiltro() {
     this.filtroForm.reset();
-    this.filterService.setFilter('');
+    this.filterService.setFilter({
+      nombre: '',
+      descripcion: '',
+      fecha: '',
+      usuario: ''
+    });
+
   }
 
 

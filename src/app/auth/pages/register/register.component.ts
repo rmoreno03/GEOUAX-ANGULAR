@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
   registerForm;
-  errorMessage: string = '';
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,

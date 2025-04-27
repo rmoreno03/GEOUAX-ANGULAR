@@ -6,9 +6,7 @@
       <button (click)="toggle(item)">
         {{ item.title }}
       </button>
-      <div class="content" *ngIf="item.open" [innerHTML]="item.content">
-        {{ item.content }}
-      </div>
+      <div class="content" *ngIf="item.open" [innerHTML]="item.content"></div>
     </div>
   </div>
 </div>

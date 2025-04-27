@@ -64,7 +64,7 @@ export class DetalleRutaComponent implements OnInit {
       });
 
       const bounds = new mapboxgl.LngLatBounds();
-      geojson.coordinates.forEach((coord: any) => bounds.extend(coord));
+      geojson.coordinates.forEach((coord: [number, number]) => bounds.extend(coord));
       map.fitBounds(bounds, { padding: 40 });
     });
   }

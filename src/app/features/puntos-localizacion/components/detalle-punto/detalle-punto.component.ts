@@ -7,6 +7,7 @@ import { environment } from '../../../../../environments/environment';
 import { MessageService } from '../../../../core/services/message.service';
 import { finalize } from 'rxjs/operators';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { Timestamp } from 'firebase/firestore';
 
 @Component({
   standalone: false,
@@ -18,7 +19,7 @@ export class DetallePuntoComponent implements AfterViewInit {
   punto?: PuntoLocalizacion;
   puntoOriginal: PuntoLocalizacion | null = null;
   loading = true;
-  error: string = '';
+  error = '';
   map!: mapboxgl.Map;
   modoEdicion = false;
   fechaLocal = '';
@@ -57,6 +58,7 @@ export class DetallePuntoComponent implements AfterViewInit {
         }
       } catch (err) {
         this.error = 'No se pudo cargar el punto.';
+        console.error('Error al cargar el punto:', err);
       } finally {
         this.loading = false;
       }
@@ -75,7 +77,7 @@ export class DetallePuntoComponent implements AfterViewInit {
       zoom: 16
     });
 
-    let marker = new mapboxgl.Marker({ color: '#d71920' })
+    const marker = new mapboxgl.Marker({ color: '#d71920' })
       .setLngLat([this.punto.longitud, this.punto.latitud])
       .addTo(this.map);
 
@@ -107,9 +109,17 @@ export class DetallePuntoComponent implements AfterViewInit {
     this.mostrarConfirmacion = false;
   }
 
-  formatFecha(fecha: any): string {
-    if (!fecha?.toDate) return '';
-    const date = fecha.toDate();
+  formatFecha(fecha: Timestamp | Date): string {
+    if (!fecha) return '';
+
+    let date: Date;
+
+    if (fecha instanceof Date) {
+      date = fecha;
+    } else {
+      date = fecha.toDate();
+    }
+
     return date.toLocaleString('es-ES', {
       day: 'numeric',
       month: 'long',
@@ -120,6 +130,7 @@ export class DetallePuntoComponent implements AfterViewInit {
       hour12: false
     }).replace(',', '');
   }
+
 
   toggleEdicion() {
     this.modoEdicion = !this.modoEdicion;
@@ -144,8 +155,10 @@ export class DetallePuntoComponent implements AfterViewInit {
     this.nuevasFotos = [];
   }
 
-  onFileChange(event: any) {
-    const files: File[] = Array.from(event.target.files);
+  onFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+    const files: File[] = Array.from(input.files);
 
     if (files.length === 0) return;
 
@@ -178,7 +191,9 @@ export class DetallePuntoComponent implements AfterViewInit {
             );
           })
         ).subscribe(
-          () => {},
+          () => {
+            // Progreso de la subida
+          },
           error => {
             console.error('Error al subir archivo', error);
             reject(error);

@@ -8,7 +8,6 @@ import {
   deleteDoc,
   doc,
   Timestamp,
-  updateDoc,
   query,
   where
 } from '@angular/fire/firestore';
@@ -27,7 +26,7 @@ export class RutasService {
 
   directionsClient = mbxDirections({ accessToken: environment.mapbox_key });
 
-  constructor() {}
+
 
   private getUserId(): string | null {
     return this.auth.currentUser?.uid ?? null;

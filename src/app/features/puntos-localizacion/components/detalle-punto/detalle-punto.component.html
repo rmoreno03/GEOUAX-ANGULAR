@@ -9,7 +9,7 @@
         <p><strong>Descripción:</strong> {{ punto?.descripcion }}</p>
         <p><strong>Latitud:</strong> {{ punto?.latitud }}</p>
         <p><strong>Longitud:</strong> {{ punto?.longitud }}</p>
-        <p><strong>Fecha de creación:</strong> {{ formatFecha(punto?.fechaCreacion) }}</p>
+        <p><strong>Fecha de creación:</strong> {{ punto ? (punto.fechaCreacion ? formatFecha(punto.fechaCreacion) : '') : '' }}</p>
         <p><strong>Usuario creador:</strong> {{ punto?.usuarioCreador }}</p>
         <p><strong>Fotografías del punto:</strong></p>
 

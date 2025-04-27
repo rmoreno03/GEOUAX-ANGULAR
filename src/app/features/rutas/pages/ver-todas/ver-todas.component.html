@@ -6,6 +6,8 @@
         <li
           *ngFor="let ruta of rutas"
           (click)="centrarRuta(ruta)"
+          (keydown.enter)="centrarRuta(ruta)"
+          tabindex="0"
           class="item-punto"
         >
           {{ ruta.nombre }}

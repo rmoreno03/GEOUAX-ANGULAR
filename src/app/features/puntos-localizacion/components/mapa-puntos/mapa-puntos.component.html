@@ -6,6 +6,8 @@
         <li
           *ngFor="let punto of puntos"
           (click)="centrarPunto(punto)"
+          (keydown.enter)="centrarPunto(punto)"
+          tabindex="0"
           class="item-punto"
         >
           {{ punto.nombre }}

@@ -18,7 +18,7 @@ export class MisRutasComponent implements OnInit {
   mensajeTexto = '';
   tipoMensaje: 'exito' | 'eliminado' | 'warning' = 'exito';
   rutaSeleccionadaId: string | null = null;
-  mostrarConfirmacion: boolean = false;
+  mostrarConfirmacion = false;
 
 
   directionsClient = mbxDirections({ accessToken: environment.mapbox_key });

@@ -30,18 +30,21 @@
           </ng-template>
         </p-dropdown>
 
-        <label class="subtitulo">Selecciona los puntos</label>
+        <p class="subtitulo">Selecciona los puntos</p>
         <div class="lista-puntos">
           <div
             *ngFor="let punto of puntos"
             (click)="toggleSeleccion(punto)"
+            (keydown.enter)="toggleSeleccion(punto)"
             [class.seleccionado]="estaSeleccionado(punto)"
+            tabindex="0"
             class="punto"
           >
             <strong>{{ punto.nombre }}</strong><br />
             <small>{{ punto.descripcion }}</small>
           </div>
         </div>
+
 
         <div class="botones">
           <button type="submit" class="btn-primary">Guardar Ruta</button>

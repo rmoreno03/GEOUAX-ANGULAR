@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { InfoItem } from '../../../../../models/info-item.model';
 
 @Component({
   selector: 'app-info-panel',
@@ -78,7 +79,7 @@ export class InfoPanelComponent {
     this.closePanel.emit();
   }
 
-  toggle(item: any) {
+  toggle(item: InfoItem) {
     item.open = !item.open;
   }
 }

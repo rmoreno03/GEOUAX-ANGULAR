@@ -5,6 +5,7 @@ import { FilterService } from '../../../../core/services/filter.service';
 import { Timestamp } from 'firebase/firestore';
 import { OrdenService } from '../../../../core/services/orden.service';
 import { MessageService } from '../../../../core/services/message.service';
+import { FiltroPuntoLocalizacion } from '../../../../models/filtrar-punto-localizacion.model';
 
 
 @Component({
@@ -18,7 +19,7 @@ export class PuntosLocalizacionComponent implements OnInit {
   puntosFiltrados: PuntoLocalizacion[] = [];
   loading = true;
   error = '';
-  ordenCampo: string = '';
+  ordenCampo = '';
   ordenDireccion: 'asc' | 'desc' = 'asc';
   mensajeTexto = '';
   mostrarMensaje = false;
@@ -63,7 +64,7 @@ export class PuntosLocalizacionComponent implements OnInit {
     }
   }
 
-  private filtrarPuntos(filtro: any): PuntoLocalizacion[] {
+  private filtrarPuntos(filtro: FiltroPuntoLocalizacion): PuntoLocalizacion[] {
     return this.puntosLocalizacion.filter(p => {
       const coincideNombre =
         !filtro.nombre ||
@@ -110,15 +111,15 @@ export class PuntosLocalizacionComponent implements OnInit {
   }
 
 
-  private parseFecha(valor: any): Date {
+  private parseFecha(valor: unknown): Date {
     if (valor instanceof Timestamp) return valor.toDate();
     if (Array.isArray(valor)) return new Date(valor[0]);
-    return new Date(valor);
+    return new Date(valor as string | number | Date);
   }
 
 
 
-  formatFecha(fecha: any): string {
+  formatFecha(fecha: Timestamp | null | undefined): string {
     if (!fecha?.toDate) return '';
     const date = fecha.toDate();
     return date.toLocaleString('es-ES', {

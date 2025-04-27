@@ -3,10 +3,17 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --open",
+    "start-lint": "npm run lint && ng serve --open",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "build-dev": "ng build --configuration development --output-path=dist/geouax/browser",
+    "build-prod": "ng build --configuration production --output-path=dist/geouax/browser",
+    "watch": "ng build --watch --configuration development --output-path=dist/geouax/browser",
+    "test": "ng test --watch=false --browsers=ChromeHeadless",
+    "lint": "ng lint --fix",
+    "firebase-deploy": "firebase deploy --only hosting",
+    "deploy": "npm run build && npm run firebase-deploy",
+    "deploy-dev": "npm run build-dev && npm run firebase-deploy"
   },
   "private": true,
   "dependencies": {
@@ -41,12 +48,15 @@
     "@angular/cli": "^19.2.9",
     "@angular/compiler-cli": "^19.2.8",
     "@types/jasmine": "~5.1.0",
+    "angular-eslint": "19.3.0",
+    "eslint": "^9.23.0",
     "jasmine-core": "~5.6.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "8.27.0"
   }
 }
