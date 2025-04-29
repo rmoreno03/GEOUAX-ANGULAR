@@ -462,6 +462,25 @@ html, body, h1, h2, h3, h4, h5, h6, p, span, label, input, textarea, button, a {
   transform: scale(1.1);
 }
 
+.valoracion-interactiva {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.valoracion-interactiva i {
+  font-size: 24px;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.3s;
+}
+
+.valoracion-interactiva i.valorada {
+  color: #f7941d;
+}
+
+
 /* Animaciones */
 @keyframes fadeIn {
   from { opacity: 0; }

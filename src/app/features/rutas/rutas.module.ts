@@ -9,6 +9,9 @@ import { MisRutasComponent } from './pages/mis-rutas/mis-rutas.component';
 import { VerTodasComponent } from './pages/ver-todas/ver-todas.component';
 import { DetalleRutaComponent } from './pages/detalle-ruta/detalle-ruta.component';
 import { SharedModule } from '../../shared/shared.module';
+import { RutasPublicasComponent } from './pages/rutas-publicas/rutas-publicas.component';
+import { CoreModule } from '../../core/core.module';
+import { HttpClientModule } from '@angular/common/http';
 
 
 
@@ -18,14 +21,17 @@ import { SharedModule } from '../../shared/shared.module';
     CrearRutaComponent,
     MisRutasComponent,
     VerTodasComponent,
-    DetalleRutaComponent
+    DetalleRutaComponent,
+    RutasPublicasComponent
   ],
   imports: [
     CommonModule,
     RutasRoutingModule,
     ReactiveFormsModule,
     DropdownModule,
-    SharedModule
+    SharedModule,
+    CoreModule,
+    HttpClientModule
 ]
 })
 export class RutasModule { }

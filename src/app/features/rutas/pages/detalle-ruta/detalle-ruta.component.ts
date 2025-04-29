@@ -25,6 +25,8 @@ export class DetalleRutaComponent implements OnInit {
   mensajeTexto = '';
   tipoMensaje: 'exito' | 'eliminado' | 'warning' = 'exito';
   fotoAmpliada: string | null = null;
+  valoracionSeleccionada = 0;
+  esCreador = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -41,8 +43,7 @@ export class DetalleRutaComponent implements OnInit {
 
     try {
       this.ruta = await this.rutasService.obtenerRutaPorId(id);
-      console.log('Ruta cargada:', this.ruta);
-      console.log('Puntos:', this.ruta?.puntos);
+      this.esCreador = this.ruta?.usuarioCreador === this.rutasService.getUserId();
       if (!this.ruta) {
         this.mostrarMensajeError('No se encontró la ruta solicitada');
         this.router.navigate(['/rutas/mis-rutas']);
@@ -203,6 +204,25 @@ export class DetalleRutaComponent implements OnInit {
 
       this.markers.push(marker);
     });
+  }
+
+  seleccionarValoracion(valor: number): void {
+    this.valoracionSeleccionada = valor;
+  }
+
+  async enviarValoracion(): Promise<void> {
+    if (!this.ruta?.id || !this.valoracionSeleccionada) return;
+
+    try {
+      await this.rutasService.actualizarValoracion(this.ruta.id, this.valoracionSeleccionada);
+      this.mensajeTexto = '¡Gracias por tu valoración!';
+      this.tipoMensaje = 'exito';
+      this.mostrarMensaje = true;
+      this.valoracionSeleccionada = 0;
+    } catch (error) {
+      console.error('Error al enviar valoración:', error);
+      this.mostrarMensajeError('No se pudo enviar la valoración.');
+    }
   }
 
   seleccionarPunto(punto: PuntoLocalizacion): void {

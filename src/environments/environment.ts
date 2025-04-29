@@ -10,6 +10,7 @@ export const environment = {
     measurementId: "G-1ET3YJ2HDN"
   },
   mapbox_key: 'pk.eyJ1Ijoicm1vcmVubzAzIiwiYSI6ImNtOHdzOXBhNDA2NDYybHIxbThqOHR3cXIifQ.4vsuh0it8sEzlVo1mfRPCA',
+  firebaseFunctionsUrl: 'https://generarmapaimagen-zipgrys2wq-uc.a.run.app',
 };
 
 

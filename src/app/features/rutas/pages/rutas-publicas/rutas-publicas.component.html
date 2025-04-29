@@ -1,0 +1,148 @@
+<div class="contenedor-publicas">
+  <!-- Encabezado -->
+  <div class="publicas-header">
+    <h2><i class="fas fa-route"></i> Rutas Públicas</h2>
+
+    <div class="filtros-container">
+      <!-- Búsqueda -->
+      <div class="campo-busqueda">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Buscar rutas..." [formControl]="busquedaControl" aria-label="Buscar rutas">
+      </div>
+
+      <!-- Filtro tipo -->
+      <select class="select-filtro" [formControl]="tipoRutaControl" aria-label="Filtrar por tipo">
+        <option value="todos">Todos los tipos</option>
+        <option value="driving">En coche</option>
+        <option value="walking">A pie</option>
+        <option value="cycling">En bicicleta</option>
+      </select>
+
+      <!-- Filtro orden -->
+      <select class="select-filtro" [formControl]="ordenControl" aria-label="Ordenar por">
+        <option value="recientes">Más recientes</option>
+        <option value="valoracion">Mejor valoradas</option>
+        <option value="populares">Más populares</option>
+        <option value="distancia">Menor distancia</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Mensajes de carga y estado -->
+  <div class="estado-container" *ngIf="cargando || mostrarMensaje || rutasFiltradas.length === 0">
+    <!-- Cargando -->
+    <div class="mensaje cargando" *ngIf="cargando" [@fadeInOut]>
+      <i class="fas fa-circle-notch fa-spin"></i>
+      <p>Cargando rutas disponibles...</p>
+    </div>
+
+    <!-- Mensaje popup -->
+    <div class="mensaje" *ngIf="mostrarMensaje && !cargando" [@fadeInOut]
+      [ngClass]="{
+        'exito': tipoMensaje === 'exito',
+        'warning': tipoMensaje === 'warning',
+        'eliminado': tipoMensaje === 'eliminado',
+        'info': tipoMensaje === 'info'
+      }">
+      <i class="fas"
+        [ngClass]="{
+          'fa-check-circle': tipoMensaje === 'exito',
+          'fa-exclamation-triangle': tipoMensaje === 'warning',
+          'fa-trash-alt': tipoMensaje === 'eliminado',
+          'fa-info-circle': tipoMensaje === 'info'
+        }"></i>
+      <p>{{ mensajeTexto }}</p>
+    </div>
+
+    <!-- Sin resultados -->
+    <div class="mensaje" *ngIf="!cargando && rutasFiltradas.length === 0 && !mostrarMensaje" [@fadeInOut]>
+      <i class="fas fa-map-marked-alt"></i>
+      <p>No se encontraron rutas que coincidan con la búsqueda.</p>
+      <button class="btn-detalle" (click)="busquedaControl.setValue(''); tipoRutaControl.setValue('todos')">
+        <i class="fas fa-sync"></i> Restablecer filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid de rutas -->
+  <div class="grid-rutas" *ngIf="!cargando && rutasFiltradas.length > 0">
+    <div class="tarjeta-ruta" *ngFor="let ruta of rutasPaginadas" (click)="verDetalleRuta(ruta.id)" tabindex="0">
+
+      <!-- Imagen -->
+      <div class="map-thumbnail">
+        <img [src]="ruta.imagenUrl || '/assets/images/map-placeholder.jpg'" [alt]="'Mapa de ' + ruta.nombre">
+
+        <!-- Tipo badge -->
+        <div class="tipo-badge" [ngClass]="ruta.tipoRuta.toLowerCase()">
+          <i class="fas" [ngClass]="getIconoTipo(ruta.tipoRuta)"></i>
+          {{ ruta.tipoRuta }}
+        </div>
+      </div>
+
+      <!-- Información -->
+      <div class="info-container">
+        <h3>{{ ruta.nombre }}</h3>
+
+        <div class="detalle-ruta">
+          <div class="detalle-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ ruta.ubicacionInicio || 'Ubicación no disponible' }}</span>
+          </div>
+          <div class="detalle-item">
+            <i class="fas fa-route"></i>
+            <span>{{ formatearNumero(ruta.distanciaKm, ' km') }}</span>
+          </div>
+          <div class="detalle-item">
+            <i class="fas fa-clock"></i>
+            <span>{{ ruta.tiempoEstimado || 'Tiempo no disponible' }}</span>
+          </div>
+          <div class="detalle-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ formatearFecha(ruta.fechaCreacion) }}</span>
+          </div>
+        </div>
+
+        <!-- Valoraciones -->
+        <div class="evaluacion">
+          <div class="estrellas">
+            <i class="fas" *ngFor="let estrella of getEstrellas(ruta.valoracionPromedio)" [ngClass]="estrella ? 'fa-star' : 'fa-star-o'"></i>
+          </div>
+          <span>{{ formatearNumero(ruta.valoracionPromedio) }}</span>
+
+          <div class="contador-visitas">
+            <i class="fas fa-eye"></i>
+            <span>{{ ruta.visitas || 0 }}</span>
+          </div>
+        </div>
+
+        <!-- Botón ver -->
+        <button class="btn-detalle" (click)="$event.stopPropagation(); verDetalleRuta(ruta.id)">
+          <i class="fas fa-info-circle"></i> Ver detalles
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="paginacion" *ngIf="!cargando && totalPaginas > 1">
+    <button class="btn-pagina" [disabled]="paginaActual === 1" (click)="irAPagina(1)">
+      <i class="fas fa-angle-double-left"></i>
+    </button>
+    <button class="btn-pagina" [disabled]="paginaActual === 1" (click)="irAPagina(paginaActual - 1)">
+      <i class="fas fa-angle-left"></i>
+    </button>
+
+    <ng-container *ngFor="let pagina of paginas">
+      <button class="btn-pagina" [class.activo]="pagina === paginaActual" (click)="irAPagina(pagina)">
+        {{ pagina }}
+      </button>
+    </ng-container>
+
+    <button class="btn-pagina" [disabled]="paginaActual === totalPaginas" (click)="irAPagina(paginaActual + 1)">
+      <i class="fas fa-angle-right"></i>
+    </button>
+    <button class="btn-pagina" [disabled]="paginaActual === totalPaginas" (click)="irAPagina(totalPaginas)">
+      <i class="fas fa-angle-double-right"></i>
+    </button>
+  </div>
+</div>

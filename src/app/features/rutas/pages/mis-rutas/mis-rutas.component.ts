@@ -5,6 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import mbxDirections from '@mapbox/mapbox-sdk/services/directions';
 import { Ruta } from '../../../../models/ruta.model';
 import { MessageService } from '../../../../core/services/message.service';
+import { Timestamp } from 'firebase/firestore';
 
 @Component({
   standalone: false,
@@ -114,6 +115,32 @@ export class MisRutasComponent implements OnInit {
     this.rutaSeleccionadaId = id;
     this.mostrarConfirmacion = true;
   }
+
+  formatFecha(fecha: Timestamp | Date | string): string {
+        if (!fecha) return '';
+
+        let date: Date;
+
+        if (fecha instanceof Date) {
+          date = fecha;
+        } else if (typeof fecha === 'string') {
+          date = new Date(fecha);
+        } else if ((fecha as Timestamp).toDate) {
+          date = (fecha as Timestamp).toDate();
+        } else {
+          return '';
+        }
+
+        return date.toLocaleString('es-ES', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        }).replace(',', '');
+      }
 
   confirmarEliminacionRuta() {
     if (this.rutaSeleccionadaId) {

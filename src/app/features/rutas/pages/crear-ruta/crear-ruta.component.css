@@ -304,6 +304,7 @@ input[type='text']::placeholder {
   background-color: #ffffff;
   border: 1px solid #e8e8e8;
   padding: 16px;
+  min-height: 70px;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -362,6 +363,7 @@ input[type='text']::placeholder {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -437,6 +439,61 @@ input[type='text']::placeholder {
   outline: none;
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
 }
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.checkbox-inline input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.checkbox-inline input[type="checkbox"]:checked {
+  background-image: linear-gradient(to right, #6a0dad, #bb1c9d, #f3722c);
+  border: none;
+}
+
+.checkbox-inline input[type="checkbox"]:checked::after {
+  content: "✓";
+  color: white;
+  font-weight: bold;
+  position: absolute;
+  top: 0;
+  left: 5px;
+  font-size: 14px;
+}
+
+.checkbox-labels {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-labels label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  cursor: pointer;
+}
+
+.checkbox-labels small {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+
+
 
 /* === MAPA DE PREVISUALIZACIÓN === */
 .mapa-preview {

@@ -2,7 +2,6 @@
 
 import { PuntoLocalizacion } from './punto-localizacion.model';
 import { Timestamp } from '@angular/fire/firestore';
-import mapboxgl from 'mapbox-gl';
 
 // Define el tipo literal para tipoRuta
 export type TipoRuta = 'driving' | 'walking' | 'cycling';
@@ -32,13 +31,21 @@ export interface LineStringGeometry {
 export interface Ruta {
   id?: string;
   nombre: string;
+  descripcion?: string;
   puntos: PuntoLocalizacion[];
   tipoRuta: TipoRuta;
   distanciaKm: number;
   duracionMin: number;
   fechaCreacion: Timestamp;
   usuarioCreador: string;
+  valoracionPromedio?: number;
+  visitas?: number;
+  imagenUrl?: string;
+  ubicacionInicio?: string;
+  tiempoEstimado?: string;
+  isPublic?: boolean;
 }
+
 
 // Tipos útiles para el componente ver-todas
 export interface RutaExtendida extends Ruta {

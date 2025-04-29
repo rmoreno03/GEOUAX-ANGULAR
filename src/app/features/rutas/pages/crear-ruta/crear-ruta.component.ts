@@ -44,7 +44,8 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.formulario = this.fb.group({
       nombre: [''],
-      tipoRuta: ['driving']
+      tipoRuta: ['driving'],
+      isPublic: [false]
     });
 
     this.formulario.get('tipoRuta')?.valueChanges.subscribe(() => {
@@ -136,23 +137,32 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    try {
+      await this.rutasService.crearRuta({
+        nombre,
+        puntos: this.puntosSeleccionados.map(p => ({
+          ...p,
+          fotos: p.fotos ?? []
+        })),
+        tipoRuta: this.formulario.value.tipoRuta?.value || this.formulario.value.tipoRuta || 'driving',
+        isPublic: this.formulario.value.isPublic || false
+      });
 
-    await this.rutasService.crearRuta({
-      nombre,
-      puntos: this.puntosSeleccionados.map(p => ({
-        ...p,
-        fotos: p.fotos ?? []
-      })),
-      tipoRuta: this.formulario.value.tipoRuta?.value || this.formulario.value.tipoRuta || 'driving',
-    });
+      this.mensajeService.setMensaje('Ruta guardada correctamente.', 'exito');
+      this.formulario.reset({ tipoRuta: 'driving' });
+      this.puntosSeleccionados = [];
+      this.router.navigate(['/rutas/mis-rutas']);
+    } catch (error) {
+      // Mostrar popup personalizado con error
+      console.error('Error al crear la ruta:', error);
+      this.mensajeTexto = 'No se pudo crear la ruta: los puntos seleccionados no permiten generar una ruta válida.';
+      this.tipoMensaje = 'warning';
+      this.mostrarMensaje = true;
 
-
-    this.mensajeService.setMensaje('Ruta guardada correctamente.', 'exito');
-    this.formulario.reset({ tipoRuta: 'driving' });
-    this.puntosSeleccionados = [];
-    this.router.navigate(['/rutas/mis-rutas']);
-
+      setTimeout(() => this.mostrarMensaje = false, 4000);
+    }
   }
+
 
   mostrarPopupPersonalizado(texto: string) {
     this.mensajeTexto = texto;
