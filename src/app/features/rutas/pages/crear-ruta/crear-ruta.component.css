@@ -4,7 +4,6 @@
   box-sizing: border-box;
 }
 
-
 body {
   background: #f4f4f4;
   margin: 0;
@@ -15,7 +14,6 @@ body {
 .container {
   padding: 32px;
   max-width: 100%;
-  max-height: 100%;
   width: 400vh;
   height: 90vh;
   margin: 0 auto;
@@ -24,6 +22,20 @@ body {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* Barra decorativa lateral */
+.container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 5px;
+  background: linear-gradient(to bottom, #d71920, #f7941d);
+  z-index: 1;
+  border-radius: 0 4px 4px 0;
 }
 
 h2 {
@@ -40,6 +52,7 @@ h2 {
   display: flex;
   gap: 32px;
   flex-wrap: wrap;
+  height: calc(90vh - 100px);
 }
 
 .formulario {
@@ -48,11 +61,38 @@ h2 {
   flex-direction: column;
   gap: 16px;
   height: 73vh;
+  overflow-y: auto;
+}
+
+/* Scrollbar personalizado */
+.formulario::-webkit-scrollbar {
+  width: 6px;
+}
+
+.formulario::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #d71920, #f7941d);
+  border-radius: 3px;
+}
+
+.formulario::-webkit-scrollbar-track {
+  background: #f2f2f2;
+}
+
+.formulario form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
 }
 
 .formulario label {
   font-weight: 500;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   color: #333;
 }
 
@@ -71,18 +111,84 @@ input[type='text']:focus {
   box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.2);
 }
 
+input[type='text'].error {
+  border-color: #d71920;
+  background-color: rgba(215, 25, 32, 0.05);
+}
+
+.error-msg {
+  color: #d71920;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.subtitulo {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+  margin: 16px 0 8px;
+}
+
+.datos-ruta {
+  display: flex;
+  gap: 16px;
+  background-color: #fff3e0;
+  border: 1px solid #ffe0bd;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+}
+
+.etiqueta {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.valor {
+  font-weight: 600;
+  color: #f7941d;
+}
+
 .lista-puntos {
   max-height: 300px;
   overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+.lista-puntos::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-puntos::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #d71920, #f7941d);
+  border-radius: 3px;
+}
+
+.lista-puntos::-webkit-scrollbar-track {
+  background: #f2f2f2;
+}
+
+.no-puntos {
+  grid-column: 1 / -1;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  text-align: center;
+  color: #777;
 }
 
 .punto {
   background-color: #f9f9f9;
   border: 2px solid #eee;
-  padding: 1rem;
+  padding: 16px;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -90,6 +196,8 @@ input[type='text']:focus {
 
 .punto:hover {
   background-color: #f1f1f1;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .punto.seleccionado {
@@ -98,10 +206,15 @@ input[type='text']:focus {
   font-weight: bold;
 }
 
+.punto strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
 .botones {
   display: flex;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 20px;
   justify-content: flex-end;
 }
 
@@ -110,13 +223,16 @@ input[type='text']:focus {
   color: #fff;
   border: none;
   border-radius: 10px;
-  padding: 6px 14px;
+  padding: 12px 20px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-primary:hover {
@@ -124,18 +240,27 @@ input[type='text']:focus {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .btn-secondary {
   background: linear-gradient(135deg, #f4f4f4, #ddd);
   color: #333;
   border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 6px 14px;
+  padding: 12px 20px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-secondary:hover {
@@ -143,7 +268,7 @@ input[type='text']:focus {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 
-/* Reemplaza este selector si ya tienes algo similar */
+/* Dropdown personalizado */
 .dropdown-custom.p-dropdown {
   position: relative;
   border-radius: 10px;
@@ -180,7 +305,6 @@ input[type='text']:focus {
   color: #f7941d;
 }
 
-
 .mapa-preview {
   flex: 1 1 400px;
   border-radius: 12px;
@@ -188,11 +312,123 @@ input[type='text']:focus {
   overflow: hidden;
   min-height: 500px;
   background: #fff;
+  position: relative;
 }
 
 #map-preview {
-  width: 89.5vh;
+  width: 100%;
   height: 72.5vh;
 }
 
+/* Overlays para carga */
+.loading-overlay, .route-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
 
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #f7941d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive: iPad Air */
+@media (max-width: 1180px) {
+  .container {
+    padding: 24px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+  }
+
+  .crear-punto-wrapper {
+    gap: 24px;
+  }
+
+  .lista-puntos {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  #map-preview {
+    height: 60vh;
+  }
+}
+
+/* Responsive: iPhone 15 Pro */
+@media (max-width: 430px) {
+  .container {
+    padding: 20px;
+    border-radius: 16px;
+    height: auto;
+    min-height: 90vh;
+  }
+
+  .container::before {
+    width: 4px;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    padding-left: 14px;
+    margin-bottom: 20px;
+  }
+
+  .crear-punto-wrapper {
+    flex-direction: column;
+    gap: 20px;
+    height: auto;
+  }
+
+  .formulario {
+    height: auto;
+    max-height: 60vh;
+  }
+
+  .lista-puntos {
+    grid-template-columns: 1fr;
+    max-height: 200px;
+  }
+
+  .mapa-preview {
+    min-height: 300px;
+  }
+
+  #map-preview {
+    height: 300px;
+  }
+
+  .botones {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+  }
+
+  .datos-ruta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
