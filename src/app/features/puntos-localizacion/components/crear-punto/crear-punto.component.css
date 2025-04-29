@@ -1,11 +1,10 @@
-/* -----------------------------------
-   Estilos base (igual que en tu tabla)
---------------------------------------*/
+/* aplicar fuente y box-sizing a todo */
 * {
   font-family: 'Poppins', sans-serif;
   box-sizing: border-box;
 }
 
+/* estilo base del body */
 body {
   background: #f4f4f4;
   color: #1a1a1a;
@@ -13,9 +12,7 @@ body {
   padding: 0;
 }
 
-/* -----------------------------------
-   .container (idéntico a tu tabla)
---------------------------------------*/
+/* contenedor principal */
 .container {
   padding: 32px;
   max-width: 100%;
@@ -30,9 +27,7 @@ body {
   overflow-x: hidden;
 }
 
-/* -----------------------------------
-   Título (igual que tu tabla)
---------------------------------------*/
+/* título principal */
 h2 {
   font-size: 2rem;
   font-weight: 600;
@@ -43,32 +38,30 @@ h2 {
   text-transform: uppercase;
 }
 
-/* -----------------------------------
-   Wrapper para el formulario y el mapa
---------------------------------------*/
+/* wrapper para formulario y mapa */
 .crear-punto-wrapper {
   display: flex;
   gap: 32px;
-  flex-wrap: wrap; /* Para que en pantallas pequeñas salte abajo el mapa o el form */
+  flex-wrap: wrap;
 }
 
-/* -----------------------------------
-   Formulario
---------------------------------------*/
+/* formulario de creación */
 .formulario {
-  flex: 1 1 400px; /* Se adaptará, mínimo ~400px */
+  flex: 1 1 400px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   height: 73vh;
 }
 
+/* etiquetas del formulario */
 .formulario label {
   font-weight: 500;
   margin-bottom: 4px;
   color: #333;
 }
 
+/* campos de entrada de texto y área de texto */
 .formulario input,
 .formulario textarea {
   width: 100%;
@@ -86,16 +79,15 @@ h2 {
   box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.2);
 }
 
-/* -----------------------------------
-   Botones (similar a .btn-primary de tu tabla)
---------------------------------------*/
-
+/* contenedor de botones */
 .botones {
-  display: flex;        /* Activamos Flexbox */
-  gap: 12px;            /* Separación entre botones */
-  margin-top: 16px;     /* Espacio superior respecto a los campos */
-  justify-content: flex-end; /* Alineación a la derecha */
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: flex-end;
 }
+
+/* botón primario */
 .btn-primary {
   background: linear-gradient(135deg, #d71920, #f7941d);
   color: #fff;
@@ -118,7 +110,7 @@ h2 {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 
-/* Botón secundario (estilo gris) */
+/* botón secundario */
 .btn-secondary {
   background: linear-gradient(135deg, #f4f4f4, #ddd);
   color: #333;
@@ -140,10 +132,12 @@ h2 {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 
+/* contenedor de previsualización de imágenes */
 .preview-container {
   margin-top: 20px;
 }
 
+/* grid de imágenes previsualizadas */
 .preview-grid {
   display: flex;
   flex-wrap: wrap;
@@ -158,9 +152,7 @@ h2 {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* -----------------------------------
-   Mapa
---------------------------------------*/
+/* contenedor del mapa */
 .mapa-preview {
   flex: 1 1 400px;
   border-radius: 12px;
@@ -170,18 +162,17 @@ h2 {
   background: #fff;
 }
 
+/* mapa incrustado */
 #map-preview {
   width: 89.5vh;
-  height: 72.5vh
-  ;
+  height: 72.5vh;
 }
 
-/* -----------------------------------
-   Responsividad
---------------------------------------*/
+/* adaptación para tablets */
 @media (max-width: 768px) {
   .container {
     padding: 20px;
+    height: auto;
   }
 
   h2 {
@@ -192,9 +183,41 @@ h2 {
     flex-direction: column;
   }
 
+  .formulario {
+    height: auto;
+  }
+
+  .mapa-preview {
+    min-height: 400px;
+  }
+
+  #map-preview {
+    width: 100%;
+    height: 400px;
+  }
+
   .btn-primary,
   .btn-secondary {
     padding: 6px 10px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* adaptación para móviles pequeños */
+@media (max-width: 480px) {
+  .botones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .preview-grid img {
+    width: 100px;
+    height: 100px;
   }
 }

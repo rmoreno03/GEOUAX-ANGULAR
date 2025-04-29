@@ -1,61 +1,443 @@
+/* === CONTENEDOR PRINCIPAL DE LA PANTALLA === */
 .container {
   padding: 24px;
-  width: 100%;
-  height: calc(100vh - 120px);
+  width: 400vh;
+  max-width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+  background-color: #f9f9f9;
 }
 
+/* === CONTENEDOR FLEXIBLE === */
 .contenedor-mapa {
   display: flex;
   height: 100%;
-  gap: 16px;
+  gap: 20px;
+  position: relative;
 }
 
+/* === SIDEBAR IZQUIERDO === */
 .sidebar {
-  width: 280px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  width: 320px;
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
   overflow-y: auto;
+  flex-shrink: 0;
+  max-height: 100%;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(233, 233, 233, 0.8);
+}
+
+/* Estilos de scrollbar personalizado */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6a0dad, #bb1c9d, #f3722c);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f2f2f2;
 }
 
 .titulo-sidebar {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: #d71920;
   border-left: 4px solid #f7941d;
   padding-left: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+  position: relative;
 }
 
 .lista-puntos {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .item-punto {
-  padding: 12px;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  padding: 14px 16px;
+  border: 1px solid #eeeeee;
+  border-radius: 10px;
   background: #fafafa;
-  margin-bottom: 10px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.item-punto::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(to right, #6a0dad, #bb1c9d, #f3722c);
+  transition: width 0.3s ease;
 }
 
 .item-punto:hover {
-  background: #fff3e0;
+  background: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(247, 148, 29, 0.3);
 }
 
+.item-punto:hover::after {
+  width: 100%;
+}
+
+.item-punto.active {
+  background: linear-gradient(135deg, #f7941d, #f86b1d);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 6px 15px rgba(247, 148, 29, 0.25);
+}
+
+.item-punto:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(215, 25, 32, 0.2);
+}
+
+/* === MAPA A LA DERECHA === */
 .mapa-principal {
   flex-grow: 1;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  width: 100%;
+  border: 1px solid rgba(233, 233, 233, 0.8);
 }
 
 .mapa-gl {
   width: 100%;
   height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* === CUSTOM CONTROLS === */
+.custom-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
+.reset-button {
+  background: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.reset-button:hover {
+  background: #f7f7f7;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.reset-button span {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+/* === POPUP STYLING === */
+.mapboxgl-popup-content {
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid rgba(233, 233, 233, 0.8);
+}
+
+.popup-content {
+  text-align: center;
+}
+
+.popup-content h4 {
+  color: #d71920;
+  margin: 0 0 12px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.popup-content p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.cerrar-popup {
+  background: linear-gradient(135deg, #f7941d, #f86b1d);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin-top: 15px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(247, 148, 29, 0.25);
+}
+
+.cerrar-popup:hover {
+  background: linear-gradient(135deg, #d71920, #e82a31);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(215, 25, 32, 0.25);
+}
+
+/* === LOADING OVERLAY === */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  backdrop-filter: blur(5px);
+  border-radius: 16px;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(233, 233, 233, 0.8);
+  border-top: 4px solid;
+  border-image: linear-gradient(to right, #6a0dad, #bb1c9d, #f3722c) 1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+.loading-overlay p {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* === RESPONSIVE: IPAD AIR === */
+@media (max-width: 1180px) {
+  .container {
+    padding: 20px;
+  }
+
+  .contenedor-mapa {
+    height: calc(100vh - 40px);
+    gap: 16px;
+  }
+
+  .sidebar {
+    width: 280px;
+    padding: 18px;
+  }
+
+  .titulo-sidebar {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+
+  .item-punto {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+}
+
+/* === RESPONSIVE: TABLETS === */
+@media (max-width: 1024px) {
+  .contenedor-mapa {
+    flex-direction: column;
+    height: calc(100vh - 40px);
+  }
+
+  .sidebar {
+    width: 100%;
+    max-height: 220px;
+    margin-bottom: 10px;
+  }
+
+  .lista-puntos {
+    gap: 10px;
+  }
+
+  .mapa-principal {
+    height: calc(100% - 230px);
+    min-height: 450px;
+  }
+
+  .reset-button {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+}
+
+/* === RESPONSIVE: IPHONE 15 PRO === */
+@media (max-width: 430px) {
+  .container {
+    padding: 12px;
+    height: 100vh;
+  }
+
+  .contenedor-mapa {
+    flex-direction: column;
+    gap: 12px;
+    height: calc(100vh - 24px);
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 16px;
+    max-height: 180px;
+    border-radius: 12px;
+  }
+
+  .sidebar::before {
+    width: 3px;
+  }
+
+  .titulo-sidebar {
+    font-size: 1.2rem;
+    margin-bottom: 14px;
+    padding-left: 10px;
+  }
+
+  .item-punto {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+
+  .mapa-principal {
+    width: 100%;
+    height: calc(100% - 192px);
+    min-height: 350px;
+    border-radius: 12px;
+  }
+
+  .custom-controls {
+    top: 12px;
+    right: 12px;
+  }
+
+  .reset-button {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+
+  .mapboxgl-popup-content {
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .popup-content h4 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+
+  .popup-content p {
+    font-size: 0.85rem;
+    margin: 6px 0;
+  }
+
+  .cerrar-popup {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    margin-top: 12px;
+  }
+
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  .loading-overlay p {
+    font-size: 1rem;
+  }
+}
+
+/* === RESPONSIVE: MÓVILES PEQUEÑOS === */
+@media (max-width: 370px) {
+  .container {
+    padding: 10px;
+  }
+
+  .contenedor-mapa {
+    gap: 10px;
+    height: calc(100vh - 20px);
+  }
+
+  .sidebar {
+    max-height: 160px;
+    padding: 14px;
+  }
+
+  .titulo-sidebar {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .item-punto {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  .mapa-principal {
+    height: calc(100% - 170px);
+    min-height: 320px;
+  }
 }

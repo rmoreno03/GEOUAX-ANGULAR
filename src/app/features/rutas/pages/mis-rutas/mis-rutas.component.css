@@ -1,152 +1,399 @@
+css
+/* === ESTILOS GLOBALES === */
 html, body, h1, h2, h3, h4, h5, h6, p, span, label, input, textarea, button, a {
   font-family: 'Poppins', sans-serif;
 }
 
+/* === CONTENEDOR PRINCIPAL === */
 .container {
-  width: 300vh;
+  width: 400vh;
   max-width: 100%;
-  margin-left: auto;
-  padding: 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  margin: 0 auto;
+  padding: 28px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.main-panel.collapsed .container {
-  width: calc(100vw - 80px); /* sidebar colapsado */
+/* Barra decorativa */
+.container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 5px;
+  background: linear-gradient(to bottom, #6a0dad, #bb1c9d, #f3722c);
+  z-index: 1;
+  border-radius: 0 4px 4px 0;
 }
 
-/* Título */
+/* === TÍTULO PRINCIPAL === */
 h2 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 24px;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 30px;
   color: #d71920;
   border-left: 6px solid #f7941d;
-  padding-left: 16px;
+  padding-left: 18px;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  position: relative;
 }
 
-/* Grid de tarjetas */
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 24px;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #f7941d, transparent);
+  border-radius: 2px;
+}
+
+/* === GRID DE TARJETAS === */
 .rutas-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 24px;
-  margin-top: 24px;
+  gap: 28px;
+  margin-top: 30px;
 }
 
-/* Tarjetas */
+/* === TARJETA DE RUTA === */
 .tarjeta-ruta {
-  background: #fafafa;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  border: 1px solid rgba(233, 233, 233, 0.8);
+  position: relative;
+}
+
+.tarjeta-ruta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, #6a0dad, #bb1c9d, #f3722c);
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .tarjeta-ruta:hover {
-  transform: scale(1.01);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* Mapa embebido */
+.tarjeta-ruta:hover::before {
+  opacity: 1;
+}
+
+/* === MAPA DENTRO DE LA TARJETA === */
 .mapa-ruta {
   height: 220px;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Contenido */
+/* === CONTENIDO DE LA TARJETA === */
 .contenido {
-  padding: 16px;
+  padding: 20px;
+  flex-grow: 1;
 }
 
+/* === CABECERA DE LA TARJETA === */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 15px;
 }
 
-/* Estilo tipo de ruta */
+/* === TÍTULO DE LA RUTA === */
+.header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  padding-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
+}
+
+/* === TIPO DE RUTA === */
 .tipo {
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: #f7941d;
   display: flex;
   align-items: center;
   gap: 6px;
   text-transform: capitalize;
+  background: rgba(247, 148, 29, 0.1);
+  padding: 5px 10px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
 }
 
 .tipo i {
-  font-size: 1.1rem;
-  margin-right: 6px;
+  font-size: 1rem;
 }
 
+/* === INFORMACIÓN DE LA RUTA === */
+.contenido p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  line-height: 1.4;
+}
+
+.contenido p strong {
+  min-width: 90px;
+  color: #333;
+  font-weight: 600;
+}
+
+/* === ACCIONES DE LA TARJETA === */
 .acciones-tarjeta {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  border-top: 1px solid #eaeaea;
+  padding: 18px 20px;
+  border-top: 1px solid #f0f0f0;
   margin-top: auto;
-  gap: 1rem;
+  gap: 15px;
 }
 
+/* === BOTONES DE ACCIÓN === */
 .acciones-tarjeta button {
   flex: 1;
-  padding: 0.6rem 1rem;
-  font-size: 0.95rem;
-  font-weight: 500;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
   border: none;
-  border-radius: 10px;
-  text-transform: uppercase;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
+  text-transform: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
+/* === BOTÓN VER DETALLE === */
 .btn-detalle {
-  background: linear-gradient(135deg, #1f77b4, #4bb5f5);
+  background: linear-gradient(135deg, #6a0dad, #bb1c9d);
   color: white;
 }
 
+.btn-detalle:hover {
+  background: linear-gradient(135deg, #5a0c93, #a7188a);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(106, 13, 173, 0.25);
+}
+
+/* === BOTÓN ELIMINAR === */
 .btn-eliminar {
-  background: linear-gradient(135deg, #d71920, #f77c7c);
+  background: linear-gradient(135deg, #d71920, #f86b1d);
   color: white;
 }
 
-.acciones-tarjeta button:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.btn-eliminar:hover {
+  background: linear-gradient(135deg, #c0161c, #e45e19);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(215, 25, 32, 0.25);
 }
 
+/* === SCROLLBAR PERSONALIZADO === */
+::-webkit-scrollbar {
+  width: 6px;
+}
 
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6a0dad, #bb1c9d, #f3722c);
+  border-radius: 3px;
+}
 
-/* Responsive */
-@media (max-width: 768px) {
+::-webkit-scrollbar-track {
+  background: #f2f2f2;
+}
+
+/* === RESPONSIVE: IPAD AIR === */
+@media (max-width: 1180px) {
   .container {
-    width: 100vw !important;
-    padding: 20px;
+    padding: 24px;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+  }
+
+  .rutas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+  }
+
+  .header h3 {
+    font-size: 1.2rem;
+  }
+}
+
+/* === RESPONSIVE: TABLETS === */
+@media (max-width: 1024px) {
+  .container {
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+
+  .rutas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .mapa-ruta {
+    height: 200px;
+  }
+
+  .contenido {
+    padding: 18px;
+  }
+}
+
+/* === RESPONSIVE: IPHONE 15 PRO === */
+@media (max-width: 430px) {
+  .container {
+    padding: 18px;
+    border-radius: 15px;
+  }
+
+  .container::before {
+    width: 4px;
   }
 
   h2 {
     font-size: 1.6rem;
+    padding-left: 14px;
+    margin-bottom: 20px;
+  }
+
+  h2::after {
+    left: 18px;
+    width: 45px;
   }
 
   .rutas-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .tarjeta-ruta {
+    border-radius: 15px;
+  }
+
+  .mapa-ruta {
+    height: 180px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header h3 {
+    font-size: 1.2rem;
+    max-width: 100%;
   }
 
   .tipo {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    padding: 4px 12px;
   }
 
-  .tipo i {
-    font-size: 1rem;
+  .contenido p {
+    font-size: 0.9rem;
+  }
+
+  .contenido p strong {
+    min-width: 80px;
+  }
+
+  .acciones-tarjeta {
+    padding: 15px;
+  }
+
+  .acciones-tarjeta button {
+    padding: 10px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+  }
+}
+
+/* === RESPONSIVE: MÓVILES PEQUEÑOS === */
+@media (max-width: 370px) {
+  .container {
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    border-left: 5px solid #f7941d;
+    padding-left: 12px;
+  }
+
+  .mapa-ruta {
+    height: 160px;
+  }
+
+  .contenido {
+    padding: 15px;
+  }
+
+  .acciones-tarjeta {
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .acciones-tarjeta button {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .header h3 {
+    font-size: 1.1rem;
+  }
+
+  .contenido p {
+    font-size: 0.85rem;
+  }
+
+  .contenido p strong {
+    min-width: 75px;
   }
 }

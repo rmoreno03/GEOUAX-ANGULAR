@@ -1,4 +1,4 @@
-/* 🌅 Fondo con degradado */
+/* Fondo con degradado */
 .auth-wrapper {
   display: flex;
   flex-direction: column;
@@ -7,7 +7,7 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* 🧩 Contenido centrado (logo + formulario) */
+/* Contenido centrado (logo + formulario) */
 .auth-content {
   flex: 1;
   display: flex;
@@ -18,23 +18,23 @@
   flex-wrap: wrap;
 }
 
-/* Pantallas grandes: reducir espacio entre auth-left y auth-right */
+/* Pantallas grandes */
 @media (min-width: 1024px) {
   .auth-content {
-    gap: 1rem; /* Reduce el espacio entre los elementos */
-    max-width: 1200px; /* Limita el ancho máximo del contenedor */
-    margin: 0 auto; /* Centra el contenedor */
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 }
 
-/* 🖼️ Logo centrado */
+/* Logo */
 .auth-left {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: 300px;         /* asegúrate de que tenga espacio */
-  max-width: 600px;         /* opcional, para que no se dispare demasiado */
+  min-width: 300px;
+  max-width: 600px;
 }
 
 .auth-logo {
@@ -49,7 +49,7 @@
   filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.12));
 }
 
-/* 📋 Formulario centrado */
+/* Formulario */
 .auth-right {
   flex: 1;
   min-width: 320px;
@@ -59,20 +59,46 @@
   padding-bottom: 1rem;
 }
 
-/* 🎬 Animación suave al aparecer */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
-/* 📱 Responsive: compacto en pantallas pequeñas */
-@media (max-height: 750px), (max-width: 768px) {
+@media (max-width: 480px) {
   .auth-content {
-    gap: 1rem;
+    flex-direction: column;
+    gap: 1.5rem;
     padding: 1rem;
   }
 
+  .auth-left, .auth-right {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .auth-logo {
-    width: 300px;
+    width: 260px;
+  }
+}
+
+
+@media (max-width: 900px) and (min-width: 481px) {
+  .auth-content {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1.5rem;
+  }
+
+  .auth-left, .auth-right {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .auth-logo {
+    width: 360px;
+  }
+}
+
+/*  Altura limitada */
+@media (max-height: 750px) {
+  .auth-content {
+    gap: 1rem;
+    padding: 1rem;
   }
 }

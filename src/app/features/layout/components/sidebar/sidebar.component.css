@@ -1,3 +1,4 @@
+/* sidebar fijo a la izquierda de la pantalla */
 :host {
   display: flex;
   flex-direction: column;
@@ -15,11 +16,12 @@
   box-shadow: 3px 0 12px rgba(0, 0, 0, 0.1);
 }
 
+/* versión colapsada del sidebar */
 :host(.collapsed) {
   width: 80px;
 }
 
-/* Contenedor principal */
+/* estructura principal interna */
 .sidebar-container {
   display: flex;
   flex-direction: column;
@@ -28,7 +30,7 @@
   justify-content: space-between;
 }
 
-/* LOGO */
+/* logo del sidebar */
 .logo {
   display: flex;
   align-items: center;
@@ -46,6 +48,7 @@
   transition: all 0.3s ease;
 }
 
+/* ocultar texto del logo en modo colapsado */
 :host(.collapsed) .logo span {
   display: none;
 }
@@ -56,13 +59,12 @@
   margin-left: -5px;
 }
 
-/* MENÚ */
+/* menú de navegación principal */
 .menu {
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 0 16px;
-  /* iconos más arriba: quitamos espacio entre logo y menú */
   margin-top: -10px;
 }
 
@@ -97,6 +99,7 @@
   transition: font-size 0.3s ease;
 }
 
+/* estilo del menú en modo colapsado */
 :host(.collapsed) .menu a span {
   display: none;
 }
@@ -109,7 +112,7 @@
   font-size: 1.6rem;
 }
 
-/* LOGOUT */
+/* contenedor del botón de cierre de sesión */
 .logout-button {
   padding: 0 16px;
   margin-top: auto;
@@ -141,6 +144,7 @@
   transition: font-size 0.3s ease;
 }
 
+/* versión colapsada del botón de logout */
 :host(.collapsed) .logout-btn span {
   display: none;
 }
@@ -153,22 +157,54 @@
   font-size: 1.6rem;
 }
 
-/* Responsive */
+/* adaptación para pantallas de tablet y móviles */
 @media (max-width: 768px) {
   :host {
-    width: 200px;
+    width: 220px;
   }
 
   :host(.collapsed) {
-    width: 80px;
+    width: 72px;
   }
 
   .logo {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+
+  .logo img {
+    width: 110px;
+  }
+
+  :host(.collapsed) .logo img {
+    width: 90px;
   }
 
   .menu a {
     font-size: 0.9rem;
     padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .menu i {
+    font-size: 1.2rem;
+  }
+
+  :host(.collapsed) .menu i {
+    font-size: 1.5rem;
+  }
+
+  .logout-btn {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    gap: 12px;
+  }
+
+  .logout-btn i {
+    font-size: 1.2rem;
+  }
+
+  :host(.collapsed) .logout-btn i {
+    font-size: 1.5rem;
   }
 }

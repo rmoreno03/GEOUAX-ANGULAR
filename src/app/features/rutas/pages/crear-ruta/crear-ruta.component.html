@@ -1,5 +1,12 @@
 <div class="container">
-  <h2>Crear Nueva Ruta</h2>
+  <div class="titulo-crear-ruta">
+    <h2>Crear Nueva Ruta</h2>
+    <div class="acciones-ruta">
+      <button type="submit" class="btn-primary">Guardar Ruta</button>
+      <button type="button" class="btn-secondary" routerLink="/rutas/mis-rutas">Cancelar</button>
+    </div>
+  </div>
+
   <div class="crear-punto-wrapper">
     <!-- FORMULARIO -->
     <div class="formulario">
@@ -40,15 +47,8 @@
             tabindex="0"
             class="punto"
           >
-            <strong>{{ punto.nombre }}</strong><br />
-            <small>{{ punto.descripcion }}</small>
+            <strong>{{ punto.nombre }}</strong>
           </div>
-        </div>
-
-
-        <div class="botones">
-          <button type="submit" class="btn-primary">Guardar Ruta</button>
-          <button type="button" class="btn-secondary" routerLink="/rutas/mis-rutas">Cancelar</button>
         </div>
       </form>
     </div>

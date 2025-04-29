@@ -12,7 +12,7 @@ export class FooterComponent {
   isInfoPanelOpen = false;
 
   openInfoPanel() {
-    this.isInfoPanelOpen = true;
+    this.isInfoPanelOpen = !this.isInfoPanelOpen;
   }
 
   closeInfoPanel() {

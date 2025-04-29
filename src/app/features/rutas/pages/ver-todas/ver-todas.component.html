@@ -1,3 +1,4 @@
+<!-- ver-todas.component.html -->
 <div class="container">
   <div class="contenedor-mapa">
     <aside class="sidebar">
@@ -9,6 +10,7 @@
           (keydown.enter)="centrarRuta(ruta)"
           tabindex="0"
           class="item-punto"
+          [class.active]="rutaSeleccionada?.id === ruta.id"
         >
           {{ ruta.nombre }}
         </li>
@@ -17,6 +19,13 @@
 
     <section class="mapa-principal">
       <div id="mapa" class="mapa-gl"></div>
+      <div id="custom-controls" class="custom-controls"></div>
+
+      <!-- Overlay de carga -->
+      <div class="loading-overlay" *ngIf="cargandoMapa">
+        <div class="loading-spinner"></div>
+        <p>Cargando mapa...</p>
+      </div>
     </section>
   </div>
 </div>

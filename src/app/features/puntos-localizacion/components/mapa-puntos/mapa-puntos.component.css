@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
+/* aplica poppins y box-sizing a todo */
 * {
   font-family: 'Poppins', sans-serif;
   box-sizing: border-box;
@@ -7,7 +8,7 @@
   padding: 0;
 }
 
-/* Contenedor general (como .container en detalle) */
+/* contenedor general */
 .container {
   padding: 32px;
   max-width: 100%;
@@ -22,7 +23,7 @@
   display: flex;
 }
 
-/* Vista principal de mapa + lista */
+/* estructura principal mapa + sidebar */
 .contenedor-mapa {
   display: flex;
   width: 100%;
@@ -32,7 +33,7 @@
   overflow: hidden;
 }
 
-/* Barra lateral izquierda */
+/* barra lateral */
 .sidebar {
   width: 380px;
   padding: 24px;
@@ -43,6 +44,7 @@
   scrollbar-color: #d71920 #f0f0f0;
 }
 
+/* personalización scroll en sidebar */
 .sidebar::-webkit-scrollbar {
   width: 8px;
 }
@@ -52,7 +54,7 @@
   border-radius: 10px;
 }
 
-/* Título */
+/* título en sidebar */
 .titulo-sidebar {
   font-size: 1.1rem;
   font-weight: 600;
@@ -63,7 +65,7 @@
   text-transform: uppercase;
 }
 
-/* Lista de puntos */
+/* lista de puntos */
 .lista-puntos {
   list-style: none;
   display: flex;
@@ -71,6 +73,7 @@
   gap: 12px;
 }
 
+/* ítem de la lista */
 .item-punto {
   padding: 12px 16px;
   background: #fff;
@@ -83,25 +86,27 @@
   transition: all 0.2s ease;
 }
 
+/* efecto hover en ítem */
 .item-punto:hover {
   background: #fff1f0;
   color: #d71920;
   border-color: #f7941d;
 }
 
-/* Contenedor del mapa */
+/* área principal del mapa */
 .mapa-principal {
   flex: 1;
   height: 100%;
   background: #f4f4f4;
 }
 
+/* mapa embebido */
 .mapa-gl {
   width: 100%;
   height: 100%;
 }
 
-/* Responsive */
+/* responsive para tablet y móvil */
 @media (max-width: 768px) {
   .contenedor-mapa {
     flex-direction: column;
@@ -116,5 +121,26 @@
 
   .mapa-principal {
     height: 75vh;
+  }
+}
+
+/* responsive específico para móviles muy pequeños */
+@media (max-width: 480px) {
+  .container {
+    padding: 20px;
+    height: auto;
+  }
+
+  .sidebar {
+    padding: 20px;
+  }
+
+  .item-punto {
+    font-size: 0.9rem;
+    padding: 10px 14px;
+  }
+
+  .mapa-principal {
+    height: 65vh;
   }
 }

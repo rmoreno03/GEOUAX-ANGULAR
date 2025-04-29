@@ -1,14 +1,28 @@
-<div class="layout">
-  <app-sidebar [class.collapsed]="sidebarCollapsed"></app-sidebar>
+<div class="layout" [class.mobile]="esMovil">
+  <div
+  *ngIf="esMovil && sidebarMobileOpen"
+  class="sidebar-mobile-overlay"
+  (click)="cerrarSidebarMovil()"
+  (keydown.enter)="cerrarSidebarMovil()"
+  (keydown.space)="cerrarSidebarMovil()"
+  tabindex="0"
+  role="button"
+  aria-label="Cerrar barra lateral">
+</div>
 
-  <div class="main-panel" [class.collapsed]="sidebarCollapsed">
+  <app-sidebar
+    [class.collapsed]="!esMovil && sidebarCollapsed"
+    [class.mobile]="esMovil"
+    [class.sidebar-open]="esMovil && sidebarMobileOpen">
+  </app-sidebar>
+
+  <div class="main-panel" [class.collapsed]="!esMovil && sidebarCollapsed">
     <app-topbar (toggleSidebar)="toggleSidebar()"></app-topbar>
 
     <div class="page-wrapper">
       <div class="content-scroll">
         <router-outlet></router-outlet>
       </div>
-
       <app-footer></app-footer>
     </div>
   </div>

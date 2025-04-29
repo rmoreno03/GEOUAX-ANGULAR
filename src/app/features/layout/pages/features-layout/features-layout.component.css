@@ -2,6 +2,7 @@
   display: flex;
   height: 100vh;
   overflow: hidden;
+  flex-direction: row;
 }
 
 /* Sidebar */
@@ -16,7 +17,7 @@ app-sidebar.collapsed {
   width: 80px;
 }
 
-/* Panel principal (lo que hay a la derecha del sidebar) */
+/* Main panel */
 .main-panel {
   display: flex;
   flex-direction: column;
@@ -30,24 +31,20 @@ app-sidebar.collapsed {
   margin-left: 80px;
 }
 
-/* Topbar fijo arriba */
-app-topbar {
-  flex-shrink: 0;
-  width: 100%;
-  position: relative;
-  z-index: 10;
-}
-
-/* Footer fijo abajo */
+/* Topbar y Footer */
+app-topbar,
 app-footer {
   width: 100%;
-  margin-top: auto;
-  flex-shrink: 0;
   position: relative;
   z-index: 10;
+  flex-shrink: 0;
 }
 
-/* Contenedor central que envuelve el contenido entre topbar y footer */
+app-footer {
+  margin-top: auto;
+}
+
+/* Page wrapper */
 .page-wrapper {
   display: flex;
   flex-direction: column;
@@ -55,10 +52,53 @@ app-footer {
   overflow: hidden;
 }
 
-/* Área scrollable donde está la tabla, formulario, etc. */
+/* Scrollable content */
 .content-scroll {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
   background-color: #f4f4f4;
+}
+
+/* ----------------------------- */
+/* RESPONSIVE DESIGN */
+/* ----------------------------- */
+
+/* Tablets (iPad vertical y horizontal) */
+@media (max-width: 1024px) {
+  app-sidebar {
+    width: 200px;
+  }
+
+  .main-panel {
+    margin-left: 200px;
+  }
+
+  .main-panel.collapsed {
+    margin-left: 80px;
+  }
+
+  .content-scroll {
+    padding: 16px;
+  }
+}
+
+/* Móviles (iPhone 15 Pro y similares) */
+@media (max-width: 600px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  app-sidebar {
+    display: none;
+  }
+
+  .main-panel,
+  .main-panel.collapsed {
+    margin-left: 0;
+  }
+
+  .content-scroll {
+    padding: 12px;
+  }
 }

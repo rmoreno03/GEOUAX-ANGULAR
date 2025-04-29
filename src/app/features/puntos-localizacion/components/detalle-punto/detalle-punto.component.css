@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 @import "primeicons/primeicons.css";
 
-/* Reset y configuración base */
+/* reset base */
 * {
   font-family: 'Poppins', sans-serif;
   box-sizing: border-box;
@@ -13,7 +13,7 @@ body {
   background-color: #f5f5f5;
 }
 
-/* Contenedor principal */
+/* contenedor principal */
 .container {
   padding: 32px;
   max-width: 100%;
@@ -28,7 +28,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Estilos de encabezados */
+/* encabezados */
 h2 {
   font-size: 2rem;
   font-weight: 600;
@@ -40,13 +40,14 @@ h2 {
   letter-spacing: 0.5px;
 }
 
-/* Estructura de layout */
+/* estructura detalle punto */
 .detalle-punto-wrapper {
   display: flex;
   gap: 32px;
   flex-wrap: wrap;
 }
 
+/* panel de información */
 .info-punto {
   flex: 1 1 400px;
   display: flex;
@@ -58,6 +59,7 @@ h2 {
   scrollbar-color: #d71920 #f0f0f0;
 }
 
+/* scroll personalizado */
 .info-punto::-webkit-scrollbar {
   width: 8px;
 }
@@ -73,7 +75,7 @@ h2 {
   border: 2px solid #f0f0f0;
 }
 
-/* Estilos para la información en modo vista */
+/* campos de información */
 .info p {
   font-size: 1rem;
   margin: 8px 0;
@@ -86,7 +88,7 @@ h2 {
   font-weight: 600;
 }
 
-/* Estilos para los botones de acción */
+/* grupo de botones */
 .botones {
   display: flex;
   gap: 12px;
@@ -94,6 +96,7 @@ h2 {
   justify-content: flex-end;
 }
 
+/* botones principales */
 .btn-primary {
   background: linear-gradient(135deg, #d71920, #f7941d);
   color: #fff;
@@ -179,13 +182,12 @@ button:disabled {
   box-shadow: none !important;
 }
 
-/* Estilos para el mapa */
+/* mapa principal */
 .mapa-preview {
   flex: 1 1 400px;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  min-height: 500px;
   background: #fff;
   border: 1px solid #eaeaea;
 }
@@ -195,7 +197,7 @@ button:disabled {
   height: 72.5vh;
 }
 
-/* Estilos para estados de carga y error */
+/* mensajes de carga o error */
 .loading, .error {
   text-align: center;
   margin-top: 40px;
@@ -211,7 +213,7 @@ button:disabled {
   color: #d71920;
 }
 
-/* ===== ESTILOS MEJORADOS PARA IMÁGENES Y CHECKBOXES ===== */
+/* imágenes de puntos */
 .imagenes {
   display: flex;
   flex-wrap: wrap;
@@ -220,6 +222,7 @@ button:disabled {
   padding: 10px 0;
 }
 
+/* contenedor de imagen */
 .foto-container {
   position: relative;
   transition: all 0.3s ease;
@@ -231,6 +234,7 @@ button:disabled {
   transform: translateY(-5px);
 }
 
+/* foto de punto */
 .foto-punto {
   width: 170px;
   height: 170px;
@@ -245,10 +249,9 @@ button:disabled {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Estilo para los checkboxes */
+/* checkbox sobre la imagen */
 .foto-container input[type="checkbox"] {
   appearance: none;
-  -webkit-appearance: none;
   width: 20px;
   height: 20px;
   border: 2px solid #d71920;
@@ -277,29 +280,14 @@ button:disabled {
   transform: translate(-50%, -50%);
 }
 
-/* Contenedor para el checkbox y texto */
-.foto-container div {
-  display: flex;
-  align-items: center;
-  margin-top: 8px;
-  padding: 5px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  font-size: 0.9rem;
-  color: #333;
-  justify-content: center;
-}
-
-/* Efecto visual cuando una foto está marcada para eliminar */
-.foto-container input[type="checkbox"]:checked + .foto-punto,
-.foto-container input[type="checkbox"]:checked ~ .foto-punto {
+/* efecto al marcar para eliminar */
+.foto-container input[type="checkbox"]:checked ~ img {
   border-color: #d71920;
   opacity: 0.7;
   filter: grayscale(50%);
 }
 
-/* Animación para las fotos marcadas para eliminar */
+/* animación pulsante en fotos seleccionadas */
 @keyframes pulseDelete {
   0% { opacity: 0.7; }
   50% { opacity: 0.5; }
@@ -310,7 +298,7 @@ button:disabled {
   animation: pulseDelete 2s infinite;
 }
 
-/* Estilos para el formulario de edición */
+/* formulario de edición */
 .form-edicion {
   display: flex;
   flex-direction: column;
@@ -319,9 +307,9 @@ button:disabled {
   background: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-  animation: fadeIn 0.3s ease-in-out;
 }
 
+/* campos en formulario de edición */
 .form-edicion label {
   display: flex;
   flex-direction: column;
@@ -337,45 +325,24 @@ button:disabled {
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
-  font-family: 'Poppins', sans-serif;
-  transition: all 0.2s ease;
-  background-color: white;
+  background: white;
 }
 
 .form-edicion input:focus,
 .form-edicion textarea:focus {
   border-color: #f7941d;
-  outline: none;
   box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.2);
 }
 
-.form-edicion textarea {
-  min-height: 120px;
-  resize: vertical;
-}
-
-/* Estilo mejorado para input file */
+/* input file mejorado */
 .form-edicion input[type="file"] {
   padding: 10px;
   border: 2px dashed #ddd;
-  border-radius: 8px;
   background-color: #fcfcfc;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
 }
 
-.form-edicion input[type="file"]:hover {
-  border-color: #f7941d;
-  background-color: #fff9f4;
-}
-
-.form-edicion input[type="file"]:disabled {
-  border-color: #ddd;
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
+/* contenedor de botones del formulario */
 .form-botones {
   display: flex;
   gap: 12px;
@@ -383,7 +350,7 @@ button:disabled {
   margin-top: 24px;
 }
 
-/* Estilos para indicador de carga de fotos */
+/* indicador de carga */
 .cargando-fotos {
   margin: 16px 0;
   text-align: center;
@@ -391,15 +358,9 @@ button:disabled {
   background-color: #f8f8f8;
   border-radius: 8px;
   border: 1px solid #eaeaea;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
-.cargando-fotos p {
-  color: #f7941d;
-  font-weight: 500;
-  margin-bottom: 10px;
-}
-
+/* loader de carga */
 .loader {
   border: 4px solid rgba(215, 25, 32, 0.1);
   border-top: 4px solid #d71920;
@@ -407,91 +368,35 @@ button:disabled {
   width: 32px;
   height: 32px;
   animation: spin 1s linear infinite;
-  margin: 10px auto;
 }
 
+/* animación de carga */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Animación suave al mostrar el panel de edición */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
-  #map-preview {
-    width: 100%;
-    height: 500px;
-  }
-}
-
-@media (max-width: 992px) {
-  .container {
-    height: auto;
-    padding: 24px;
-  }
-
-  .info-punto {
-    height: auto;
-    max-height: 70vh;
-  }
-}
-
+/* responsive para tablet */
 @media (max-width: 768px) {
-  .container {
-    padding: 20px;
-    border-radius: 12px;
-  }
-
-  h2 {
-    font-size: 1.6rem;
-  }
-
   .detalle-punto-wrapper {
     flex-direction: column;
   }
 
-  .btn-primary,
-  .btn-secondary,
-  .btn-warning {
-    padding: 8px 14px;
-    font-size: 0.9rem;
-  }
-
   #map-preview {
-    height: 350px;
+    width: 100%;
+    height: 400px;
   }
 
-  .form-edicion {
-    padding: 16px;
-  }
-
-  .imagenes {
-    justify-content: center;
+  .botones {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
+/* responsive para móviles */
 @media (max-width: 480px) {
   .container {
     padding: 16px;
-  }
-
-  h2 {
-    font-size: 1.4rem;
-  }
-
-  .foto-container {
-    max-width: 140px;
   }
 
   .foto-punto {
@@ -507,9 +412,7 @@ button:disabled {
     flex-direction: column;
   }
 
-  .btn-primary,
-  .btn-secondary,
-  .btn-warning {
+  .btn-primary, .btn-secondary, .btn-warning {
     width: 100%;
     text-align: center;
   }

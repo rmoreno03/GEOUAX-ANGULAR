@@ -1,3 +1,4 @@
+/* fondo semitransparente que cubre toda la pantalla */
 .dialog-backdrop {
   position: fixed;
   top: 0;
@@ -12,6 +13,7 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
+/* contenedor del cuadro de diálogo */
 .dialog-box {
   background: #fff;
   padding: 40px;
@@ -24,6 +26,7 @@
   font-family: 'Poppins', sans-serif;
 }
 
+/* mensaje principal del diálogo */
 .dialog-box p {
   font-size: 1.5rem;
   font-weight: 600;
@@ -31,12 +34,14 @@
   color: #333;
 }
 
+/* contenedor de botones */
 .botones {
   display: flex;
   justify-content: center;
   gap: 20px;
 }
 
+/* botón de acción principal */
 .btn-danger {
   background: linear-gradient(135deg, #d71920, #f7941d);
   color: #fff;
@@ -55,6 +60,7 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
+/* botón de acción secundaria */
 .btn-secondary {
   background: #f4f4f4;
   border: 1px solid #ccc;
@@ -71,25 +77,66 @@
   transform: scale(1.05);
 }
 
-/* Animaciones */
+/* animación de entrada del fondo */
 @keyframes fadeIn {
   0% {
     opacity: 0;
   }
-
   100% {
     opacity: 1;
   }
 }
 
+/* animación de escala del cuadro de diálogo */
 @keyframes scaleIn {
   0% {
     opacity: 0;
     transform: scale(0.9);
   }
-
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* adaptación responsive para pantallas medianas */
+@media (max-width: 768px) {
+  .dialog-box {
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+  }
+
+  .dialog-box p {
+    font-size: 1.3rem;
+  }
+
+  .botones {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .btn-danger,
+  .btn-secondary {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+}
+
+/* adaptación adicional para móviles pequeños */
+@media (max-width: 480px) {
+  .dialog-box {
+    padding: 20px;
+    max-width: 90%;
+  }
+
+  .dialog-box p {
+    font-size: 1.1rem;
+  }
+
+  .btn-danger,
+  .btn-secondary {
+    padding: 10px 20px;
+    font-size: 0.9rem;
   }
 }

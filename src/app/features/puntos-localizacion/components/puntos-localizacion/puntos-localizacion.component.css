@@ -1,15 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* aplica poppins y box-sizing a todo */
 * {
   font-family: 'Poppins', sans-serif;
   box-sizing: border-box;
-}
-
-body {
-  background: #f4f4f4;
-  color: #1a1a1a;
   margin: 0;
   padding: 0;
 }
 
+/* fondo y color general */
+body {
+  background: #f4f4f4;
+  color: #1a1a1a;
+}
+
+/* contenedor principal */
 .container {
   padding: 30px;
   max-width: 95%;
@@ -21,7 +26,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Título */
+/* título principal */
 h2 {
   font-size: 2rem;
   font-weight: 600;
@@ -32,7 +37,7 @@ h2 {
   text-transform: uppercase;
 }
 
-/* Tabla */
+/* tabla responsive */
 .table-responsive {
   overflow-x: auto;
   max-height: 590px;
@@ -40,6 +45,7 @@ h2 {
   min-width: 1000px;
 }
 
+/* estructura de tabla */
 .table {
   width: 100%;
   min-width: 1000px;
@@ -49,7 +55,7 @@ h2 {
   overflow: hidden;
 }
 
-/* Ocultar fila vacía visualmente */
+/* fila placeholder oculta */
 .fila-placeholder {
   height: 0;
   overflow: hidden;
@@ -60,7 +66,7 @@ h2 {
   visibility: collapse;
 }
 
-/* Encabezados */
+/* encabezados de tabla */
 .table th {
   background: #d71920;
   color: white;
@@ -71,6 +77,7 @@ h2 {
   font-size: 0.95rem;
 }
 
+/* bordes redondeados en las esquinas */
 .table th:first-child {
   border-top-left-radius: 12px;
 }
@@ -79,7 +86,7 @@ h2 {
   border-top-right-radius: 12px;
 }
 
-/* Celdas */
+/* celdas de tabla */
 .table td {
   padding: 14px 16px;
   vertical-align: middle;
@@ -90,19 +97,19 @@ h2 {
   transition: background 0.2s ease-in-out;
 }
 
-/* Hover fila */
+/* hover en filas */
 .table tbody tr:hover {
   background: #fff5f3;
-  transition: background 0.2s ease-in-out;
 }
 
-/* Botonera */
+/* celdas de botones */
 td:last-child {
   text-align: center;
   vertical-align: middle;
   padding: 0;
 }
 
+/* contenedor de botones */
 .botones {
   display: flex;
   justify-content: center;
@@ -111,7 +118,7 @@ td:last-child {
   padding: 10px 0;
 }
 
-/* Botón base */
+/* botón base */
 .btn {
   display: inline-block;
   padding: 3px 12px;
@@ -127,6 +134,7 @@ td:last-child {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* botón primario */
 .btn-primary {
   background: linear-gradient(135deg, #d71920, #f7941d);
   color: #fff;
@@ -137,8 +145,7 @@ td:last-child {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
 
-
-/* -------- BOTÓN ÍCONO + TEXTO SIEMPRE VISIBLE -------- */
+/* botón con icono */
 .btn-icon {
   display: inline-flex;
   align-items: center;
@@ -157,6 +164,7 @@ td:last-child {
   text-transform: uppercase;
 }
 
+/* icono dentro del botón */
 .btn-icon img {
   width: 24px;
   height: 24px;
@@ -164,6 +172,7 @@ td:last-child {
   pointer-events: none;
 }
 
+/* texto dentro del botón */
 .btn-icon .btn-text {
   opacity: 1;
   transform: scale(1);
@@ -172,8 +181,7 @@ td:last-child {
   pointer-events: none;
 }
 
-
-/* Hover: mostrar texto y expandir */
+/* hover en botón icono */
 .btn-icon:hover {
   width: auto;
   padding: 0 16px;
@@ -186,14 +194,14 @@ td:last-child {
   transform: scale(1);
 }
 
-
+/* animación de spinner */
 @keyframes spin {
   100% {
     transform: rotate(360deg);
   }
 }
 
-/* Alertas */
+/* alertas de estado */
 .alert {
   padding: 16px;
   border-radius: 8px;
@@ -215,7 +223,7 @@ td:last-child {
   font-style: italic;
 }
 
-/* Responsive */
+/* responsive tablet y móvil */
 @media (max-width: 768px) {
   .container {
     padding: 20px;
@@ -243,5 +251,28 @@ td:last-child {
 
   .botones {
     flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* responsive móviles pequeños */
+@media (max-width: 480px) {
+  .table-responsive {
+    min-width: 100%;
+  }
+
+  .table {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .btn {
+    font-size: 0.7rem;
+    padding: 8px;
+  }
+
+  .btn-icon {
+    height: 40px;
+    font-size: 0.7rem;
   }
 }

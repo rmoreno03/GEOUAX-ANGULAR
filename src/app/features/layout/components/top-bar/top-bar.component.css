@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
+/* barra superior con sombra y bordes redondeados */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -15,6 +16,7 @@
   animation: fadeInDown 0.6s ease;
 }
 
+/* animación de entrada hacia abajo */
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -26,12 +28,14 @@
   }
 }
 
+/* grupo izquierdo de la topbar (título y botón) */
 .left-section {
   display: flex;
   align-items: top;
   gap: 1rem;
 }
 
+/* botón para colapsar sidebar */
 .menu-toggle {
   font-size: 1.7rem;
   background: none;
@@ -45,6 +49,7 @@
   transform: scale(1.15);
 }
 
+/* título de la página */
 .page-title {
   font-size: 1.6rem;
   font-weight: 600;
@@ -52,6 +57,7 @@
   white-space: nowrap;
 }
 
+/* contenedor de opciones a la derecha de la topbar */
 .topbar-menu {
   display: flex;
   gap: 0.8rem;
@@ -59,7 +65,7 @@
   justify-content: flex-end;
 }
 
-/* estilo botón pro usando tus colores */
+/* botón estilizado */
 .menu-option {
   background: linear-gradient(135deg, #d71920, #f7941d);
   color: #fff;
@@ -99,6 +105,7 @@
   box-shadow: 0 10px 24px rgba(215, 25, 32, 0.35);
 }
 
+/* rejilla de filtros */
 .filter-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -107,7 +114,7 @@
   align-items: end;
 }
 
-
+/* contenedor de barra de filtros */
 .filter-bar {
   background: #fff;
   border-radius: 14px;
@@ -116,9 +123,10 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
   animation: fadeIn 0.3s ease;
   font-family: 'Poppins', sans-serif;
-  width: calc(100% - 3rem); /* Igual que la topbar */
+  width: calc(100% - 3rem);
 }
 
+/* botón de acción primaria */
 .btn-primary {
   background: linear-gradient(135deg, #d71920, #f7941d);
   color: #fff;
@@ -159,6 +167,7 @@
   box-shadow: 0 10px 24px rgba(215, 25, 32, 0.35);
 }
 
+/* contenedor de ordenación */
 .ordenar-container {
   display: flex;
   justify-content: flex-end;
@@ -167,6 +176,7 @@
   z-index: 9;
 }
 
+/* caja con las opciones de ordenación */
 .ordenar-horizontal {
   display: flex;
   align-items: center;
@@ -181,6 +191,7 @@
   max-width: 100%;
 }
 
+/* opciones de orden en formato horizontal */
 .ordenar-opciones {
   display: flex;
   gap: 1.2rem;
@@ -202,6 +213,7 @@
   transform: scale(1.2);
 }
 
+/* botones de campo para orden */
 .ordenar-campos-horizontal {
   display: flex;
   flex-wrap: wrap;
@@ -252,8 +264,7 @@
   box-shadow: 0 0 0 3px rgba(247, 148, 29, 0.2);
 }
 
-
-
+/* animación de entrada suave */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -265,6 +276,7 @@
   }
 }
 
+/* grupo de filtros con etiqueta y campo */
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -292,4 +304,78 @@
   outline: none;
 }
 
+/* responsive para tablets y móviles */
+@media (max-width: 900px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    margin: 1rem;
+  }
 
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .topbar-menu {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .menu-option {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .filter-bar {
+    margin: 1rem;
+    padding: 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .ordenar-horizontal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .ordenar-container {
+    justify-content: center;
+    margin: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.2rem;
+  }
+
+  .btn-primary,
+  .menu-option {
+    width: 100%;
+    text-align: center;
+    padding: 10px 16px;
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ordenar-opciones {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .ordenar-campos-horizontal {
+    justify-content: center;
+  }
+
+  .ordenar-campos-horizontal button {
+    font-size: 0.85rem;
+    padding: 8px 14px;
+  }
+}

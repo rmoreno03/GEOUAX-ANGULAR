@@ -119,9 +119,21 @@ export class PuntosLocalizacionComponent implements OnInit {
 
 
 
-  formatFecha(fecha: Timestamp | null | undefined): string {
-    if (!fecha?.toDate) return '';
-    const date = fecha.toDate();
+  formatFecha(fecha: Timestamp | Date | string): string {
+    if (!fecha) return '';
+
+    let date: Date;
+
+    if (fecha instanceof Date) {
+      date = fecha;
+    } else if (typeof fecha === 'string') {
+      date = new Date(fecha);
+    } else if ((fecha as Timestamp).toDate) {
+      date = (fecha as Timestamp).toDate();
+    } else {
+      return '';
+    }
+
     return date.toLocaleString('es-ES', {
       day: 'numeric',
       month: 'long',
@@ -132,6 +144,7 @@ export class PuntosLocalizacionComponent implements OnInit {
       hour12: false
     }).replace(',', '');
   }
+
 
 
 

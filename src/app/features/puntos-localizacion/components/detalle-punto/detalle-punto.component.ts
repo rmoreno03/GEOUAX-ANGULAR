@@ -109,15 +109,19 @@ export class DetallePuntoComponent implements AfterViewInit {
     this.mostrarConfirmacion = false;
   }
 
-  formatFecha(fecha: Timestamp | Date): string {
+  formatFecha(fecha: Timestamp | Date | string): string {
     if (!fecha) return '';
 
     let date: Date;
 
     if (fecha instanceof Date) {
       date = fecha;
+    } else if (typeof fecha === 'string') {
+      date = new Date(fecha);
+    } else if ((fecha as Timestamp).toDate) {
+      date = (fecha as Timestamp).toDate();
     } else {
-      date = fecha.toDate();
+      return '';
     }
 
     return date.toLocaleString('es-ES', {
@@ -132,6 +136,7 @@ export class DetallePuntoComponent implements AfterViewInit {
   }
 
 
+
   toggleEdicion() {
     this.modoEdicion = !this.modoEdicion;
 
@@ -143,17 +148,21 @@ export class DetallePuntoComponent implements AfterViewInit {
 
   cancelarEdicion() {
     this.modoEdicion = false;
-    // Restablecer el punto a su estado original
+
+    // restablecer el punto a su estado original
     if (this.puntoOriginal) {
       this.punto = JSON.parse(JSON.stringify(this.puntoOriginal));
     }
-    // Reiniciar el array de fotos a eliminar
+
+    // forzar cambio de referencia de fotos para que Angular las pinte de nuevo
     if (this.punto?.fotos) {
+      this.punto.fotos = [...this.punto.fotos];
       this.fotosAEliminar = new Array(this.punto.fotos.length).fill(false);
     }
-    // Limpiar las nuevas fotos
+
     this.nuevasFotos = [];
   }
+
 
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
