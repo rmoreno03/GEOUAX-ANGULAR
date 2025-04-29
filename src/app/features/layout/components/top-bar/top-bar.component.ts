@@ -90,21 +90,21 @@ export class TopBarComponent {
       } else if (url.includes('estadisticas')) {
         this.title = 'Estadísticas';
         this.menuOptions = [
-          { label: 'Resumen Global', icon: 'fas fa-chart-pie', action: () => this.router.navigate(['/estadisticas']) },
-          { label: 'Mis Estadísticas', icon: 'fas fa-user-chart', action: () => this.router.navigate(['/estadisticas/mis-datos']) },
+          { label: 'Resumen Global', icon: 'fas fa-chart-pie', action: () => this.router.navigate(['/estadisticas/resumen-global']) },
+          { label: 'Mis Estadísticas', icon: 'fas fa-chart-bar', action: () => this.router.navigate(['/estadisticas/mis-estadisticas']) },
           { label: 'Comparativas', icon: 'fas fa-balance-scale', action: () => this.router.navigate(['/estadisticas/comparativas']) },
-          { label: 'Impacto Medioambiental', icon: 'fas fa-leaf', action: () => this.router.navigate(['/estadisticas/impacto']) },
-          { label: 'Estadísticas por Región', icon: 'fas fa-map', action: () => this.router.navigate(['/estadisticas/regiones']) }
+          { label: 'Impacto Medioambiental', icon: 'fas fa-leaf', action: () => this.router.navigate(['/estadisticas/impacto-medioambiental']) },
+          { label: 'Estadísticas por Región', icon: 'fas fa-map', action: () => this.router.navigate(['/estadisticas/estadisticas-region']) }
         ];
 
       } else if (url.includes('logros')) {
         this.title = 'Logros';
         this.menuOptions = [
-          { label: 'Ver Logros', icon: 'fas fa-trophy', action: () => this.router.navigate(['/logros']) },
+          { label: 'Ver Logros', icon: 'fas fa-trophy', action: () => this.router.navigate(['/logros/ver-logros']) },
           { label: 'Mis Retos', icon: 'fas fa-tasks', action: () => this.router.navigate(['/logros/mis-retos']) },
           { label: 'Progreso', icon: 'fas fa-percentage', action: () => this.router.navigate(['/logros/progreso']) },
-          { label: 'Crear Reto Personalizado', icon: 'fas fa-plus-circle', action: () => this.router.navigate(['/logros/crear-reto']) },
-          { label: 'Ranking de Usuarios', icon: 'fas fa-medal', action: () => this.router.navigate(['/logros/ranking']) }
+          { label: 'Crear Reto Personalizado', icon: 'fas fa-plus-circle', action: () => this.router.navigate(['/logros/crear-reto-personalizado']) },
+          { label: 'Ranking de Usuarios', icon: 'fas fa-medal', action: () => this.router.navigate(['/logros/ranking-usuarios']) }
         ];
 
       } else if (url.includes('configuracion')) {

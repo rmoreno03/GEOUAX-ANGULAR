@@ -1,0 +1,290 @@
+<div class="resumen-global-container">
+  <!-- Cabecera con navegación -->
+  <div class="page-header">
+    <h1>
+      <i class="fas fa-chart-pie"></i>
+      Resumen Global
+    </h1>
+  </div>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando estadísticas globales...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Selector de período -->
+  <div *ngIf="!loading && !error" class="period-selector">
+    <div class="selector-buttons">
+      <button
+        [class.active]="periodoSeleccionado === 'semanal'"
+        (click)="cambiarPeriodo('semanal')"
+        class="period-button">
+        <i class="fas fa-calendar-week"></i>
+        Semanal
+      </button>
+
+      <button
+        [class.active]="periodoSeleccionado === 'mensual'"
+        (click)="cambiarPeriodo('mensual')"
+        class="period-button">
+        <i class="fas fa-calendar-alt"></i>
+        Mensual
+      </button>
+
+      <button
+        [class.active]="periodoSeleccionado === 'anual'"
+        (click)="cambiarPeriodo('anual')"
+        class="period-button">
+        <i class="fas fa-calendar"></i>
+        Anual
+      </button>
+
+      <button
+        [class.active]="periodoSeleccionado === 'total'"
+        (click)="cambiarPeriodo('total')"
+        class="period-button">
+        <i class="fas fa-infinity"></i>
+        Total
+      </button>
+    </div>
+
+    <div class="current-date">
+      <i class="far fa-clock"></i>
+      Datos actualizados: {{ '2025-04-30' | date:'medium' }}
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="dashboard-content">
+    <!-- Métricas principales -->
+    <div class="metrics-grid">
+      <div class="metric-card users">
+        <div class="metric-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="metric-data">
+          <h3>Usuarios Totales</h3>
+          <div class="metric-value">{{ estadisticasGlobales.totalUsuarios | number }}</div>
+          <div class="metric-trend positive">
+            <i class="fas fa-arrow-up"></i> {{ calcularCrecimientoUsuarios() | number:'1.1-1' }}% vs. mes anterior
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card routes">
+        <div class="metric-icon">
+          <i class="fas fa-route"></i>
+        </div>
+        <div class="metric-data">
+          <h3>Rutas Registradas</h3>
+          <div class="metric-value">{{ estadisticasGlobales.totalRutas | number }}</div>
+          <div class="metric-trend">
+            <span>{{ calcularMediaKilometrosPorRuta() | number:'1.1-1' }} km/ruta media</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card distance">
+        <div class="metric-icon">
+          <i class="fas fa-road"></i>
+        </div>
+        <div class="metric-data">
+          <h3>Kilómetros Totales</h3>
+          <div class="metric-value">{{ estadisticasGlobales.kilometrosTotales | number }}</div>
+          <div class="metric-trend">
+            <span>Equivalente a {{ (estadisticasGlobales.kilometrosTotales / 40075).toFixed(1) }} vueltas a la Tierra</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card locations">
+        <div class="metric-icon">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="metric-data">
+          <h3>Puntos de Interés</h3>
+          <div class="metric-value">{{ estadisticasGlobales.totalPuntos | number }}</div>
+          <div class="metric-trend">
+            <span>{{ calcularMediaPuntosPorRuta() | number:'1.1-1' }} puntos/ruta media</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos y análisis -->
+    <div class="charts-row">
+      <div class="chart-card growth">
+        <h3 class="chart-title">
+          <i class="fas fa-chart-line"></i>
+          Evolución Mensual
+        </h3>
+
+        <div class="chart-container">
+          <!-- Aquí iría el gráfico real (Chart.js o similar) -->
+          <div class="chart-mock line">
+            <div class="chart-legend">
+              <span class="legend-item"><i class="fas fa-circle" style="color: #ff6b6b;"></i> Usuarios</span>
+              <span class="legend-item"><i class="fas fa-circle" style="color: #339af0;"></i> Rutas</span>
+              <span class="legend-item"><i class="fas fa-circle" style="color: #51cf66;"></i> Kilómetros (miles)</span>
+            </div>
+
+            <div class="line-chart">
+              <div class="chart-axis">
+                <div class="axis-y">
+                  <span>15K</span>
+                  <span>10K</span>
+                  <span>5K</span>
+                  <span>0</span>
+                </div>
+
+                <div class="line-plot">
+                  <!-- Líneas simuladas -->
+                  <div class="line-users"></div>
+                  <div class="line-routes"></div>
+                  <div class="line-distance"></div>
+
+                  <!-- Meses en eje X -->
+                  <div class="axis-x">
+                    <span *ngFor="let dato of actividadMensual">{{ dato.mes.split(' ')[0] }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card distribution">
+        <h3 class="chart-title">
+          <i class="fas fa-chart-pie"></i>
+          Distribución por Tipo de Ruta
+        </h3>
+
+        <div class="chart-container">
+          <div class="donut-chart-container">
+            <!-- Versión simulada del donut chart -->
+            <div class="donut-chart-mock">
+              <div class="donut-hole"></div>
+            </div>
+
+            <div class="distribution-legend">
+              <div *ngFor="let tipo of distribucionTiposRuta" class="legend-item">
+                <span class="color-dot" [ngStyle]="{'background-color':
+                  tipo.tipo === 'Senderismo' ? '#ff6b6b' :
+                  tipo.tipo === 'Ciclismo' ? '#339af0' :
+                  tipo.tipo === 'Running' ? '#51cf66' :
+                  tipo.tipo === 'Urbana' ? '#ffd43b' : '#868e96'}"></span>
+                <span class="tipo-label">{{ tipo.tipo }}</span>
+                <span class="tipo-percent">{{ tipo.porcentaje }}%</span>
+                <span class="tipo-count">({{ tipo.rutas | number }} rutas)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas adicionales -->
+    <div class="additional-stats">
+      <div class="stats-card regions">
+        <h3 class="card-title">
+          <i class="fas fa-map-marked-alt"></i>
+          Top Regiones
+        </h3>
+
+        <div class="regions-table-container">
+          <table class="regions-table">
+            <thead>
+              <tr>
+                <th>Región</th>
+                <th>País</th>
+                <th>Rutas</th>
+                <th>Kilómetros</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let region of topRegiones; let i = index">
+                <td class="region-cell">
+                  <span class="rank-number">{{ i + 1 }}</span>
+                  {{ region.nombre }}
+                </td>
+                <td>{{ region.pais }}</td>
+                <td>{{ region.rutas | number }}</td>
+                <td>{{ region.kilometros | number }} km</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="stats-card devices">
+        <h3 class="card-title">
+          <i class="fas fa-mobile-alt"></i>
+          Dispositivos Utilizados
+        </h3>
+
+        <div class="devices-distribution">
+          <div class="progress-bars">
+            <div *ngFor="let device of dispositivos" class="device-progress">
+              <div class="device-info">
+                <span class="device-name"><i class="fas" [ngClass]="{
+                  'fa-android': device.tipo === 'Android',
+                  'fa-apple': device.tipo === 'iOS',
+                  'fa-laptop': device.tipo === 'Web'
+                }"></i> {{ device.tipo }}</span>
+                <span class="device-percent">{{ device.porcentaje }}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress" [ngStyle]="{
+                  'width.%': device.porcentaje,
+                  'background-color':
+                    device.tipo === 'Android' ? '#a5d8ff' :
+                    device.tipo === 'iOS' ? '#d3f9d8' :
+                    '#ffe3e3'
+                }"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info de actividad reciente -->
+    <div class="activity-summary">
+      <div class="summary-card active-users">
+        <i class="fas fa-user-check icon-bg"></i>
+        <h4>Usuarios Activos</h4>
+        <div class="big-number">{{ estadisticasGlobales.usuariosActivos | number }}</div>
+        <div class="summary-percent">{{ (estadisticasGlobales.usuariosActivos / estadisticasGlobales.totalUsuarios * 100) | number:'1.0-0' }}% del total</div>
+      </div>
+
+      <div class="summary-card countries">
+        <i class="fas fa-globe-americas icon-bg"></i>
+        <h4>Países</h4>
+        <div class="big-number">{{ estadisticasGlobales.paises }}</div>
+        <div class="summary-text">con rutas registradas</div>
+      </div>
+
+      <div class="summary-card regions-count">
+        <i class="fas fa-mountain icon-bg"></i>
+        <h4>Regiones</h4>
+        <div class="big-number">{{ estadisticasGlobales.regiones }}</div>
+        <div class="summary-text">exploradas por usuarios</div>
+      </div>
+
+      <div class="summary-card daily-visits">
+        <i class="fas fa-eye icon-bg"></i>
+        <h4>Visitas Diarias</h4>
+        <div class="big-number">{{ estadisticasGlobales.visitasDiarias | number }}</div>
+        <div class="summary-text">en promedio</div>
+      </div>
+    </div>
+  </div>
+</div>

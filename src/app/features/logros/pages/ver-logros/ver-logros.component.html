@@ -1,0 +1,105 @@
+<div class="ver-logros-container">
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando logros...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="logros-content">
+    <!-- Resumen de progreso -->
+    <div class="progreso-resumen">
+      <div class="resumen-header">
+        <h2>Tu progreso general</h2>
+        <div class="porcentaje-completado">
+          <div class="porcentaje-valor">{{ progresoGeneral.porcentajeCompletado }}%</div>
+          <div class="porcentaje-texto">completado</div>
+        </div>
+      </div>
+
+      <div class="progreso-stats">
+        <div class="stat-item">
+          <div class="stat-icon completed">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <div class="stat-data">
+            <div class="stat-value">{{ progresoGeneral.logrosCompletados }}</div>
+            <div class="stat-label">Logros completados</div>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-icon pending">
+            <i class="fas fa-hourglass-half"></i>
+          </div>
+          <div class="stat-data">
+            <div class="stat-value">{{ progresoGeneral.totalLogros - progresoGeneral.logrosCompletados }}</div>
+            <div class="stat-label">Logros pendientes</div>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-icon next">
+            <i class="fas fa-medal"></i>
+          </div>
+          <div class="stat-data">
+            <div class="stat-value">{{ progresoGeneral.proximoACompletar }}</div>
+            <div class="stat-label">Próximo a completar ({{ progresoGeneral.porcentajeProximo }}%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros de categoría -->
+    <div class="filtros-categoria">
+      <div
+        *ngFor="let categoria of categorias"
+        (click)="filtrarPorCategoria(categoria.id)"
+        [class.active]="filtroActivo === categoria.id"
+        class="filtro-item">
+        <i class="fas fa-{{ categoria.icono }}"></i>
+        <span>{{ categoria.nombre }}</span>
+      </div>
+    </div>
+
+    <!-- Tarjetas de logros -->
+    <div class="logros-grid">
+      <div *ngFor="let logro of obtenerLogrosFiltrados()" class="logro-card" [class.completado]="logro.completado">
+        <div class="logro-nivel" [ngClass]="getClaseNivel(logro.nivel)">
+          <i class="fas fa-trophy"></i>
+        </div>
+
+        <div class="logro-icono">
+          <i class="fas fa-{{ logro.icono }}"></i>
+        </div>
+
+        <h3 class="logro-nombre">{{ logro.nombre }}</h3>
+        <p class="logro-descripcion">{{ logro.descripcion }}</p>
+
+        <div class="logro-progreso">
+          <div class="progreso-barra">
+            <div class="progreso-valor" [style.width.%]="logro.progreso"></div>
+          </div>
+          <div class="progreso-texto">{{ logro.progreso }}% completado</div>
+        </div>
+
+        <div class="logro-fecha" *ngIf="logro.completado">
+          <i class="fas fa-calendar-check"></i>
+          <span>Completado: {{ formatearFecha(logro.fechaObtencion) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando no hay logros -->
+    <div *ngIf="obtenerLogrosFiltrados().length === 0" class="no-logros">
+      <i class="fas fa-search"></i>
+      <p>No se encontraron logros para esta categoría</p>
+    </div>
+  </div>
+</div>

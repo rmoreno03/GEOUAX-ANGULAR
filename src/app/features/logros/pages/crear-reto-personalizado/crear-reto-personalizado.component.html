@@ -1,0 +1,221 @@
+<div class="crear-reto-container">
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Mensaje de éxito -->
+  <div *ngIf="success" class="success-message">
+    <i class="fas fa-check-circle"></i>
+    <p>¡Reto creado con éxito! Ya puedes comenzar a completarlo.</p>
+  </div>
+
+  <!-- Título y descripción -->
+  <div class="section-header">
+    <h2>Crear Reto Personalizado</h2>
+    <p>Define tu propio reto para motivarte a alcanzar nuevas metas</p>
+  </div>
+
+  <!-- Formulario de creación -->
+  <form [formGroup]="retoForm" (ngSubmit)="onSubmit()" class="reto-form">
+    <!-- Sección de información básica -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="fas fa-info-circle"></i>
+        Información básica
+      </h3>
+
+      <div class="form-group">
+        <label for="nombre">Nombre del reto *</label>
+        <input
+          type="text"
+          id="nombre"
+          formControlName="nombre"
+          placeholder="Ej: 100km en un mes"
+          [class.invalid]="isFieldInvalid('nombre')">
+        <div *ngIf="isFieldInvalid('nombre')" class="error-hint">
+          <span *ngIf="retoForm.get('nombre')?.errors?.['required']">El nombre es obligatorio</span>
+          <span *ngIf="retoForm.get('nombre')?.errors?.['minlength']">El nombre debe tener al menos 5 caracteres</span>
+          <span *ngIf="retoForm.get('nombre')?.errors?.['maxlength']">El nombre debe tener máximo 50 caracteres</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="descripcion">Descripción *</label>
+        <textarea
+          id="descripcion"
+          formControlName="descripcion"
+          placeholder="Describe brevemente en qué consiste el reto"
+          rows="3"
+          [class.invalid]="isFieldInvalid('descripcion')"></textarea>
+        <div *ngIf="isFieldInvalid('descripcion')" class="error-hint">
+          <span *ngIf="retoForm.get('descripcion')?.errors?.['required']">La descripción es obligatoria</span>
+          <span *ngIf="retoForm.get('descripcion')?.errors?.['minlength']">La descripción debe tener al menos 10 caracteres</span>
+          <span *ngIf="retoForm.get('descripcion')?.errors?.['maxlength']">La descripción debe tener máximo 200 caracteres</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de parámetros del reto -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="fas fa-sliders-h"></i>
+        Parámetros del reto
+      </h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tipoReto">Tipo de reto *</label>
+          <select id="tipoReto" formControlName="tipoReto">
+            <option *ngFor="let tipo of tiposRetos" [value]="tipo.id">{{ tipo.nombre }}</option>
+          </select>
+          <div class="hint">{{ getTipoRetoDescripcion() }}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="objetivo">Objetivo *</label>
+          <div class="input-with-unit">
+            <input
+              type="number"
+              id="objetivo"
+              formControlName="objetivo"
+              min="1"
+              [class.invalid]="isFieldInvalid('objetivo')">
+            <div class="unit">{{ retoForm.get('unidad')?.value || 'Unidad no disponible' }}</div>
+          </div>
+          <div *ngIf="isFieldInvalid('objetivo')" class="error-hint">
+            <span *ngIf="retoForm.get('objetivo')?.errors?.['required']">El objetivo es obligatorio</span>
+            <span *ngIf="retoForm.get('objetivo')?.errors?.['min']">El objetivo debe ser mayor a 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="duracion">Duración *</label>
+          <select id="duracion" formControlName="duracion">
+            <option *ngFor="let duracion of duraciones" [value]="duracion.dias">{{ duracion.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaInicio">Fecha de inicio *</label>
+          <input type="date" id="fechaInicio" formControlName="fechaInicio">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="publico">
+          <span>Hacer este reto público para otros usuarios</span>
+        </label>
+        <div class="hint">Los retos públicos aparecerán en la lista de retos disponibles para todos los usuarios</div>
+      </div>
+    </div>
+
+    <!-- Sección de personalización -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="fas fa-paint-brush"></i>
+        Personalización
+      </h3>
+
+      <div class="form-group">
+        <label>Selecciona un icono</label>
+        <div class="iconos-grid">
+          <div
+            *ngFor="let icono of iconosDisponibles"
+            class="icono-item"
+            [class.selected]="iconoSeleccionado === icono"
+            (click)="seleccionarIcono(icono)">
+            <i class="fas fa-{{ icono }}"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de invitar amigos -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="fas fa-users"></i>
+        Invitar amigos (opcional)
+      </h3>
+
+      <div class="amigos-list">
+        <div
+          *ngFor="let amigo of amigosDisponibles"
+          class="amigo-item"
+          [class.selected]="amigo.seleccionado"
+          (click)="toggleAmigo(amigo)">
+          <div class="amigo-avatar">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="amigo-nombre">{{ amigo.nombre }}</div>
+          <div class="amigo-check">
+            <i class="fas" [ngClass]="amigo.seleccionado ? 'fa-check-circle' : 'fa-circle'"></i>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="amigosDisponibles.length === 0" class="no-amigos">
+        No tienes amigos disponibles para invitar. Añade amigos desde tu perfil.
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" routerLink="/logros/mis-retos">
+        Cancelar
+      </button>
+
+      <button type="submit" class="btn-primary" [disabled]="submitting">
+        <i *ngIf="submitting" class="fas fa-spinner fa-spin"></i>
+        <span *ngIf="!submitting">Crear Reto</span>
+        <span *ngIf="submitting">Creando Reto...</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Vista previa del reto -->
+  <div class="preview-section">
+    <h3 class="section-title">
+      <i class="fas fa-eye"></i>
+      Vista previa del reto
+    </h3>
+
+    <div class="reto-preview">
+      <div class="preview-icon">
+        <i class="fas fa-{{ retoForm.get('icono')?.value || 'default-icon' }}"></i>
+      </div>
+
+      <div class="preview-content">
+        <h4 class="preview-title">{{ retoForm.get('nombre')?.value || 'Nombre del reto' }}</h4>
+        <p class="preview-description">{{ retoForm.get('descripcion')?.value || 'Descripción del reto' }}</p>
+
+        <div class="preview-details">
+          <div class="preview-detail">
+            <i class="fas fa-bullseye"></i>
+            <span>Objetivo: {{ retoForm.get('objetivo')?.value || '0' }} {{ retoForm.get('unidad')?.value }}</span>
+          </div>
+
+          <div class="preview-detail">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Duración: {{ getDuracionNombre() }}</span>
+          </div>
+
+          <div class="preview-detail">
+            <i class="fas fa-users"></i>
+            <span>{{ retoForm.get('amigosInvitados')?.value?.length || 0 }} amigos invitados</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

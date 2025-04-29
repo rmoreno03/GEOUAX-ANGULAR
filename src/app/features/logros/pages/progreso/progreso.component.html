@@ -1,0 +1,282 @@
+<div class="progreso-container">
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando datos de progreso...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Selector de período -->
+  <div *ngIf="!loading && !error" class="period-selector">
+    <div class="selector-buttons">
+      <button
+        [class.active]="periodoSeleccionado === 'semanal'"
+        (click)="cambiarPeriodo('semanal')"
+        class="period-button">
+        <i class="fas fa-calendar-week"></i>
+        Semanal
+      </button>
+
+      <button
+        [class.active]="periodoSeleccionado === 'mensual'"
+        (click)="cambiarPeriodo('mensual')"
+        class="period-button">
+        <i class="fas fa-calendar-alt"></i>
+        Mensual
+      </button>
+
+      <button
+        [class.active]="periodoSeleccionado === 'trimestral'"
+        (click)="cambiarPeriodo('trimestral')"
+        class="period-button">
+        <i class="fas fa-calendar"></i>
+        Trimestral
+      </button>
+
+      <button
+        [class.active]="periodoSeleccionado === 'anual'"
+        (click)="cambiarPeriodo('anual')"
+        class="period-button">
+        <i class="fas fa-calendar-check"></i>
+        Anual
+      </button>
+    </div>
+
+    <div class="current-date">
+      <i class="far fa-clock"></i>
+      Datos actualizados: {{ '2025-04-30' | date:'medium' }}
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="progreso-content">
+    <!-- Nivel y estadísticas principales -->
+    <div class="nivel-card">
+      <div class="nivel-info">
+        <div class="nivel-badge">
+          <span class="nivel-numero">{{ progresoGeneral.nivelActual }}</span>
+          <span class="nivel-texto">Nivel</span>
+        </div>
+
+        <div class="nivel-detalles">
+          <h3>Montañero Experimentado</h3>
+          <div class="nivel-progreso">
+            <div class="progreso-barra">
+              <div class="progreso-valor" [style.width.%]="calcularPorcentajeNivel()"></div>
+            </div>
+            <div class="progreso-texto">
+              {{ progresoGeneral.puntosNivel }} / {{ progresoGeneral.puntosNecesarios }} puntos para nivel {{ progresoGeneral.nivelActual + 1 }}
+            </div>
+          </div>
+        </div>
+
+        <div class="nivel-stats">
+          <div class="stat-item">
+            <span class="stat-value">#{{ progresoGeneral.ranking }}</span>
+            <span class="stat-label">Ranking</span>
+          </div>
+
+          <div class="stat-item">
+            <span class="stat-value">{{ progresoGeneral.percentil }}%</span>
+            <span class="stat-label">Percentil</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nivel-chart">
+        <h4>Evolución de puntos</h4>
+        <div class="chart-container">
+          <!-- Aquí representamos un gráfico simple con barras -->
+          <div class="chart-bars">
+            <div *ngFor="let mes of progresoGeneral.evolucionNivel" class="bar-container">
+              <div class="month-bar" [style.height.px]="mes.puntos / 10">
+                <span class="bar-value">{{ mes.puntos }}</span>
+              </div>
+              <span class="month-name">{{ mes.mes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rendimiento y actividad reciente -->
+    <div class="rendimiento-actividad">
+      <!-- Tarjeta de rendimiento -->
+      <div class="rendimiento-card">
+        <h3 class="card-title">
+          <i class="fas fa-chart-line"></i>
+          Rendimiento por categoría
+        </h3>
+
+        <div class="estrellas-container">
+          <div *ngFor="let estrella of estrellas" class="categoria-estrellas">
+            <div class="categoria-nombre">{{ estrella.categoria }}</div>
+            <div class="estrellas-valoracion">
+              <div *ngFor="let tipo of generarEstrellas(estrella.valor)" class="estrella" [class]="tipo">
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+            <div class="categoria-barra">
+              <div class="barra-progreso">
+                <div class="barra-valor" [style.width.%]="estrella.porcentaje"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="actividad-card">
+        <h3 class="card-title">
+          <i class="fas fa-history"></i>
+          Actividad reciente
+        </h3>
+
+        <div class="actividades-lista">
+          <div *ngFor="let actividad of actividadesRecientes" class="actividad-item" [ngClass]="getClaseTipoActividad(actividad.tipo)">
+            <div class="actividad-icono">
+              <i class="fas" [ngClass]="{
+                'fa-route': actividad.tipo === 'ruta',
+                'fa-trophy': actividad.tipo === 'logro',
+                'fa-flag-checkered': actividad.tipo === 'reto',
+                'fa-level-up-alt': actividad.tipo === 'nivel'
+              }"></i>
+            </div>
+
+            <div class="actividad-contenido">
+              <div class="actividad-header">
+                <h4>{{ actividad.nombre }}</h4>
+                <span class="actividad-fecha">{{ formatearFechaRelativa(actividad.fecha) }}</span>
+              </div>
+
+              <!-- Detalles específicos según tipo -->
+              <div *ngIf="actividad.tipo === 'ruta'" class="actividad-detalles">
+                <span>{{ actividad.kilometros }} km recorridos</span>
+                <span>{{ actividad.puntos }} puntos obtenidos</span>
+                <div *ngIf="actividad.logros && actividad.logros.length > 0" class="logros-obtenidos">
+                  <span>Logros: </span>
+                  <span *ngFor="let logro of actividad.logros" class="logro-badge">{{ logro }}</span>
+                </div>
+              </div>
+
+              <div *ngIf="actividad.tipo === 'logro'" class="actividad-detalles">
+                <span>{{ actividad.descripcion }}</span>
+                <span>{{ actividad.puntos }} puntos obtenidos</span>
+              </div>
+
+              <div *ngIf="actividad.tipo === 'reto'" class="actividad-detalles">
+                <span>{{ actividad.descripcion }}</span>
+                <div class="reto-progreso">
+                  <div class="reto-barra">
+                    <div class="reto-valor" [style.width.%]="actividad.progreso"></div>
+                  </div>
+                  <span>{{ actividad.progreso }}% completado</span>
+                </div>
+                <span *ngIf="actividad.puntos">{{ actividad.puntos }} puntos obtenidos</span>
+              </div>
+
+              <div *ngIf="actividad.tipo === 'nivel'" class="actividad-detalles">
+                <span>{{ actividad.descripcion }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas detalladas -->
+    <div class="estadisticas-detalladas">
+      <h3 class="card-title">
+        <i class="fas fa-chart-bar"></i>
+        Estadísticas detalladas
+      </h3>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-route"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">Total rutas</div>
+            <div class="stat-value">{{ estadisticasDetalladas.totalRutas }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-road"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">Kilómetros recorridos</div>
+            <div class="stat-value">{{ estadisticasDetalladas.totalKilometros }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">Puntos registrados</div>
+            <div class="stat-value">{{ estadisticasDetalladas.totalPuntos }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-mountain"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">Altitud máxima</div>
+            <div class="stat-value">{{ estadisticasDetalladas.altitudMaxima }} m</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-ruler"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">Ruta más larga</div>
+            <div class="stat-value">{{ estadisticasDetalladas.rutaMasLarga }} km</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">Tiempo acumulado</div>
+            <div class="stat-value">{{ estadisticasDetalladas.tiempoTotal }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-tachometer-alt"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">Velocidad media</div>
+            <div class="stat-value">{{ estadisticasDetalladas.velocidadMedia }}</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-arrows-alt-v"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">Desnivel acumulado</div>
+            <div class="stat-value">{{ estadisticasDetalladas.desnivelAcumulado }} m</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

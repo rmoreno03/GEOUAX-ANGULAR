@@ -1,0 +1,232 @@
+<div class="impacto-container">
+  <!-- Cabecera con navegación -->
+  <div class="page-header">
+    <h1>
+      <i class="fas fa-leaf"></i>
+      Impacto Medioambiental
+    </h1>
+  </div>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Calculando tu impacto ambiental...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="impacto-content">
+    <!-- Calificación de sostenibilidad -->
+    <div class="eco-rating-card">
+      <div class="rating-container">
+        <div class="rating-title">
+          <h3>Tu calificación de sostenibilidad</h3>
+          <p>Basada en tus rutas y hábitos de movilidad</p>
+        </div>
+
+        <div class="rating-display">
+          <div class="eco-badge" [ngClass]="obtenerClaseCalificacion()">
+            {{ datosPersonales.calificacionSostenibilidad }}
+          </div>
+
+          <div class="rating-scale">
+            <span class="eco-a">A</span>
+            <span class="eco-b">B</span>
+            <span class="eco-c">C</span>
+            <span class="eco-d">D</span>
+            <span class="eco-e">E</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="key-figures">
+        <div class="key-figure-item">
+          <div class="figure-icon">
+            <i class="fas fa-route"></i>
+          </div>
+          <div class="figure-data">
+            <h4>Rutas alternativas</h4>
+            <span class="figure-value">{{ datosPersonales.rutasAlternativas }}</span>
+          </div>
+        </div>
+
+        <div class="key-figure-item">
+          <div class="figure-icon">
+            <i class="fas fa-road"></i>
+          </div>
+          <div class="figure-data">
+            <h4>Km. ahorrados</h4>
+            <span class="figure-value">{{ datosPersonales.kilometrosAhorro }}</span>
+          </div>
+        </div>
+
+        <div class="key-figure-item">
+          <div class="figure-icon">
+            <i class="fas fa-smog"></i>
+          </div>
+          <div class="figure-data">
+            <h4>CO<sub>2</sub> reducido</h4>
+            <span class="figure-value">{{ datosPersonales.co2Reducido }} kg</span>
+          </div>
+        </div>
+
+        <div class="key-figure-item">
+          <div class="figure-icon">
+            <i class="fas fa-tree"></i>
+          </div>
+          <div class="figure-data">
+            <h4>Árboles equiv.</h4>
+            <span class="figure-value">{{ datosPersonales.arbolesEquivalentes }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico de evolución -->
+    <div class="charts-row">
+      <div class="chart-card evolution">
+        <h3 class="chart-title">
+          <i class="fas fa-chart-line"></i>
+          Evolución de tu impacto
+        </h3>
+
+        <div class="chart-container">
+          <!-- Simulación visual de gráfico -->
+          <div class="evolution-chart">
+            <div class="chart-legend">
+              <span class="legend-item"><i class="fas fa-circle" style="color: #51cf66;"></i> CO<sub>2</sub> reducido (kg)</span>
+              <span class="legend-item"><i class="fas fa-circle" style="color: #339af0;"></i> Kilómetros alternativos</span>
+            </div>
+
+            <div class="evolution-bars">
+              <div *ngFor="let mes of evolucionMensual" class="month-data">
+                <div class="month-name">{{ mes.mes }}</div>
+
+                <div class="bars-container">
+                  <div class="bar-group">
+                    <div class="co2-bar" [style.height.px]="mes.co2 * 5">
+                      <span class="bar-label">{{ mes.co2 }}</span>
+                    </div>
+
+                    <div class="km-bar" [style.height.px]="mes.km / 2">
+                      <span class="bar-label">{{ mes.km }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card global-impact">
+        <h3 class="chart-title">
+          <i class="fas fa-globe-americas"></i>
+          Impacto global de la comunidad
+        </h3>
+
+        <div class="global-stats-container">
+          <div class="global-stat">
+            <div class="stat-value">{{ datosGlobales.totalCO2Reducido | number }}</div>
+            <div class="stat-label">kg CO<sub>2</sub> reducidos</div>
+          </div>
+
+          <div class="global-stat">
+            <div class="stat-value">{{ datosGlobales.kilometrosAlternativos | number }}</div>
+            <div class="stat-label">km alternativos</div>
+          </div>
+
+          <div class="global-stat">
+            <div class="stat-value">{{ datosGlobales.usuariosVerdes | number }}</div>
+            <div class="stat-label">usuarios sostenibles</div>
+          </div>
+
+          <div class="global-stat">
+            <div class="stat-value">{{ datosGlobales.arbolesEquivalentes | number }}</div>
+            <div class="stat-label">árboles equivalentes</div>
+          </div>
+        </div>
+
+        <div class="global-percent">
+          <div class="percent-container">
+            <div class="percent-value">{{ calcularPorcentajeUsuariosVerdes() | number:'1.0-0' }}%</div>
+            <div class="percent-label">de usuarios contribuyen activamente</div>
+          </div>
+
+          <div class="progress-circle">
+            <!-- Simulación visual de círculo de progreso -->
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="54" fill="none" stroke="#e9ecef" stroke-width="12"></circle>
+              <circle cx="60" cy="60" r="54" fill="none" stroke="#51cf66" stroke-width="12"
+                      [attr.stroke-dasharray]="339.3" [attr.stroke-dashoffset]="339.3 * (1 - calcularPorcentajeUsuariosVerdes()/100)"></circle>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proyectos de reforestación -->
+    <div class="reforestation-projects">
+      <h3 class="section-title">
+        <i class="fas fa-seedling"></i>
+        Proyectos de reforestación
+      </h3>
+
+      <div class="projects-container">
+        <div *ngFor="let proyecto of proyectosReforestacion" class="project-card">
+          <div class="project-header">
+            <h4>{{ proyecto.nombre }}</h4>
+            <span class="project-date">Iniciado: {{ proyecto.fechaInicio | date }}</span>
+          </div>
+
+          <div class="project-progress">
+            <div class="progress-bar">
+              <div class="progress" [style.width.%]="proyecto.completado"></div>
+            </div>
+            <span class="progress-text">{{ proyecto.completado }}% completado</span>
+          </div>
+
+          <div class="project-details">
+            <div class="detail-item">
+              <i class="fas fa-tree"></i>
+              <span>{{ proyecto.arboles | number }} árboles</span>
+            </div>
+
+            <div class="detail-item">
+              <i class="fas fa-users"></i>
+              <span>{{ proyecto.participantes | number }} participantes</span>
+            </div>
+          </div>
+
+          <button class="join-button" (click)="unirseProyecto(proyecto.nombre)">
+            <i class="fas fa-plus-circle"></i>
+            Unirse al proyecto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consejos sostenibles -->
+    <div class="eco-tips-section">
+      <h3 class="section-title">
+        <i class="fas fa-lightbulb"></i>
+        Consejos para reducir tu huella ambiental
+      </h3>
+
+      <div class="tips-container">
+        <div *ngFor="let consejo of consejosSostenibles" class="tip-card">
+          <div class="tip-icon">
+            <i class="fas fa-{{ consejo.icono }}"></i>
+          </div>
+          <h4>{{ consejo.titulo }}</h4>
+          <p>{{ consejo.descripcion }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

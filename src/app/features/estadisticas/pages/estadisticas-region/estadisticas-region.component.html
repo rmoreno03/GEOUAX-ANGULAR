@@ -1,0 +1,250 @@
+<div class="region-container">
+  <!-- Cabecera con navegación -->
+  <div class="page-header">
+    <h1>
+      <i class="fas fa-map-marked-alt"></i>
+      Estadísticas por Región
+    </h1>
+  </div>
+
+  <!-- Selector de región -->
+  <div class="region-selector">
+    <label for="region-select">Selecciona una región:</label>
+    <div class="select-container">
+      <select id="region-select" [(ngModel)]="regionSeleccionada" (change)="cambiarRegion(regionSeleccionada)">
+        <option *ngFor="let region of regiones" [value]="region">{{ region }}</option>
+      </select>
+      <div class="select-arrow">
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando datos de la región...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="region-content">
+    <!-- Tarjeta principal de la región -->
+    <div class="region-card">
+      <div class="region-header">
+        <h2>{{ datosRegion.nombre }}</h2>
+        <div class="region-stats">
+          <div class="stat-item">
+            <i class="fas fa-route"></i>
+            <span>{{ datosRegion.totalRutas | number }} rutas</span>
+          </div>
+
+          <div class="stat-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ datosRegion.totalPuntos | number }} puntos</span>
+          </div>
+
+          <div class="stat-item">
+            <i class="fas fa-road"></i>
+            <span>{{ datosRegion.totalKilometros | number }} km</span>
+          </div>
+
+          <div class="stat-item">
+            <i class="fas fa-users"></i>
+            <span>{{ datosRegion.usuariosActivos | number }} usuarios</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="region-details">
+        <div class="detail-col">
+          <div class="detail-item">
+            <span class="detail-label">Altitud media:</span>
+            <span class="detail-value">{{ datosRegion.altitudMedia }} m</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Desnivel medio:</span>
+            <span class="detail-value">{{ datosRegion.desnivelMedio }} m</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Dificultad media:</span>
+            <span class="detail-value" [ngClass]="getColorDificultad(datosRegion.dificultadMedia)">
+              {{ datosRegion.dificultadMedia }}
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-col">
+          <div class="detail-item">
+            <span class="detail-label">Tiempo medio:</span>
+            <span class="detail-value">{{ datosRegion.tiempoMedio }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Valoración media:</span>
+            <span class="detail-value stars">{{ getValoracionEstrellas(datosRegion.valoracionMedia) }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Más visitada desde:</span>
+            <span class="detail-value">{{ datosRegion.masVisitadaPor }}</span>
+          </div>
+        </div>
+
+        <div class="detail-col">
+          <div class="detail-item">
+            <span class="detail-label">Ruta más popular:</span>
+            <span class="detail-value">{{ datosRegion.rutaMasPopular }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos y estadísticas -->
+    <div class="charts-row">
+      <div class="chart-card distribution">
+        <h3 class="card-title">
+          <i class="fas fa-chart-pie"></i>
+          Distribución por tipo de ruta
+        </h3>
+
+        <div class="chart-container">
+          <div class="donut-chart-container">
+            <!-- Versión simulada del donut chart -->
+            <div class="donut-chart-mock">
+              <div class="donut-hole"></div>
+            </div>
+
+            <div class="distribution-legend">
+              <div *ngFor="let tipo of distribucionTipos" class="legend-item">
+                <span class="color-dot" [ngStyle]="{'background-color':
+                  tipo.tipo === 'Senderismo' ? '#ff6b6b' :
+                  tipo.tipo === 'Ciclismo' ? '#339af0' :
+                  tipo.tipo === 'Running' ? '#51cf66' :
+                  tipo.tipo === 'Alpinismo' ? '#ffd43b' : '#868e96'}"></span>
+                <span class="tipo-label">{{ tipo.tipo }}</span>
+                <span class="tipo-percent">{{ tipo.porcentaje }}%</span>
+                <span class="tipo-count">({{ tipo.rutas | number }} rutas)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card monthly">
+        <h3 class="card-title">
+          <i class="fas fa-chart-line"></i>
+          Actividad mensual
+        </h3>
+
+        <div class="chart-container">
+          <div class="monthly-chart">
+            <div class="chart-legend">
+              <span class="legend-item"><i class="fas fa-circle" style="color: #ff6b6b;"></i> Rutas</span>
+              <span class="legend-item"><i class="fas fa-circle" style="color: #339af0;"></i> Usuarios</span>
+            </div>
+
+            <div class="monthly-bars">
+              <div *ngFor="let mes of estadisticasMensuales" class="month-column">
+                <div class="month-name">{{ mes.mes }}</div>
+
+                <div class="bars-stack">
+                  <div class="routes-bar" [style.height.px]="mes.rutas / 3">
+                    <span class="bar-label">{{ mes.rutas }}</span>
+                  </div>
+
+                  <div class="users-bar" [style.height.px]="mes.usuarios / 15">
+                    <span class="bar-label">{{ mes.usuarios }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rutas destacadas -->
+    <div class="featured-routes">
+      <h3 class="section-title">
+        <i class="fas fa-route"></i>
+        Rutas destacadas
+      </h3>
+
+      <div class="routes-table-container">
+        <table class="routes-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Distancia</th>
+              <th>Desnivel</th>
+              <th>Tiempo</th>
+              <th>Dificultad</th>
+              <th>Valoración</th>
+              <th>Usuarios</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ruta of rutasDestacadas">
+              <td class="route-name">{{ ruta.nombre }}</td>
+              <td>{{ ruta.distancia }} km</td>
+              <td>{{ ruta.desnivel }} m</td>
+              <td>{{ ruta.tiempo }}</td>
+              <td>
+                <span class="difficulty-badge" [ngClass]="getColorDificultad(ruta.dificultad)">
+                  {{ ruta.dificultad }}
+                </span>
+              </td>
+              <td class="stars">{{ getValoracionEstrellas(ruta.valoracion) }}</td>
+              <td>{{ ruta.usuarios | number }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Puntos de interés destacados -->
+    <div class="featured-points">
+      <h3 class="section-title">
+        <i class="fas fa-map-marker-alt"></i>
+        Puntos de interés destacados
+      </h3>
+
+      <div class="points-grid">
+        <div *ngFor="let punto of puntosDestacados" class="point-card">
+          <div class="point-type">{{ punto.tipo }}</div>
+          <h4>{{ punto.nombre }}</h4>
+
+          <div class="point-details">
+            <div class="point-detail">
+              <i class="fas fa-mountain"></i>
+              <span>{{ punto.altitud }} m</span>
+            </div>
+
+            <div class="point-detail">
+              <i class="fas fa-star"></i>
+              <span>{{ punto.valoracion }}/5</span>
+            </div>
+
+            <div class="point-detail">
+              <i class="fas fa-eye"></i>
+              <span>{{ punto.visitas | number }} visitas</span>
+            </div>
+          </div>
+
+          <button class="view-button">
+            <i class="fas fa-map"></i>
+            Ver en mapa
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

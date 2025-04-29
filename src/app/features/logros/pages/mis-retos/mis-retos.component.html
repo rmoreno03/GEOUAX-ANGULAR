@@ -1,0 +1,144 @@
+<div class="mis-retos-container">
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando tus retos...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="retos-content">
+    <!-- Resumen de retos -->
+    <div class="retos-resumen">
+      <div class="resumen-tarjetas">
+        <div class="resumen-card activos">
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fas fa-flag"></i>
+            </div>
+            <div class="card-title">Retos activos</div>
+          </div>
+          <div class="card-value">{{ estadisticasRetos.retosActivos }}</div>
+        </div>
+
+        <div class="resumen-card completados">
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="card-title">Retos completados</div>
+          </div>
+          <div class="card-value">{{ estadisticasRetos.retosCompletados }}</div>
+        </div>
+
+        <div class="resumen-card exito">
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fas fa-percentage"></i>
+            </div>
+            <div class="card-title">Tasa de éxito</div>
+          </div>
+          <div class="card-value">{{ estadisticasRetos.porcentajeExito }}%</div>
+        </div>
+
+        <div class="resumen-card proximo">
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="card-title">Próximo a completar</div>
+          </div>
+          <div class="card-content">
+            <div class="proximo-nombre">{{ estadisticasRetos.retoMasCercano }}</div>
+            <div class="proximo-progreso">{{ estadisticasRetos.porcentajeProximo }}% completado</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros de retos -->
+    <div class="filtros-retos">
+      <div
+        *ngFor="let filtro of filtros"
+        (click)="cambiarFiltro(filtro.id)"
+        [class.active]="filtroActivo === filtro.id"
+        class="filtro-item">
+        {{ filtro.nombre }}
+      </div>
+    </div>
+
+    <!-- Lista de retos -->
+    <div class="retos-lista">
+      <div *ngFor="let reto of obtenerRetosFiltrados()" class="reto-card" [class.completado]="reto.estado === 'completado'">
+        <div class="reto-header">
+          <div class="reto-icono">
+            <i class="fas fa-{{ reto.icono }}"></i>
+          </div>
+
+          <div class="reto-info">
+            <h3 class="reto-nombre">{{ reto.nombre }}</h3>
+            <div class="reto-tipo" [class.personalizado]="reto.tipo === 'personalizado'">
+              {{ reto.tipo === 'oficial' ? 'Reto oficial' : 'Reto personalizado' }}
+            </div>
+          </div>
+
+          <div class="reto-acciones" *ngIf="reto.estado === 'activo'">
+            <button class="btn-abandonar" (click)="abandonarReto(reto.id)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <p class="reto-descripcion">{{ reto.descripcion }}</p>
+
+        <div class="reto-progreso">
+          <div class="progreso-info">
+            <span class="progreso-texto">Progreso: {{ reto.completados }} de {{ reto.total }}</span>
+            <span class="progreso-porcentaje">{{ reto.progreso }}%</span>
+          </div>
+
+          <div class="progreso-barra">
+            <div class="progreso-valor" [ngClass]="getClaseProgreso(reto.progreso)" [style.width.%]="reto.progreso"></div>
+          </div>
+        </div>
+
+        <div class="reto-detalles">
+          <div class="detalle-item" *ngIf="reto.estado === 'activo'">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Finaliza: {{ formatearFecha(reto.fechaFin) }}</span>
+          </div>
+
+          <div class="detalle-item" *ngIf="reto.estado === 'activo'">
+            <i class="fas fa-hourglass-half"></i>
+            <span>{{ calcularDiasRestantes(reto.fechaFin) }} días restantes</span>
+          </div>
+
+          <div class="detalle-item" *ngIf="reto.estado === 'completado'">
+            <i class="fas fa-trophy"></i>
+            <span>Completado: {{ formatearFecha(reto.fechaCompletado) }}</span>
+          </div>
+
+          <div class="detalle-item">
+            <i class="fas fa-medal"></i>
+            <span>Recompensa: {{ reto.recompensa }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando no hay retos -->
+    <div *ngIf="obtenerRetosFiltrados().length === 0" class="no-retos">
+      <i class="fas fa-flag"></i>
+      <p>No se encontraron retos para el filtro seleccionado</p>
+      <button class="btn-crear">
+        <i class="fas fa-plus"></i>
+        Crear reto personalizado
+      </button>
+    </div>
+  </div>
+</div>

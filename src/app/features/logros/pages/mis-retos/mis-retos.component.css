@@ -1,0 +1,460 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.mis-retos-container {
+  width: 100%;
+}
+
+/* Spinner de carga */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 0;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 121, 63, 0.2);
+  border-radius: 50%;
+  border-top-color: #ff793f;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  color: #666;
+  font-size: 16px;
+}
+
+/* Mensaje de error */
+.error-message {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.error-message i {
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+/* Resumen de retos */
+.retos-resumen {
+  margin-bottom: 30px;
+}
+
+.resumen-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.resumen-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border-left: 5px solid transparent;
+}
+
+.resumen-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.resumen-card.activos {
+  border-left-color: #ff6b6b;
+}
+
+.resumen-card.completados {
+  border-left-color: #4caf50;
+}
+
+.resumen-card.exito {
+  border-left-color: #ffa000;
+}
+
+.resumen-card.proximo {
+  border-left-color: #4dabf7;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+}
+
+.activos .card-icon {
+  background-color: #ff6b6b;
+}
+
+.completados .card-icon {
+  background-color: #4caf50;
+}
+
+.exito .card-icon {
+  background-color: #ffa000;
+}
+
+.proximo .card-icon {
+  background-color: #4dabf7;
+}
+
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.proximo-nombre {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.proximo-progreso {
+  font-size: 0.9rem;
+  color: #4dabf7;
+}
+
+/* Filtros de retos */
+.filtros-retos {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.filtro-item {
+  padding: 8px 16px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filtro-item:hover {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.filtro-item.active {
+  background-color: #ff6b6b;
+  color: white;
+  border-color: #ff6b6b;
+  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2);
+}
+
+/* Lista de retos */
+.retos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.reto-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.reto-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.reto-card.completado {
+  border-left: 5px solid #4caf50;
+}
+
+.reto-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.reto-icono {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.reto-card.completado .reto-icono {
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+}
+
+.reto-info {
+  flex: 1;
+}
+
+.reto-nombre {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.reto-tipo {
+  font-size: 0.85rem;
+  color: #ff6b6b;
+  font-weight: 500;
+  display: inline-block;
+  padding: 3px 8px;
+  background-color: #fff2ee;
+  border-radius: 4px;
+}
+
+.reto-tipo.personalizado {
+  color: #4dabf7;
+  background-color: #e3f2fd;
+}
+
+.reto-acciones {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-abandonar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  color: #999;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-abandonar:hover {
+  background-color: #ffebee;
+  color: #f44336;
+}
+
+.reto-descripcion {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.reto-progreso {
+  margin-bottom: 20px;
+}
+
+.progreso-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.progreso-texto {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.progreso-porcentaje {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.progreso-barra {
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progreso-valor {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.progreso-bajo {
+  background: linear-gradient(90deg, #ff6b6b, #ff7b7b);
+}
+
+.progreso-medio {
+  background: linear-gradient(90deg, #ffa000, #ffc107);
+}
+
+.progreso-alto {
+  background: linear-gradient(90deg, #4caf50, #8bc34a);
+}
+
+.reto-detalles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.detalle-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.detalle-item i {
+  color: #ff6b6b;
+  font-size: 16px;
+}
+
+.reto-card.completado .detalle-item i {
+  color: #4caf50;
+}
+
+/* Mensaje cuando no hay retos */
+.no-retos {
+  text-align: center;
+  padding: 40px 0;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.no-retos i {
+  font-size: 40px;
+  margin-bottom: 15px;
+  color: #e0e0e0;
+}
+
+.no-retos p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.btn-crear {
+  padding: 12px 24px;
+  background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2);
+}
+
+.btn-crear:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 107, 107, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .resumen-tarjetas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .reto-detalles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .filtros-retos {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .resumen-tarjetas {
+    grid-template-columns: 1fr;
+  }
+
+  .reto-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reto-icono {
+    margin-bottom: 10px;
+  }
+
+  .reto-acciones {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
+  .reto-detalles {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .filtros-retos {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    justify-content: flex-start;
+  }
+
+  .filtro-item {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .reto-card {
+    padding: 15px;
+  }
+}
