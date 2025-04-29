@@ -17,7 +17,7 @@
         <p><strong>Duración:</strong> {{ (ruta.duracionMin || 0) | duracion }}</p>
       </div>
       <div class="acciones-tarjeta">
-        <button class="btn-detalle" [routerLink]="['/rutas', ruta.id]">
+        <button class="btn-detalle" [routerLink]="['/rutas/detalle/', ruta.id]">
           <i class="fa-solid fa-eye"></i> Ver detalle
         </button>
 

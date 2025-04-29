@@ -129,26 +129,35 @@ export class RutasService {
    */
   async obtenerRutaPorId(id: string): Promise<Ruta | null> {
     try {
-      const rutaDoc = doc(this.rutasRef, id);
-      const snapshot = await getDoc(rutaDoc);
+      const docRef = doc(this.firestore, `rutas/${id}`);
+      const snap = await getDoc(docRef);
 
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        return {
-          id: snapshot.id,
-          nombre: data['nombre'],
-          tipoRuta: data['tipoRuta'],
-          puntos: data['puntos'],
-          fechaCreacion: data['fechaCreacion'],
-          usuarioCreador: data['usuarioCreador'],
-          distanciaKm: data['distanciaKm'] || 0,
-          duracionMin: data['duracionMin'] || 0
-        } as Ruta;
-      }
+      if (!snap.exists()) return null;
 
-      return null;
+      const data = snap.data();
+
+      // Asegurar estructura y casting correcto
+      const ruta: Ruta = {
+        id: snap.id,
+        nombre: data['nombre'],
+        tipoRuta: data['tipoRuta'],
+        distanciaKm: data['distanciaKm'],
+        duracionMin: data['duracionMin'],
+        fechaCreacion: data['fechaCreacion'],
+        usuarioCreador: data['usuarioCreador'],
+        puntos: (data['puntos'] || []).map((p: any) => ({
+          id: p.id,
+          nombre: p.nombre,
+          descripcion: p.descripcion,
+          latitud: p.latitud,
+          longitud: p.longitud,
+          fotos: p.fotos || []
+        }))
+      };
+
+      return ruta;
     } catch (error) {
-      console.error('Error al obtener ruta:', error);
+      console.error('Error obteniendo ruta por ID:', error);
       return null;
     }
   }

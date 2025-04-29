@@ -1,8 +1,133 @@
 <div class="container">
-  <h2>Detalle de Ruta</h2>
-  <div id="map-detalle" style="width: 100%; height: 70vh; border-radius: 12px;"></div>
-  <div class="botones">
-    <button class="btn-danger" (click)="eliminarRuta()">Eliminar Ruta</button>
-    <div class="alert-info">Esta ruta no puede ser actualizada por motivos internos.</div>
+  <div class="detalle-ruta-wrapper">
+    <!-- Panel izquierdo: Información de la ruta -->
+    <div class="info-ruta" *ngIf="ruta">
+      <h2>{{ ruta.nombre }}</h2>
+
+      <div class="info-seccion">
+        <div class="info-header">
+          <i [class]="getIconoRuta(ruta.tipoRuta)" class="tipo-icon"></i>
+          <h3>Detalles de la ruta</h3>
+        </div>
+
+        <div class="datos-ruta">
+          <div class="dato">
+            <i class="fas fa-ruler-horizontal"></i>
+            <div class="dato-contenido">
+              <span class="etiqueta">Distancia</span>
+              <span class="valor">{{ ruta.distanciaKm }} km</span>
+            </div>
+          </div>
+
+          <div class="dato">
+            <i class="fas fa-clock"></i>
+            <div class="dato-contenido">
+              <span class="etiqueta">Duración estimada</span>
+              <span class="valor">{{ (ruta.duracionMin || 0) | duracion }}</span>
+            </div>
+          </div>
+
+          <div class="dato">
+            <i class="fas fa-calendar-alt"></i>
+            <div class="dato-contenido">
+              <span class="etiqueta">Fecha de creación</span>
+              <span class="valor">{{ formatFecha(ruta.fechaCreacion) }}</span>
+            </div>
+          </div>
+
+          <div class="dato">
+            <i class="fas fa-map-marker-alt"></i>
+            <div class="dato-contenido">
+              <span class="etiqueta">Puntos en la ruta</span>
+              <span class="valor">{{ ruta.puntos.length }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-seccion">
+        <div class="info-header">
+          <i class="fas fa-map-pin"></i>
+          <h3>Puntos de la ruta</h3>
+        </div>
+
+        <div class="puntos-lista">
+          <div *ngFor="let punto of ruta.puntos; let i = index" class="punto-item" [class.activo]="puntoSeleccionado?.id === punto.id" (click)="seleccionarPunto(punto)">
+            <div class="punto-numero">{{ i + 1 }}</div>
+            <div class="punto-info">
+              <h4>{{ punto.nombre }}</h4>
+              <p>{{ punto.descripcion }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-seccion" *ngIf="puntoSeleccionado">
+        <div class="info-header">
+          <i class="fas fa-info-circle"></i>
+          <h3>Detalles del punto</h3>
+        </div>
+
+        <div class="punto-detalle">
+          <h4>{{ puntoSeleccionado.nombre }}</h4>
+          <p>{{ puntoSeleccionado.descripcion }}</p>
+          <p><strong>Coordenadas:</strong> {{ puntoSeleccionado.latitud }}, {{ puntoSeleccionado.longitud }}</p>
+
+          <div class="punto-fotos" *ngIf="puntoSeleccionado.fotos && puntoSeleccionado.fotos.length > 0">
+            <h5>Fotografías</h5>
+            <div class="fotos-grid">
+              <div *ngFor="let foto of puntoSeleccionado.fotos" class="foto-item">
+                <img [src]="foto" alt="Foto del punto" (click)="mostrarFotoAmpliada(foto)" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acciones">
+        <button class="btn-danger" (click)="confirmarEliminar()">
+          <i class="fas fa-trash"></i> Eliminar ruta
+        </button>
+
+        <button class="btn-secondary" routerLink="/rutas/mis-rutas">
+          <i class="fas fa-arrow-left"></i> Volver
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel derecho: Mapa -->
+    <div class="mapa-container">
+      <div id="map-detalle"></div>
+
+      <!-- Controles de mapa -->
+      <div class="mapa-controles">
+        <button class="control-btn vista-completa" title="Ver ruta completa" (click)="centrarRutaCompleta()">
+          <i class="fas fa-expand"></i>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- Modal para foto ampliada -->
+<div class="foto-modal" *ngIf="fotoAmpliada" (click)="cerrarFotoAmpliada()">
+  <div class="foto-modal-content">
+    <img [src]="fotoAmpliada" alt="Foto ampliada" />
+    <button class="cerrar-modal" (click)="cerrarFotoAmpliada()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [visible]="mostrarConfirmacion"
+  mensaje="¿Estás seguro de que deseas eliminar esta ruta?"
+  (confirmar)="eliminarRuta()"
+  (cancelar)="cancelarEliminar()">
+</app-confirm-dialog>
+
+<app-popup-exito
+  [mostrar]="mostrarMensaje"
+  [mensaje]="mensajeTexto"
+  [tipo]="tipoMensaje">
+</app-popup-exito>

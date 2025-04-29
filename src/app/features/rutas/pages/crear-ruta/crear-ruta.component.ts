@@ -139,9 +139,13 @@ export class CrearRutaComponent implements OnInit, AfterViewInit {
 
     await this.rutasService.crearRuta({
       nombre,
-      puntos: this.puntosSeleccionados,
+      puntos: this.puntosSeleccionados.map(p => ({
+        ...p,
+        fotos: p.fotos ?? []
+      })),
       tipoRuta: this.formulario.value.tipoRuta?.value || this.formulario.value.tipoRuta || 'driving',
     });
+
 
     this.mensajeService.setMensaje('Ruta guardada correctamente.', 'exito');
     this.formulario.reset({ tipoRuta: 'driving' });

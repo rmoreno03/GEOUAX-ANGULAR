@@ -42,7 +42,7 @@ export class PuntosLocalizacionService {
         latitud: data['latitud'] || 0,
         longitud: data['longitud'] || 0,
         fechaCreacion: data['fechaCreacion'] || '',
-        foto: data['foto'] || '',
+        fotos: data['fotos'] || [],
         usuarioCreador: data['usuarioCreador'] || ''
       };
     });
@@ -60,7 +60,7 @@ export class PuntosLocalizacionService {
         latitud: data['latitud'] || 0,
         longitud: data['longitud'] || 0,
         fechaCreacion: data['fechaCreacion'] || '',
-        foto: data['foto'] || '',
+        fotos: data['fotos'] || [],
         usuarioCreador: data['usuarioCreador'] || ''
       };
     });
@@ -84,7 +84,7 @@ export class PuntosLocalizacionService {
         latitud: data['latitud'],
         longitud: data['longitud'],
         fechaCreacion: data['fechaCreacion'] || '',
-        foto: data['foto'],
+        fotos: data['fotos'] || [],
         usuarioCreador: data['usuarioCreador']
       };
     });
