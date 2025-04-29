@@ -52,7 +52,14 @@
         </div>
 
         <div class="puntos-lista">
-          <div *ngFor="let punto of ruta.puntos; let i = index" class="punto-item" [class.activo]="puntoSeleccionado?.id === punto.id" (click)="seleccionarPunto(punto)">
+          <div *ngFor="let punto of ruta.puntos; let i = index"
+               class="punto-item"
+               tabindex="0"
+               role="button"
+               [class.activo]="puntoSeleccionado?.id === punto.id"
+               (click)="seleccionarPunto(punto)"
+               (keydown.enter)="seleccionarPunto(punto)"
+               (keydown.space)="seleccionarPunto(punto)">
             <div class="punto-numero">{{ i + 1 }}</div>
             <div class="punto-info">
               <h4>{{ punto.nombre }}</h4>
@@ -77,7 +84,13 @@
             <h5>Fotografías</h5>
             <div class="fotos-grid">
               <div *ngFor="let foto of puntoSeleccionado.fotos" class="foto-item">
-                <img [src]="foto" alt="Foto del punto" (click)="mostrarFotoAmpliada(foto)" />
+                <img [src]="foto"
+                     alt="Foto del punto"
+                     role="button"
+                     tabindex="0"
+                     (click)="mostrarFotoAmpliada(foto)"
+                     (keydown.enter)="mostrarFotoAmpliada(foto)"
+                     (keydown.space)="mostrarFotoAmpliada(foto)" />
               </div>
             </div>
           </div>
@@ -93,6 +106,7 @@
           <i class="fas fa-arrow-left"></i> Volver
         </button>
       </div>
+
       <div class="info-seccion" *ngIf="ruta?.isPublic && !esCreador">
         <div class="info-header">
           <i class="fas fa-star"></i>
@@ -103,11 +117,15 @@
           <ng-container *ngFor="let estrella of [1,2,3,4,5]">
             <i
               class="fa-star"
+              tabindex="0"
+              role="button"
               [ngClass]="{
                 'fas valorada': valoracionSeleccionada >= estrella,
                 'far': valoracionSeleccionada < estrella
               }"
-              (click)="seleccionarValoracion(estrella)">
+              (click)="seleccionarValoracion(estrella)"
+              (keydown.enter)="seleccionarValoracion(estrella)"
+              (keydown.space)="seleccionarValoracion(estrella)">
             </i>
           </ng-container>
 
@@ -133,7 +151,13 @@
 </div>
 
 <!-- Modal para foto ampliada -->
-<div class="foto-modal" *ngIf="fotoAmpliada" (click)="cerrarFotoAmpliada()">
+<div class="foto-modal"
+     *ngIf="fotoAmpliada"
+     tabindex="0"
+     role="dialog"
+     (click)="cerrarFotoAmpliada()"
+     (keydown.enter)="cerrarFotoAmpliada()"
+     (keydown.space)="cerrarFotoAmpliada()">
   <div class="foto-modal-content">
     <img [src]="fotoAmpliada" alt="Foto ampliada" />
     <button class="cerrar-modal" (click)="cerrarFotoAmpliada()">

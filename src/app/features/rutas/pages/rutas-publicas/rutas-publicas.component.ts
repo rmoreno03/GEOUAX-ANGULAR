@@ -195,7 +195,7 @@ export class RutasPublicasComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  getEstrellas(valoracion: number = 0): number[] {
+  getEstrellas(valoracion = 0): number[] {
     return Array(5).fill(0).map((_, i) => i < Math.round(valoracion) ? 1 : 0);
   }
 
@@ -204,7 +204,7 @@ export class RutasPublicasComponent implements OnInit, AfterViewInit, OnDestroy 
     return fecha.toDate().toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
-  formatearNumero(valor: number | undefined, sufijo: string = ''): string {
+  formatearNumero(valor: number | undefined, sufijo = ''): string {
     if (valor === undefined || valor === null) return 'N/D';
     return `${valor.toFixed(1)}${sufijo}`;
   }

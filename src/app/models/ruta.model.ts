@@ -63,3 +63,5 @@ export interface RutaExtendida extends Ruta {
 export interface RutaExtendidaConGeometria extends RutaExtendida {
   geometry: LineStringGeometry;
 }
+
+

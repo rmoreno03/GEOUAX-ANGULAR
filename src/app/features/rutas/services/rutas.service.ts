@@ -17,6 +17,9 @@ import mbxDirections from '@mapbox/mapbox-sdk/services/directions';
 import { environment } from '../../../../environments/environment';
 import { Ruta } from '../../../models/ruta.model';
 import { TipoRuta } from '../../../models/ruta.model';
+import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
+
+
 
 @Injectable({ providedIn: 'root' })
 export class RutasService {
@@ -35,9 +38,11 @@ export class RutasService {
       return tipo as TipoRuta;
     }
     if (tipo && typeof tipo === 'object' && 'value' in tipo) {
-      const value = (tipo as any).value;
-      if (value === 'driving' || value === 'walking' || value === 'cycling') {
-        return value as TipoRuta;
+      if (typeof (tipo as { value?: string })?.value === 'string') {
+        const value = (tipo as { value: string }).value;
+        if (value === 'driving' || value === 'walking' || value === 'cycling') {
+          return value as TipoRuta;
+        }
       }
     }
     return 'driving';
@@ -116,7 +121,7 @@ export class RutasService {
       const q = query(this.rutasRef, where('usuarioCreador', '==', usuarioId));
       const snapshot = await getDocs(q);
 
-      return snapshot.docs.map(doc => this.mapearRuta(doc.id, doc.data()));
+      return snapshot.docs.map(doc => this.mapearRuta(doc.id, doc.data() as Omit<Ruta, 'id'>));
     } catch (error) {
       console.error('Error al cargar rutas:', error);
       return [];
@@ -128,7 +133,7 @@ export class RutasService {
       const q = query(this.rutasRef, where('isPublic', '==', true));
       const snapshot = await getDocs(q);
 
-      return snapshot.docs.map(doc => this.mapearRuta(doc.id, doc.data()));
+      return snapshot.docs.map(doc => this.mapearRuta(doc.id, doc.data() as Omit<Ruta, 'id'>));
     } catch (error) {
       console.error('Error al cargar rutas públicas:', error);
       throw error;
@@ -142,37 +147,39 @@ export class RutasService {
 
       if (!snap.exists()) return null;
 
-      return this.mapearRuta(snap.id, snap.data());
+      return this.mapearRuta(snap.id, snap.data() as Omit<Ruta, 'id'>);
     } catch (error) {
       console.error('Error obteniendo ruta por ID:', error);
       return null;
     }
   }
 
-  private mapearRuta(id: string, data: any): Ruta {
+  private mapearRuta(id: string, data: Omit<Ruta, 'id'>): Ruta {
     return {
       id,
-      nombre: data['nombre'],
-      descripcion: data['descripcion'] || '',
-      puntos: (data['puntos'] || []).map((p: any) => ({
-        id: p.id,
-        nombre: p.nombre,
-        descripcion: p.descripcion,
-        latitud: p.latitud,
-        longitud: p.longitud,
-        fotos: p.fotos || []
+      nombre: data.nombre,
+      descripcion: data.descripcion || '',
+      puntos: (data.puntos || []).map((p: Partial<PuntoLocalizacion>) => ({
+        id: p.id ?? '',
+        nombre: p.nombre ?? '',
+        descripcion: p.descripcion ?? '',
+        latitud: p.latitud ?? 0,
+        longitud: p.longitud ?? 0,
+        fotos: p.fotos || [],
+        fechaCreacion: p.fechaCreacion || Timestamp.now(),
+        usuarioCreador: p.usuarioCreador || 'desconocido'
       })),
-      tipoRuta: data['tipoRuta'],
-      distanciaKm: data['distanciaKm'] || 0,
-      duracionMin: data['duracionMin'] || 0,
-      fechaCreacion: data['fechaCreacion'],
-      usuarioCreador: data['usuarioCreador'],
-      valoracionPromedio: data['valoracionPromedio'] || 0,
-      visitas: data['visitas'] || 0,
-      imagenUrl: data['imagenUrl'] || '',
-      ubicacionInicio: data['ubicacionInicio'] || '',
-      tiempoEstimado: data['tiempoEstimado'] || '',
-      isPublic: data['isPublic'] || false
+      tipoRuta: data.tipoRuta,
+      distanciaKm: data.distanciaKm || 0,
+      duracionMin: data.duracionMin || 0,
+      fechaCreacion: data.fechaCreacion,
+      usuarioCreador: data.usuarioCreador,
+      valoracionPromedio: data.valoracionPromedio || 0,
+      visitas: data.visitas || 0,
+      imagenUrl: data.imagenUrl || '',
+      ubicacionInicio: data.ubicacionInicio || '',
+      tiempoEstimado: data.tiempoEstimado || '',
+      isPublic: data.isPublic || false
     };
   }
 

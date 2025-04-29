@@ -1,16 +1,19 @@
 <div class="container mt-4">
-  <h2>Puntos de Localización</h2>
+  <h2><i class="fas fa-map-marker-alt"></i> Puntos de Localización</h2>
 
+  <!-- Spinner de carga -->
   <div *ngIf="loading" class="text-center">
     <div class="spinner-border" role="status">
       <span class="visually-hidden">Cargando...</span>
     </div>
   </div>
 
+  <!-- Mensaje de error -->
   <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
   </div>
 
+  <!-- Tabla de puntos -->
   <div *ngIf="!loading && !error" class="table-responsive">
     <table class="table">
       <thead>
@@ -26,30 +29,30 @@
       </thead>
       <tbody>
         <tr *ngFor="let punto of puntosFiltrados">
-          <td>{{ punto.nombre }}</td>
+          <td><strong>{{ punto.nombre }}</strong></td>
           <td>{{ punto.descripcion }}</td>
-          <td>{{ punto.latitud }}</td>
-          <td>{{ punto.longitud }}</td>
-          <td>{{ formatFecha(punto.fechaCreacion)}}</td>
+          <td (click)="copiarCoordenada(punto.latitud)" title="Haz clic para copiar">{{ punto.latitud }}</td>
+          <td (click)="copiarCoordenada(punto.longitud)" title="Haz clic para copiar">{{ punto.longitud }}</td>
+          <td>{{ formatFecha(punto.fechaCreacion) }}</td>
           <td>{{ punto.usuarioCreador }}</td>
           <td>
             <div class="botones">
               <!-- Ver en mapa -->
-              <button type="submit" class="btn btn-primary btn-icon" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
+              <button type="submit" class="btn-icon" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
                 <img src="icoMap.ico" alt="Mapa" />
                 <span class="btn-text">Ver en mapa</span>
               </button>
 
               <!-- Editar -->
-              <button type="button" class="btn btn-primary btn-icon" [routerLink]="['/puntos', punto.id]">
-                <img src="icoEdit.ico" alt="Mapa" />
+              <button type="button" class="btn-icon" [routerLink]="['/puntos', punto.id]">
+                <img src="icoEdit.ico" alt="Editar" />
                 <span class="btn-text">Editar</span>
               </button>
             </div>
           </td>
         </tr>
-        <!-- Fila vacía solo si hay una fila -->
-        <tr class="fila-placeholder" >
+        <!-- Fila vacía para mantener la estructura -->
+        <tr class="fila-placeholder">
           <td style="visibility: hidden;">Nombre------------------------</td>
           <td style="visibility: hidden;">Descripción-------------------</td>
           <td style="visibility: hidden;">Latitud-----------------------</td>
@@ -62,6 +65,7 @@
     </table>
   </div>
 
+  <!-- Mensaje cuando no hay puntos -->
   <div *ngIf="!loading && !error && puntosFiltrados.length === 0" class="alert alert-info">
     No hay puntos de localización disponibles.
   </div>

@@ -41,7 +41,6 @@ export const storage = getStorage(app);
     LayoutModule,
     SharedModule,
     HttpClientModule,
-
   ],
   providers: [
     provideAnimationsAsync(),

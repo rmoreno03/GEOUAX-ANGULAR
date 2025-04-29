@@ -1,0 +1,186 @@
+<div class="mis-estadisticas-container">
+  <!-- Cabecera con navegación -->
+  <div class="page-header">
+    <h1>
+      <i class="fas fa-chart-bar"></i>
+      Mis Estadísticas
+    </h1>
+
+
+  </div>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando tus estadísticas...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="statistics-content">
+    <!-- Perfil del usuario -->
+    <div class="user-profile-card">
+      <div class="profile-header">
+        <div class="avatar-container">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="user-info">
+          <h2>{{ datosUsuario.nombre }}</h2>
+          <div class="user-level">
+            <span class="level-label">Nivel: {{ datosUsuario.nivel }}</span>
+            <div class="progress-bar">
+              <div class="progress" [style.width.%]="calcularProgresoNivel()"></div>
+            </div>
+            <span class="xp-text">{{ datosUsuario.puntosXP }} / {{ datosUsuario.siguienteNivel }} XP</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-details">
+        <div class="detail-item">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Miembro desde: {{ datosUsuario.fechaRegistro | date:'longDate' }}</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-trophy"></i>
+          <span>Insignias: 14</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Métricas principales -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon">
+          <i class="fas fa-route"></i>
+        </div>
+        <div class="metric-data">
+          <h3>Rutas Creadas</h3>
+          <div class="metric-value">{{ estadisticasPersonales.rutasCreadas }}</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="metric-data">
+          <h3>Puntos Registrados</h3>
+          <div class="metric-value">{{ estadisticasPersonales.puntosRegistrados }}</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">
+          <i class="fas fa-road"></i>
+        </div>
+        <div class="metric-data">
+          <h3>Kilómetros Totales</h3>
+          <div class="metric-value">{{ estadisticasPersonales.kilometrosRecorridos | number:'1.1-1' }}</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">
+          <i class="fas fa-tachometer-alt"></i>
+        </div>
+        <div class="metric-data">
+          <h3>Media por Ruta</h3>
+          <div class="metric-value">{{ estadisticasPersonales.mediaKilometros | number:'1.1-1' }} km</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas detalladas y gráficos -->
+    <div class="detailed-stats">
+      <div class="stats-card performance">
+        <h3 class="card-title">
+          <i class="fas fa-tachometer-alt"></i>
+          Rendimiento
+        </h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">Tiempo total:</span>
+            <span class="stat-value">{{ estadisticasPersonales.tiempoTotal }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Velocidad media:</span>
+            <span class="stat-value">{{ estadisticasPersonales.mediaVelocidad }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Altitud máxima:</span>
+            <span class="stat-value">{{ estadisticasPersonales.altitudMaxima }} m</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Desnivel acumulado:</span>
+            <span class="stat-value">{{ estadisticasPersonales.desnivel }} m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-card monthly">
+        <h3 class="card-title">
+          <i class="fas fa-calendar-alt"></i>
+          Actividad Mensual
+        </h3>
+        <div class="monthly-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th>Distancia</th>
+                <th>Rutas</th>
+                <th>Puntos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let mes of comparativasMensuales">
+                <td>{{ mes.mes }}</td>
+                <td>{{ mes.kilometros | number:'1.1-1' }} km</td>
+                <td>{{ mes.rutas }}</td>
+                <td>{{ mes.puntos }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividad reciente -->
+    <div class="activity-card">
+      <h3 class="card-title">
+        <i class="fas fa-history"></i>
+        Actividad Reciente
+        <span class="trend-badge" [class.positive]="obtenerTendenciaActividad() === 'aumento'">
+          <i class="fas fa-arrow-up"></i> 12% vs mes anterior
+        </span>
+      </h3>
+
+      <div class="activity-list">
+        <div *ngFor="let actividad of actividadReciente" class="activity-item">
+          <div class="activity-icon" [ngClass]="{'route': actividad.tipo === 'ruta', 'point': actividad.tipo === 'punto'}">
+            <i class="fas" [ngClass]="{'fa-route': actividad.tipo === 'ruta', 'fa-map-marker-alt': actividad.tipo === 'punto'}"></i>
+          </div>
+          <div class="activity-details">
+            <h4>{{ actividad.nombre }}</h4>
+            <p *ngIf="actividad.tipo === 'ruta'">
+              {{ actividad.kilometros }} km • {{ formatearFechaRelativa(actividad.fecha) }}
+            </p>
+            <p *ngIf="actividad.tipo === 'punto'">
+              {{ actividad.ubicacion }} • {{ formatearFechaRelativa(actividad.fecha) }}
+            </p>
+          </div>
+          <div class="activity-actions">
+            <button class="action-button">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

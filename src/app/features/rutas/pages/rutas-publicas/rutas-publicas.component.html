@@ -66,7 +66,14 @@
 
   <!-- Grid de rutas -->
   <div class="grid-rutas" *ngIf="!cargando && rutasFiltradas.length > 0">
-    <div class="tarjeta-ruta" *ngFor="let ruta of rutasPaginadas" (click)="verDetalleRuta(ruta.id)" tabindex="0">
+    <div class="tarjeta-ruta"
+        *ngFor="let ruta of rutasPaginadas"
+        tabindex="0"
+        role="button"
+        (click)="verDetalleRuta(ruta.id)"
+        (keydown.enter)="verDetalleRuta(ruta.id)"
+        (keydown.space)="verDetalleRuta(ruta.id)">
+
 
       <!-- Imagen -->
       <div class="map-thumbnail">
@@ -85,20 +92,16 @@
 
         <div class="detalle-ruta">
           <div class="detalle-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <span>{{ ruta.ubicacionInicio || 'Ubicación no disponible' }}</span>
-          </div>
-          <div class="detalle-item">
             <i class="fas fa-route"></i>
-            <span>{{ formatearNumero(ruta.distanciaKm, ' km') }}</span>
+            <span>Distancia: {{ formatearNumero(ruta.distanciaKm, ' km') }}</span>
           </div>
           <div class="detalle-item">
             <i class="fas fa-clock"></i>
-            <span>{{ ruta.tiempoEstimado || 'Tiempo no disponible' }}</span>
+            <span>Duración: {{ ruta.duracionMin }}</span>
           </div>
           <div class="detalle-item">
             <i class="fas fa-calendar-alt"></i>
-            <span>{{ formatearFecha(ruta.fechaCreacion) }}</span>
+            <span>Creada el:{{ formatearFecha(ruta.fechaCreacion) }}</span>
           </div>
         </div>
 

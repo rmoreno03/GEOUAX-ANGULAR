@@ -3,6 +3,7 @@
   height: 100vh;
   overflow: hidden;
   flex-direction: row;
+  position: relative;
 }
 
 /* Sidebar */
@@ -11,6 +12,7 @@ app-sidebar {
   flex-shrink: 0;
   transition: width 0.3s ease;
   height: 100vh;
+  /* No poner overflow: hidden aquí */
 }
 
 app-sidebar.collapsed {
@@ -25,15 +27,16 @@ app-sidebar.collapsed {
   transition: margin-left 0.3s ease;
   height: 100vh;
   overflow: hidden;
+  width: calc(100% - 260px);
 }
 
 .main-panel.collapsed {
   margin-left: 80px;
+  width: calc(100% - 80px);
 }
 
 /* Topbar y Footer */
-app-topbar,
-app-footer {
+app-topbar, app-footer {
   width: 100%;
   position: relative;
   z-index: 10;
@@ -60,45 +63,104 @@ app-footer {
   background-color: #f4f4f4;
 }
 
-/* ----------------------------- */
-/* RESPONSIVE DESIGN */
-/* ----------------------------- */
+/* Overlay para móvil */
+.sidebar-mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 90;
+  animation: fadeIn 0.3s ease;
+}
 
-/* Tablets (iPad vertical y horizontal) */
+/* Botones flotantes para móvil */
+.mobile-controls {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.mobile-menu-btn,
+.mobile-sidebar-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d71920, #f7941d);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(215, 25, 32, 0.3);
+  border: none;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  transition: transform 0.2s;
+}
+
+.mobile-menu-btn:hover,
+.mobile-sidebar-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(215, 25, 32, 0.4);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ----------------------------- */
+/* RESPONSIVE DESIGN - TABLET y MÓVIL */
+/* ----------------------------- */
 @media (max-width: 1024px) {
   app-sidebar {
-    width: 200px;
+    width: 260px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    z-index: 100;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, width 0.3s ease;
+  }
+
+  app-sidebar.sidebar-open {
+    transform: translateX(0);
   }
 
   .main-panel {
-    margin-left: 200px;
-  }
-
-  .main-panel.collapsed {
-    margin-left: 80px;
+    margin-left: 0 !important;
+    width: 100% !important;
   }
 
   .content-scroll {
     padding: 16px;
   }
+
+  .sidebar-mobile-overlay {
+    display: block;
+  }
+
+  .mobile-controls {
+    display: flex;
+  }
 }
 
-/* Móviles (iPhone 15 Pro y similares) */
+/* ----------------------------- */
+/* RESPONSIVE DESIGN - MÓVIL */
+/* ----------------------------- */
 @media (max-width: 600px) {
-  .layout {
-    flex-direction: column;
-  }
-
-  app-sidebar {
-    display: none;
-  }
-
-  .main-panel,
-  .main-panel.collapsed {
-    margin-left: 0;
-  }
-
   .content-scroll {
     padding: 12px;
+  }
+
+  /* Ajustes para el topbar mobile */
+  app-topbar.mobile-hidden {
+    display: none;
   }
 }

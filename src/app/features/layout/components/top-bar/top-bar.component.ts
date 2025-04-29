@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
@@ -17,6 +17,8 @@ export class TopBarComponent {
   @Output() filtrar = new EventEmitter<Partial<PuntoLocalizacion>>();
   @Output() ordenar = new EventEmitter<{ campo: string, orden: 'asc' | 'desc' }>();
   @Output() toggleSidebar = new EventEmitter<void>();
+
+  @HostBinding('class.mobile-hidden') @Input() mobileHidden = false;
 
   title = '';
   showFilter = false;
@@ -156,6 +158,9 @@ export class TopBarComponent {
     this.showOrdenar = false;
   }
 
+  onToggleSidebarClick() {
+    this.toggleSidebar.emit();
+  }
 
   resetearTodo() {
     this.filtroForm.reset();

@@ -7,7 +7,6 @@ import { OrdenService } from '../../../../core/services/orden.service';
 import { MessageService } from '../../../../core/services/message.service';
 import { FiltroPuntoLocalizacion } from '../../../../models/filtrar-punto-localizacion.model';
 
-
 @Component({
   selector: 'app-puntos-localizacion',
   templateUrl: './puntos-localizacion.component.html',
@@ -33,6 +32,7 @@ export class PuntosLocalizacionComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    // Verificar si hay algún mensaje para mostrar
     const recibido = this.messageService.getMensaje();
     if (recibido.texto) {
       this.mensajeTexto = recibido.texto;
@@ -41,15 +41,20 @@ export class PuntosLocalizacionComponent implements OnInit {
 
       setTimeout(() => this.mostrarMensaje = false, 3500);
     }
+
     try {
-      //this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacion(); para ver todos los puntos de todos los usuarios
-      this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacionPorUsuario(this.puntosLocalizacionService.getUserId() || '');
+      // Cargar puntos de localización del usuario actual
+      this.puntosLocalizacion = await this.puntosLocalizacionService.cargarPuntosLocalizacionPorUsuario(
+        this.puntosLocalizacionService.getUserId() || ''
+      );
       this.puntosFiltrados = [...this.puntosLocalizacion];
 
+      // Suscribirse a cambios en filtros
       this.filterService.filter$.subscribe(filtro => {
         this.puntosFiltrados = this.filtrarPuntos(filtro);
       });
 
+      // Suscribirse a cambios en orden
       this.ordenService.orden$.subscribe(orden => {
         if (orden) {
           this.ordenarPuntos(orden);
@@ -64,6 +69,9 @@ export class PuntosLocalizacionComponent implements OnInit {
     }
   }
 
+  /**
+   * Filtra los puntos según los criterios especificados
+   */
   private filtrarPuntos(filtro: FiltroPuntoLocalizacion): PuntoLocalizacion[] {
     return this.puntosLocalizacion.filter(p => {
       const coincideNombre =
@@ -87,6 +95,9 @@ export class PuntosLocalizacionComponent implements OnInit {
     });
   }
 
+  /**
+   * Ordena los puntos según el campo y dirección especificados
+   */
   ordenarPuntos({ campo, orden }: { campo: string, orden: 'asc' | 'desc' }) {
     this.ordenCampo = campo;
     this.ordenDireccion = orden;
@@ -110,15 +121,18 @@ export class PuntosLocalizacionComponent implements OnInit {
     });
   }
 
-
+  /**
+   * Convierte diferentes formatos de fecha a objeto Date
+   */
   private parseFecha(valor: unknown): Date {
     if (valor instanceof Timestamp) return valor.toDate();
     if (Array.isArray(valor)) return new Date(valor[0]);
     return new Date(valor as string | number | Date);
   }
 
-
-
+  /**
+   * Formatea una fecha para mostrarla en la tabla
+   */
   formatFecha(fecha: Timestamp | Date | string): string {
     if (!fecha) return '';
 
@@ -145,11 +159,36 @@ export class PuntosLocalizacionComponent implements OnInit {
     }).replace(',', '');
   }
 
-
-
-
-  // Función para abrir en Google Maps
+  /**
+   * Abre las coordenadas en Google Maps
+   */
   abrirEnGoogleMaps(latitud: number, longitud: number): void {
     window.open(`https://www.google.com/maps?q=${latitud},${longitud}`, '_blank');
+  }
+
+  /**
+   * Copia una coordenada al portapapeles
+   */
+  copiarCoordenada(coordenada: number): void {
+    navigator.clipboard.writeText(coordenada.toString())
+      .then(() => {
+        this.mensajeTexto = 'Coordenada copiada al portapapeles';
+        this.tipoMensaje = 'exito';
+        this.mostrarMensaje = true;
+
+        setTimeout(() => {
+          this.mostrarMensaje = false;
+        }, 2000);
+      })
+      .catch(error => {
+        console.error('Error al copiar coordenada:', error);
+        this.mensajeTexto = 'No se pudo copiar la coordenada';
+        this.tipoMensaje = 'warning';
+        this.mostrarMensaje = true;
+
+        setTimeout(() => {
+          this.mostrarMensaje = false;
+        }, 2000);
+      });
   }
 }

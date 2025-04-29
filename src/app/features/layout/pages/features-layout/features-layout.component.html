@@ -1,23 +1,32 @@
-<div class="layout" [class.mobile]="esMovil">
-  <div
-  *ngIf="esMovil && sidebarMobileOpen"
-  class="sidebar-mobile-overlay"
-  (click)="cerrarSidebarMovil()"
-  (keydown.enter)="cerrarSidebarMovil()"
-  (keydown.space)="cerrarSidebarMovil()"
-  tabindex="0"
-  role="button"
-  aria-label="Cerrar barra lateral">
-</div>
+<!-- features-layout.component.html -->
 
+<div class="layout">
+  <!-- Overlay para cerrar sidebar en móvil/tablet -->
+  <div
+    *ngIf="esMovil && sidebarMobileOpen"
+    class="sidebar-mobile-overlay"
+    (click)="cerrarSidebarMovil()"
+    (keydown.enter)="cerrarSidebarMovil()"
+    (keydown.space)="cerrarSidebarMovil()"
+    tabindex="0"
+    role="button"
+    aria-label="Cerrar barra lateral">
+  </div>
+
+  <!-- Sidebar (comportamiento normal en desktop, oculto en móvil/tablet) -->
   <app-sidebar
+    [collapsed]="!esMovil && sidebarCollapsed"
     [class.collapsed]="!esMovil && sidebarCollapsed"
-    [class.mobile]="esMovil"
     [class.sidebar-open]="esMovil && sidebarMobileOpen">
   </app-sidebar>
 
+  <!-- Panel principal -->
   <div class="main-panel" [class.collapsed]="!esMovil && sidebarCollapsed">
-    <app-topbar (toggleSidebar)="toggleSidebar()"></app-topbar>
+    <!-- Topbar (siempre visible en desktop, puede ocultarse en móvil) -->
+    <app-topbar
+      [class.mobile-hidden]="esMovil && !topbarMobileOpen"
+      (toggleSidebar)="toggleSidebar()">
+    </app-topbar>
 
     <div class="page-wrapper">
       <div class="content-scroll">
@@ -25,5 +34,22 @@
       </div>
       <app-footer></app-footer>
     </div>
+  </div>
+
+  <!-- Botones flotantes para móvil/tablet -->
+  <div class="mobile-controls" *ngIf="esMovil">
+    <button
+      class="mobile-menu-btn"
+      (click)="toggleTopbarMobile()"
+      aria-label="Mostrar/ocultar menú">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <button
+      class="mobile-sidebar-btn"
+      (click)="toggleSidebarMobile()"
+      aria-label="Mostrar/ocultar panel lateral">
+      <i class="fas fa-columns"></i>
+    </button>
   </div>
 </div>
