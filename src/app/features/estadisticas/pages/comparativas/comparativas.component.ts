@@ -15,7 +15,7 @@ export class ComparativasComponent implements OnInit {
 
   // Datos simulados
   datosUsuario = {
-    nombre: 'Carlos Rodríguez',
+    nombre: 'Raúl Moreno Moya',
     imagen: null,
     totalKilometros: 756.3,
     totalRutas: 28,
@@ -56,7 +56,7 @@ export class ComparativasComponent implements OnInit {
     { posicion: 4, nombre: 'Usuario Top 4', kilometros: 876.2, rutas: 37, imagen: null },
     { posicion: 5, nombre: 'Usuario Top 5', kilometros: 812.5, rutas: 36, imagen: null },
     // Posición del usuario actual
-    { posicion: 27, nombre: 'Carlos Rodríguez', kilometros: 756.3, rutas: 28, imagen: null, destacado: true },
+    { posicion: 27, nombre: 'Raúl Moreno', kilometros: 756.3, rutas: 28, imagen: null, destacado: true },
     // Más usuarios
     { posicion: 28, nombre: 'Usuario 28', kilometros: 732.1, rutas: 27, imagen: null },
     { posicion: 29, nombre: 'Usuario 29', kilometros: 705.8, rutas: 26, imagen: null },

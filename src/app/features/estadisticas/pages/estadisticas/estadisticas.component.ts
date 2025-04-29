@@ -11,7 +11,7 @@ import { filter } from 'rxjs/operators';
 export class EstadisticasComponent implements OnInit {
   // Datos simulados para estadísticas personales
   datosUsuario = {
-    nombre: 'Carlos Rodríguez',
+    nombre: 'Raúl Moreno Moya',
     nivel: 'Experto',
     puntosXP: 4850,
     siguienteNivel: 5000,
