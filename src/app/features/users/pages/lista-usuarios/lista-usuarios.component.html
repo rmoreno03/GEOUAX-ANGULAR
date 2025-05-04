@@ -1,0 +1,130 @@
+<div class="lista-usuarios-container">
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando usuarios...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="usuarios-content">
+    <!-- Barra de herramientas -->
+    <div class="toolbar">
+      <div class="search-container">
+        <div class="search-field">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            [(ngModel)]="filtroTexto"
+            placeholder="Buscar usuario..."
+            class="search-input">
+        </div>
+
+        <div class="search-options">
+          <select [(ngModel)]="filtroPor">
+            <option value="nombre">Por nombre</option>
+            <option value="email">Por email</option>
+            <option value="rol">Por rol</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="action-button export-btn" (click)="exportarUsuarios()">
+          <i class="fas fa-file-export"></i>
+          <span>Exportar</span>
+        </button>
+
+        <div class="column-selector">
+          <button class="action-button columns-btn">
+            <i class="fas fa-columns"></i>
+            <span>Columnas</span>
+          </button>
+
+          <div class="columns-dropdown">
+            <div *ngFor="let columna of columnas" class="column-item">
+              <label class="checkbox-container">
+                <input type="checkbox" [(ngModel)]="columna.visible">
+                <span class="checkmark"></span>
+                {{ columna.titulo }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="table-container">
+      <table class="usuarios-table">
+        <thead>
+          <tr>
+            <th *ngIf="columnas[0].visible">{{ columnas[0].titulo }}</th>
+            <th *ngIf="columnas[1].visible">{{ columnas[1].titulo }}</th>
+            <th *ngIf="columnas[2].visible">{{ columnas[2].titulo }}</th>
+            <th *ngIf="columnas[3].visible">{{ columnas[3].titulo }}</th>
+            <th *ngIf="columnas[4].visible">{{ columnas[4].titulo }}</th>
+            <th *ngIf="columnas[5].visible">{{ columnas[5].titulo }}</th>
+            <th *ngIf="columnas[6].visible">{{ columnas[6].titulo }}</th>
+            <th *ngIf="columnas[7].visible">{{ columnas[7].titulo }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of filtrarUsuarios()">
+            <td *ngIf="columnas[0].visible">{{ usuario.nombre }}</td>
+            <td *ngIf="columnas[1].visible">{{ usuario.email }}</td>
+            <td *ngIf="columnas[2].visible">
+              <span class="role-badge" [ngClass]="{
+                'role-admin': usuario.rol === 'Administrador',
+                'role-editor': usuario.rol === 'Editor',
+                'role-moderator': usuario.rol === 'Moderador',
+                'role-user': usuario.rol === 'Usuario'
+              }">{{ usuario.rol }}</span>
+            </td>
+            <td *ngIf="columnas[3].visible">{{ formatFecha(usuario.fechaRegistro) }}</td>
+            <td *ngIf="columnas[4].visible">{{ formatFecha(usuario.ultimoAcceso) }}</td>
+            <td *ngIf="columnas[5].visible">{{ usuario.rutasCreadas }}</td>
+            <td *ngIf="columnas[6].visible">{{ usuario.puntosRegistrados }}</td>
+            <td *ngIf="columnas[7].visible" class="actions-cell">
+              <button class="action-icon edit" (click)="editarUsuario(usuario.id)" title="Editar usuario">
+                <i class="fas fa-edit"></i>
+              </button>
+
+              <button class="action-icon stats" (click)="verEstadisticas(usuario.id)" title="Ver estadísticas">
+                <i class="fas fa-chart-line"></i>
+              </button>
+
+              <button class="action-icon deactivate" (click)="desactivarUsuario(usuario.id)" title="Desactivar usuario">
+                <i class="fas fa-user-slash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mensaje cuando no hay usuarios -->
+    <div *ngIf="filtrarUsuarios().length === 0" class="no-users">
+      <i class="fas fa-users-slash"></i>
+      <p>No se encontraron usuarios con los criterios de búsqueda.</p>
+    </div>
+
+    <!-- Paginación (simplificada) -->
+    <div class="pagination">
+      <button class="pagination-btn" disabled>
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <span class="pagination-info">Página 1 de 1</span>
+
+      <button class="pagination-btn" disabled>
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,377 @@
+<div class="estadisticas-usuario-container">
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Panel de selección de usuario -->
+  <div class="user-selection-panel">
+    <div class="search-container">
+      <div class="search-field">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="usuarioBusqueda"
+          placeholder="Buscar usuario..."
+          class="search-input">
+      </div>
+    </div>
+
+    <div class="users-list">
+      <div
+        *ngFor="let usuario of filtrarUsuarios()"
+        class="user-item"
+        [class.active]="usuarioSeleccionado?.id === usuario.id"
+        (click)="seleccionarUsuario(usuario)">
+        <div class="user-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ usuario.nombre }}</div>
+          <div class="user-email">{{ usuario.email }}</div>
+        </div>
+        <div class="user-role">
+          <span class="role-badge" [ngClass]="{
+            'role-admin': usuario.rol === 'Administrador',
+            'role-editor': usuario.rol === 'Editor',
+            'role-moderator': usuario.rol === 'Moderador',
+            'role-user': usuario.rol === 'Usuario'
+          }">{{ usuario.rol }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estadísticas del usuario -->
+  <div class="user-stats-container" *ngIf="usuarioSeleccionado">
+    <!-- Spinner de carga -->
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Cargando estadísticas...</p>
+    </div>
+
+    <!-- Cabecera del usuario -->
+    <div *ngIf="!loading" class="user-header">
+      <div class="user-profile">
+        <div class="user-avatar-large">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="user-details">
+          <h2>{{ usuarioSeleccionado.nombre }}</h2>
+          <div class="user-meta">
+            <span><i class="fas fa-envelope"></i> {{ usuarioSeleccionado.email }}</span>
+            <span><i class="fas fa-user-tag"></i> {{ usuarioSeleccionado.rol }}</span>
+            <span><i class="fas fa-calendar-plus"></i> Miembro desde {{ formatFecha(usuarioSeleccionado.fechaRegistro) }}</span>
+            <span><i class="fas fa-sign-in-alt"></i> Último acceso {{ formatFecha(usuarioSeleccionado.ultimoAcceso) }}</span>
+          </div>
+        </div>
+
+        <div class="user-actions">
+          <button class="btn-export" (click)="exportarEstadisticas()">
+            <i class="fas fa-file-export"></i>
+            Exportar estadísticas
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de período -->
+      <div class="period-selector">
+        <div class="selector-buttons">
+          <button
+            [class.active]="periodoSeleccionado === 'semanal'"
+            (click)="cambiarPeriodo('semanal')"
+            class="period-button">
+            <i class="fas fa-calendar-week"></i>
+            Semanal
+          </button>
+
+          <button
+            [class.active]="periodoSeleccionado === 'mensual'"
+            (click)="cambiarPeriodo('mensual')"
+            class="period-button">
+            <i class="fas fa-calendar-alt"></i>
+            Mensual
+          </button>
+
+          <button
+            [class.active]="periodoSeleccionado === 'trimestral'"
+            (click)="cambiarPeriodo('trimestral')"
+            class="period-button">
+            <i class="fas fa-calendar"></i>
+            Trimestral
+          </button>
+
+          <button
+            [class.active]="periodoSeleccionado === 'anual'"
+            (click)="cambiarPeriodo('anual')"
+            class="period-button">
+            <i class="fas fa-calendar-check"></i>
+            Anual
+          </button>
+
+          <button
+            [class.active]="periodoSeleccionado === 'total'"
+            (click)="cambiarPeriodo('total')"
+            class="period-button">
+            <i class="fas fa-infinity"></i>
+            Total
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido de estadísticas -->
+    <div *ngIf="!loading" class="stats-content">
+      <!-- Métricas principales -->
+      <div class="stats-row">
+        <div class="stats-card">
+          <div class="stats-icon routes">
+            <i class="fas fa-route"></i>
+          </div>
+          <div class="stats-info">
+            <div class="stats-value">{{ estadisticasUsuario.totalRutas }}</div>
+            <div class="stats-label">Rutas creadas</div>
+          </div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-icon points">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="stats-info">
+            <div class="stats-value">{{ estadisticasUsuario.totalPuntos }}</div>
+            <div class="stats-label">Puntos de interés</div>
+          </div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-icon distance">
+            <i class="fas fa-road"></i>
+          </div>
+          <div class="stats-info">
+            <div class="stats-value">{{ estadisticasUsuario.totalKilometros | number:'1.1-1' }}</div>
+            <div class="stats-label">Kilómetros recorridos</div>
+          </div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-icon achievements">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <div class="stats-info">
+            <div class="stats-value">{{ estadisticasUsuario.logrosConseguidos }}/{{ estadisticasUsuario.totalLogros }}</div>
+            <div class="stats-label">Logros conseguidos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos de actividad -->
+      <div class="charts-row">
+        <div class="chart-card activity">
+          <h3 class="card-title">
+            <i class="fas fa-chart-line"></i>
+            Actividad mensual
+          </h3>
+
+          <div class="chart-container">
+            <!-- Simulación visual de gráfico -->
+            <div class="activity-chart">
+              <div *ngFor="let mes of estadisticasUsuario.actividadMensual" class="month-column">
+                <div class="month-name">{{ mes.mes }}</div>
+
+                <div class="bars-group">
+                  <div class="bar-container">
+                    <div class="month-bar routes" [style.height.px]="mes.rutas * 15">
+                      <span class="bar-value">{{ mes.rutas }}</span>
+                    </div>
+                    <span class="bar-label">Rutas</span>
+                  </div>
+
+                  <div class="bar-container">
+                    <div class="month-bar distance" [style.height.px]="mes.kilometros / 3">
+                      <span class="bar-value">{{ mes.kilometros }}</span>
+                    </div>
+                    <span class="bar-label">Km</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card distribution">
+          <h3 class="card-title">
+            <i class="fas fa-chart-pie"></i>
+            Distribución por tipo
+          </h3>
+
+          <div class="chart-container">
+            <div class="distribution-chart">
+              <!-- Simulación visual de gráfico de distribución -->
+              <div class="pie-container">
+                <div class="pie-chart">
+                  <div class="pie-center">{{ estadisticasUsuario.totalRutas }}</div>
+                </div>
+              </div>
+
+              <div class="distribution-legend">
+                <div *ngFor="let tipo of estadisticasUsuario.distribucionTipos" class="legend-item">
+                  <div class="legend-color" [ngClass]="'type-' + tipo.tipo.toLowerCase()"></div>
+                  <div class="legend-label">{{ tipo.tipo }}</div>
+                  <div class="legend-value">{{ tipo.porcentaje }}%</div>
+                  <div class="legend-count">({{ tipo.rutas }})</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="activity-section">
+        <h3 class="section-title">
+          <i class="fas fa-history"></i>
+          Actividad reciente
+        </h3>
+
+        <div class="activity-timeline">
+          <div *ngFor="let actividad of actividadReciente" class="timeline-item">
+            <div class="timeline-icon" [ngClass]="'tipo-' + actividad.tipo">
+              <i class="fas" [ngClass]="{
+                'fa-route': actividad.tipo === 'ruta',
+                'fa-map-marker-alt': actividad.tipo === 'punto',
+                'fa-trophy': actividad.tipo === 'logro',
+                'fa-flag-checkered': actividad.tipo === 'reto'
+              }"></i>
+            </div>
+
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <h4>{{ actividad.nombre }}</h4>
+                <span class="timeline-date">{{ formatearFechaRelativa(actividad.fecha) }}</span>
+              </div>
+
+              <div class="timeline-details">
+                <div *ngIf="actividad.tipo === 'ruta'" class="detail-group">
+                  <span><i class="fas fa-road"></i> {{ actividad.kilometros }} km</span>
+                  <span><i class="fas fa-clock"></i> {{ actividad.tiempo }}</span>
+                </div>
+
+                <div *ngIf="actividad.tipo === 'punto'" class="detail-group">
+                  <span><i class="fas fa-map"></i> {{ actividad.ubicacion }}</span>
+                </div>
+
+                <div *ngIf="actividad.tipo === 'logro'" class="detail-group">
+                  <span><i class="fas fa-star"></i> {{ actividad.descripcion }}</span>
+                </div>
+
+                <div *ngIf="actividad.tipo === 'reto'" class="detail-group">
+                  <span><i class="fas fa-tasks"></i> {{ actividad.descripcion }}</span>
+                  <div class="progress-bar">
+                    <div class="progress" [ngClass]="getColorProgreso(actividad.progreso ?? 0)" [style.width.%]="actividad.progreso ?? 0"></div>
+                  </div>
+                  <span class="progress-text">{{ actividad.progreso }}% completado</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas detalladas -->
+      <div class="detailed-stats">
+        <h3 class="section-title">
+          <i class="fas fa-chart-bar"></i>
+          Estadísticas detalladas
+        </h3>
+
+        <div class="details-grid">
+          <div class="detail-card">
+            <div class="detail-header">
+              <i class="fas fa-mountain"></i>
+              <span>Altitud máxima</span>
+            </div>
+            <div class="detail-value">{{ estadisticasUsuario.altitudMaxima }} m</div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-header">
+              <i class="fas fa-arrows-alt-v"></i>
+              <span>Desnivel acumulado</span>
+            </div>
+            <div class="detail-value">{{ estadisticasUsuario.desnivelAcumulado }} m</div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-header">
+              <i class="fas fa-tachometer-alt"></i>
+              <span>Velocidad media</span>
+            </div>
+            <div class="detail-value">{{ estadisticasUsuario.mediaVelocidad }}</div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-header">
+              <i class="fas fa-clock"></i>
+              <span>Tiempo total</span>
+            </div>
+            <div class="detail-value">{{ estadisticasUsuario.tiempoTotal }}</div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-header">
+              <i class="fas fa-ruler"></i>
+              <span>Media por ruta</span>
+            </div>
+            <div class="detail-value">{{ estadisticasUsuario.mediaKilometros | number:'1.1-1' }} km</div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-header">
+              <i class="fas fa-flag-checkered"></i>
+              <span>Retos completados</span>
+            </div>
+            <div class="detail-value">{{ estadisticasUsuario.retosCompletados }}</div>
+          </div>
+        </div>
+
+        <!-- Datos más destacados -->
+        <div class="highlights">
+          <div class="highlight-card longest-route">
+            <h4>Ruta más larga</h4>
+            <div class="highlight-content">
+              <div class="highlight-value">{{ estadisticasUsuario.rutaMasLarga.distancia }} km</div>
+              <div class="highlight-details">
+                <div>{{ estadisticasUsuario.rutaMasLarga.nombre }}</div>
+                <div>{{ formatFecha(estadisticasUsuario.rutaMasLarga.fecha) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-card top-points">
+            <h4>Puntos más visitados</h4>
+            <div class="highlights-list">
+              <div *ngFor="let punto of estadisticasUsuario.puntosInteres" class="highlight-item">
+                <div class="item-name">{{ punto.nombre }}</div>
+                <div class="item-value">{{ punto.visitas }} visitas</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay usuario seleccionado -->
+  <div *ngIf="!usuarioSeleccionado && !loading && filtrarUsuarios().length > 0" class="no-selection">
+    <i class="fas fa-user-chart"></i>
+    <p>Selecciona un usuario para ver sus estadísticas</p>
+  </div>
+
+  <!-- Mensaje cuando no hay usuarios -->
+  <div *ngIf="!loading && filtrarUsuarios().length === 0" class="no-users">
+    <i class="fas fa-users-slash"></i>
+    <p>No se encontraron usuarios con los criterios de búsqueda</p>
+  </div>
+</div>

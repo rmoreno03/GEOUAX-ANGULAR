@@ -1,0 +1,197 @@
+<div class="roles-container">
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando roles...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Mensaje de éxito -->
+  <div *ngIf="success" class="success-message">
+    <i class="fas fa-check-circle"></i>
+    <p>{{ editMode ? 'Rol actualizado con éxito' : 'Rol creado con éxito' }}</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading && !error" class="roles-content">
+    <div class="roles-grid">
+      <!-- Lista de roles -->
+      <div class="roles-list-section">
+        <div class="section-header">
+          <h3>Roles disponibles</h3>
+          <button class="btn-add" (click)="nuevoRol()">
+            <i class="fas fa-plus"></i>
+            Nuevo Rol
+          </button>
+        </div>
+
+        <div class="roles-list">
+          <div
+            *ngFor="let rol of roles"
+            class="rol-item"
+            [class.active]="rolSeleccionado?.id === rol.id"
+            (click)="seleccionarRol(rol)">
+            <div class="rol-header">
+              <div class="rol-title">
+                <h4>{{ rol.nombre }}</h4>
+                <span class="rol-id">{{ rol.id }}</span>
+              </div>
+
+              <div class="rol-actions">
+                <button
+                  class="action-icon delete"
+                  (click)="eliminarRol(rol.id); $event.stopPropagation()"
+                  [disabled]="rol.id === 'admin' || rol.id === 'usuario'">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+
+            <p class="rol-description">{{ rol.descripcion }}</p>
+
+            <div class="rol-stats">
+              <div class="rol-stat">
+                <i class="fas fa-users"></i>
+                <span>{{ rol.usuarios }} usuarios</span>
+              </div>
+              <div class="rol-stat">
+                <i class="fas fa-shield-alt"></i>
+                <span>{{ rol.permisos.length }} permisos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario de rol -->
+      <div class="rol-form-section">
+        <h3>{{ editMode ? 'Editar Rol' : 'Nuevo Rol' }}</h3>
+
+        <form [formGroup]="rolForm" (ngSubmit)="onSubmit()" class="rol-form">
+          <div class="form-group">
+            <label for="id">ID del rol *</label>
+            <input
+              type="text"
+              id="id"
+              formControlName="id"
+              placeholder="Identificador único (sin espacios)"
+              [class.invalid]="isFieldInvalid('id')">
+            <div *ngIf="isFieldInvalid('id')" class="error-hint">
+              <span *ngIf="rolForm.get('id')?.errors?.['required']">El ID es obligatorio</span>
+              <span *ngIf="rolForm.get('id')?.errors?.['pattern']">El ID solo puede contener letras minúsculas, números, guiones y guiones bajos</span>
+            </div>
+            <div class="hint">Este identificador se utilizará internamente y no se puede cambiar después</div>
+          </div>
+
+          <div class="form-group">
+            <label for="nombre">Nombre del rol *</label>
+            <input
+              type="text"
+              id="nombre"
+              formControlName="nombre"
+              placeholder="Nombre descriptivo"
+              [class.invalid]="isFieldInvalid('nombre')">
+            <div *ngIf="isFieldInvalid('nombre')" class="error-hint">
+              <span *ngIf="rolForm.get('nombre')?.errors?.['required']">El nombre es obligatorio</span>
+              <span *ngIf="rolForm.get('nombre')?.errors?.['minlength']">El nombre debe tener al menos 3 caracteres</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="descripcion">Descripción *</label>
+            <textarea
+              id="descripcion"
+              formControlName="descripcion"
+              placeholder="Describe brevemente el propósito de este rol"
+              rows="3"
+              [class.invalid]="isFieldInvalid('descripcion')"></textarea>
+            <div *ngIf="isFieldInvalid('descripcion')" class="error-hint">
+              <span *ngIf="rolForm.get('descripcion')?.errors?.['required']">La descripción es obligatoria</span>
+              <span *ngIf="rolForm.get('descripcion')?.errors?.['minlength']">La descripción debe tener al menos 10 caracteres</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Permisos</label>
+
+            <div class="permisos-secciones">
+              <div *ngFor="let categoria of categoriasPermisos" class="categoria-permisos">
+                <div class="categoria-header">
+                  <div class="categoria-title">{{ categoria.nombre }}</div>
+                  <div class="categoria-toggle">
+                    <button
+                      type="button"
+                      class="btn-small"
+                      (click)="toggleCategoria(categoria.id, !estanTodosSeleccionados(categoria.id))">
+                      {{ estanTodosSeleccionados(categoria.id) ? 'Deseleccionar todos' : 'Seleccionar todos' }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="permisos-lista">
+                  <div *ngFor="let permiso of getPermisosPorCategoria(categoria.id)" class="permiso-item">
+                    <label class="checkbox-container">
+                      <input
+                        type="checkbox"
+                        [checked]="permiso.seleccionado"
+                        (change)="togglePermiso(permiso.id)">
+                      <span class="checkmark"></span>
+                      {{ permiso.nombre }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="nuevoRol()">
+              Cancelar
+            </button>
+
+            <button type="submit" class="btn-primary" [disabled]="submitting || rolForm.invalid">
+              <i *ngIf="submitting" class="fas fa-spinner fa-spin"></i>
+              <span *ngIf="!submitting">{{ editMode ? 'Actualizar Rol' : 'Crear Rol' }}</span>
+              <span *ngIf="submitting">{{ editMode ? 'Actualizando...' : 'Creando...' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tabla de resumen de permisos por rol -->
+    <div class="permisos-resumen">
+      <h3>Resumen de permisos por rol</h3>
+
+      <div class="table-container">
+        <table class="permisos-tabla">
+          <thead>
+            <tr>
+              <th>Permiso</th>
+              <th *ngFor="let rol of roles">{{ rol.nombre }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let categoria of categoriasPermisos">
+              <tr class="categoria-row">
+                <td [attr.colspan]="roles.length + 1">{{ categoria.nombre }}</td>
+              </tr>
+
+              <tr *ngFor="let permiso of getPermisosPorCategoria(categoria.id)">
+                <td>{{ permiso.nombre }}</td>
+                <td *ngFor="let rol of roles" class="permiso-cell">
+                  <i class="fas" [ngClass]="tienePermiso(rol.id, permiso.id) ? 'fa-check' : 'fa-times'"></i>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

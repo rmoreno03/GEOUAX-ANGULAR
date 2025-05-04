@@ -71,10 +71,10 @@ export class TopBarComponent {
       } else if (url.includes('usuarios')) {
         this.title = 'Usuarios';
         this.menuOptions = [
-          { label: 'Nuevo Usuario', icon: 'fas fa-user-plus', action: () => this.router.navigate(['/usuarios/crear']) },
+          { label: 'Nuevo Usuario', icon: 'fas fa-user-plus', action: () => this.router.navigate(['/usuarios/nuevo-usuario']) },
           { label: 'Roles', icon: 'fas fa-user-tag', action: () => this.router.navigate(['/usuarios/roles']) },
-          { label: 'Estadísticas por Usuario', icon: 'fas fa-chart-line', action: () => this.router.navigate(['/usuarios/estadisticas']) },
-          { label: 'Usuarios Inactivos', icon: 'fas fa-user-slash', action: () => this.router.navigate(['/usuarios/inactivos']) }
+          { label: 'Estadísticas por Usuario', icon: 'fas fa-chart-line', action: () => this.router.navigate(['/usuarios/estadisticas-por-usuario']) },
+          { label: 'Usuarios Inactivos', icon: 'fas fa-user-slash', action: () => this.router.navigate(['/usuarios/usuarios-inactivos']) }
         ];
 
       } else if (url.includes('admin')) {
