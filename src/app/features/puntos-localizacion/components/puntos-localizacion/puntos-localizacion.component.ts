@@ -31,21 +31,29 @@ export class PuntosLocalizacionComponent implements OnInit {
   ordenCampo = '';
   ordenDireccion: 'asc' | 'desc' = 'asc';
 
+  //Dialogo eliminar
+  puntoSeleccionadoId: string | null = null;
+  mostrarConfirmacion = false;
+
+
   constructor(
     private puntosService: PuntosLocalizacionService,
     private filterService: FilterService,
     private ordenService: OrdenService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private dialogService: MessageService
   ) {}
 
-  async ngOnInit(): Promise<void> {
-    const recibido = this.messageService.getMensaje();
-    if (recibido.texto) {
-      this.mensajeTexto = recibido.texto;
-      this.tipoMensaje = recibido.tipo;
-      this.mostrarMensaje = true;
-      setTimeout(() => this.mostrarMensaje = false, 3500);
-    }
+  async ngOnInit() {
+    setTimeout(() => {
+      const recibido = this.messageService.getMensaje();
+      if (recibido.texto) {
+        this.mensajeTexto = recibido.texto;
+        this.tipoMensaje = recibido.tipo;
+        this.mostrarMensaje = true;
+        setTimeout(() => this.mostrarMensaje = false, 3500);
+      }
+    }, 0);
 
     try {
       const userId = this.puntosService.getUserId() || '';
@@ -139,6 +147,39 @@ export class PuntosLocalizacionComponent implements OnInit {
       minute: '2-digit'
     });
   }
+
+  abrirConfirmacionEliminar(id: string): void {
+    this.puntoSeleccionadoId = id;
+    this.mostrarConfirmacion = true;
+  }
+
+  cancelarEliminacion(): void {
+    this.puntoSeleccionadoId = null;
+    this.mostrarConfirmacion = false;
+  }
+
+  confirmarEliminacion(): void {
+    if (!this.puntoSeleccionadoId) return;
+
+    this.puntosService.eliminarPunto(this.puntoSeleccionadoId).then(() => {
+      this.puntosFiltrados = this.puntosFiltrados.filter(p => p.id !== this.puntoSeleccionadoId);
+      this.mensajeTexto = 'Punto eliminado correctamente';
+      this.tipoMensaje = 'eliminado';
+      this.mostrarMensaje = true;
+      this.mostrarConfirmacion = false;
+
+      setTimeout(() => (this.mostrarMensaje = false), 3000);
+    }).catch(err => {
+      console.error('Error al eliminar punto:', err);
+      this.mensajeTexto = 'Error al eliminar el punto';
+      this.tipoMensaje = 'warning';
+      this.mostrarMensaje = true;
+      this.mostrarConfirmacion = false;
+
+      setTimeout(() => (this.mostrarMensaje = false), 3000);
+    });
+  }
+
 
   abrirEnGoogleMaps(lat: number, lng: number): void {
     window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');

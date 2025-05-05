@@ -210,6 +210,15 @@
   color: #fff;
 }
 
+.btn-delete {
+  background: #ffe6e6;
+  color: #d71920;
+}
+.btn-delete:hover {
+  background: #d71920;
+  color: #fff;
+}
+
 .pagination-footer {
   padding-top: 1rem;
   border-top: 1px solid #eee;

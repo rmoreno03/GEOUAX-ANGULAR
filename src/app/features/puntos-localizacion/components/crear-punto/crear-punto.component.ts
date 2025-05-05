@@ -1,5 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import { environment } from '../../../../../environments/environment';
 import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.service';
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
@@ -10,6 +11,8 @@ import { MessageService } from '../../../../core/services/message.service';
 import { ImageValidationService, ValidationResult } from '../../services/imageValidator.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+
+
 
 @Component({
   selector: 'app-crear-punto',
@@ -50,22 +53,36 @@ export class CrearPuntoComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    mapboxgl.accessToken = environment.mapbox_key; // Asignar el token de Mapbox
+    (mapboxgl as any).accessToken = environment.mapbox_key;
+
     this.map = new mapboxgl.Map({
       container: 'map-preview',
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-3.7038, 40.4168], // Centro en Madrid
+      center: [-3.7038, 40.4168],
       zoom: 10
+    });
+
+    const geocoder = new MapboxGeocoder({
+      accessToken: (mapboxgl as any).accessToken,
+      mapboxgl: mapboxgl as any,
+      marker: false,
+      placeholder: 'Buscar ubicación...',
+      zoom: 14
+    });
+
+    this.map.addControl(geocoder, 'top-left');
+
+    geocoder.on('result', (e) => {
+      const coords = e.result.center;
+      this.map.flyTo({ center: coords, zoom: 14 });
     });
 
     this.map.on('click', (event) => {
       const { lng, lat } = event.lngLat;
 
-      // Guardamos las coordenadas
       this.punto.latitud = lat;
       this.punto.longitud = lng;
 
-      // Si ya existe el marcador, lo actualizamos
       if (this.marker) {
         this.marker.setLngLat([lng, lat]);
       } else {
@@ -75,6 +92,7 @@ export class CrearPuntoComponent implements AfterViewInit {
       }
     });
   }
+
 
   //metodo para guardar los puntos que pasan por la validacion de ia
   async guardarPunto() {

@@ -48,6 +48,9 @@
               <button class="btn-icon btn-route" title="Crear ruta" [routerLink]="['/rutas/crear']" [queryParams]="{ puntoId: punto.id }">
                 <i class="fas fa-route"></i>
               </button>
+              <button class="btn-icon btn-delete" title="Eliminar punto" (click)="abrirConfirmacionEliminar(punto.id)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
             </div>
           </td>
         </tr>
@@ -71,3 +74,17 @@
     </div>
   </div>
 </div>
+
+<app-popup-exito
+  [mostrar]="mostrarMensaje"
+  [mensaje]="mensajeTexto"
+  [tipo]="tipoMensaje">
+</app-popup-exito>
+
+<app-confirm-dialog
+  [visible]="mostrarConfirmacion"
+  mensaje="¿Estás seguro de que deseas eliminar este punto?"
+  (confirmar)="confirmarEliminacion()"
+  (cancelar)="cancelarEliminacion()">
+</app-confirm-dialog>
+
