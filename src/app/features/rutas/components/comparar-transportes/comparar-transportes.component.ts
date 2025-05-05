@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { RutasService } from '../../services/rutas.service';
+import { ScaleType } from '@swimlane/ngx-charts';
 
 @Component({
   selector: 'app-comparar-transportes',
@@ -14,7 +15,16 @@ export class CompararTransportesComponent implements OnInit {
   opciones: any[] = [];
 
   showChart = false;
-  chartData: any[] = [];
+  chartData: { name: string; value: number }[] = [];
+
+  colorScheme = {
+    name: 'customScheme',
+    selectable: true,
+    group: ScaleType.Ordinal,
+    domain: ['#4CAF50', '#FFC107', '#F44336', '#2196F3', '#9C27B0']
+  };
+
+
 
   constructor(private rutasService: RutasService) {}
 
@@ -45,7 +55,4 @@ export class CompararTransportesComponent implements OnInit {
     return emision * frecuenciaSemanal * semanasAnuales;
   }
 
-  cerrar(): void {
-    // En PrimeNG se cierra desde el componente padre, así que esto queda vacío
-  }
 }

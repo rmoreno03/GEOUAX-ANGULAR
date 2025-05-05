@@ -21,7 +21,6 @@ export class HuellaCarbonoComponent implements OnInit {
   constructor(private rutasService: RutasService) {}
 
   ngOnInit(): void {
-    // Nada por ahora, la ruta ya vendrá con los datos de huella de carbono
   }
 
   getEmissionClass(): string {

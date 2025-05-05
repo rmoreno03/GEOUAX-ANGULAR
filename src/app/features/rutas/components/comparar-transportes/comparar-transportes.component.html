@@ -8,10 +8,24 @@
     Para una distancia de {{ distanciaKm }} km
   </div>
 
-  <!-- Gráfica (opcional, si decides activarla con ngx-charts o similar) -->
+  <!-- Gráfica de emisiones -->
   <div class="chart-container" *ngIf="showChart">
-    <!-- Aquí podría ir una gráfica en el futuro -->
+    <ngx-charts-bar-vertical
+      [results]="chartData"
+      [scheme]="colorScheme"
+      [gradient]="false"
+      [xAxis]="true"
+      [yAxis]="true"
+      [legend]="false"
+      [showXAxisLabel]="true"
+      [showYAxisLabel]="true"
+      [xAxisLabel]="'Medio de transporte'"
+      [yAxisLabel]="'kg CO₂'"
+      [animations]="true"
+      [roundEdges]="true">
+    </ngx-charts-bar-vertical>
   </div>
+
 
   <!-- Lista de opciones -->
   <div class="opciones-lista">
@@ -34,7 +48,7 @@
             <i class="fas fa-leaf"></i>
             <div class="stat-texto">
               <span class="stat-valor">{{ calcularPorcentajeAhorro(opcion.emission) | number:'1.0-0' }}%</span>
-              <span class="stat-label">menos emisiones que la opción más contaminante</span>
+              <span class="stat-label">Menos emisiones que la opción más contaminante</span>
             </div>
           </div>
 
@@ -42,7 +56,7 @@
             <i class="fas fa-calendar-alt"></i>
             <div class="stat-texto">
               <span class="stat-valor">{{ formatNumber(calcularBeneficioAnual(opcion.emission)) }} kg CO₂</span>
-              <span class="stat-label">emisiones anuales (3 veces/semana)</span>
+              <span class="stat-label">Emisiones anuales (3 veces/semana)</span>
             </div>
           </div>
         </div>
@@ -60,6 +74,6 @@
 
   <!-- Botón de cerrar (visual solamente, el cierre se hace desde el diálogo padre) -->
   <div class="comparar-acciones">
-    <button pButton type="button" label="Cerrar" class="btn-cerrar" (click)="cerrar()"></button>
+    <button pButton type="button" label="Cerrar" class="btn-cerrar" ></button>
   </div>
 </div>

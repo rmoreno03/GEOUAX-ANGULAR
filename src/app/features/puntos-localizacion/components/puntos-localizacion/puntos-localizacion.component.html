@@ -1,80 +1,73 @@
-<div class="container mt-4">
-  <h2><i class="fas fa-map-marker-alt"></i> Puntos de Localización</h2>
-
-  <!-- Spinner de carga -->
-  <div *ngIf="loading" class="text-center">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Cargando...</span>
-    </div>
+<div class="puntos-table-container">
+  <div class="header">
+    <h2><i class="fas fa-map-marker-alt"></i> Puntos de Localización</h2>
+    <button class="btn-primary" routerLink="/puntos/nuevo" title="Añadir nuevo punto">
+      <i class="fas fa-plus"></i> Añadir Punto
+    </button>
   </div>
 
-  <!-- Mensaje de error -->
-  <div *ngIf="error" class="alert alert-danger">
-    <i class="fas fa-exclamation-circle"></i> {{ error }}
-  </div>
-
-  <!-- Tabla de puntos -->
-  <div *ngIf="!loading && !error" class="table-responsive">
-    <table class="table">
+  <!-- Cabecera fija y scroll interno -->
+  <div class="tabla-scroll">
+    <table class="puntos-table">
       <thead>
         <tr>
-          <th>Nombre del punto</th>
-          <th>Descripción del punto</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
           <th>Latitud</th>
           <th>Longitud</th>
           <th>Fecha de creación</th>
-          <th>Usuario creador</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let punto of puntosFiltrados">
-          <td><strong>{{ punto.nombre }}</strong></td>
-          <td>{{ punto.descripcion }}</td>
-          <td (click)="copiarCoordenada(punto.latitud)" title="Haz clic para copiar">{{ punto.latitud }}</td>
-          <td (click)="copiarCoordenada(punto.longitud)" title="Haz clic para copiar">{{ punto.longitud }}</td>
-          <td>{{ formatFecha(punto.fechaCreacion) }}</td>
-          <td>{{ punto.usuarioCreador }}</td>
+        <tr *ngFor="let punto of puntosFiltrados | slice:(paginaActual - 1) * elementosPorPagina : paginaActual * elementosPorPagina; let i = index" [ngClass]="{ 'alt-row': i % 2 !== 0 }">
           <td>
-            <div class="botones">
-              <!-- Ver en mapa -->
-              <button type="submit" class="btn-icon" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
-                <img src="icoMap.ico" alt="Mapa" />
-                <span class="btn-text">Ver en mapa</span>
+            <div class="punto-nombre">
+              <i class="fas fa-map-pin punto-icono"></i>
+              <span class="punto-texto">{{ punto.nombre }}</span>
+            </div>
+          </td>
+          <td class="descripcion-wrapper">{{ punto.descripcion || 'Sin descripción' }}</td>
+          <td class="coordenada-cell" (click)="copiarCoordenada(punto.latitud)">
+            {{ punto.latitud }} <i class="fas fa-copy coordenada-copy-hint" title="Copiar latitud"></i>
+          </td>
+          <td class="coordenada-cell" (click)="copiarCoordenada(punto.longitud)">
+            {{ punto.longitud }} <i class="fas fa-copy coordenada-copy-hint" title="Copiar longitud"></i>
+          </td>
+          <td>
+            <span>{{ formatFecha(punto.fechaCreacion) }}</span>
+          </td>
+          <td>
+            <div class="acciones-container">
+              <button class="btn-icon btn-map" title="Ver en Google Maps" (click)="abrirEnGoogleMaps(punto.latitud, punto.longitud)">
+                <i class="fas fa-map-marked-alt"></i>
               </button>
-
-              <!-- Editar -->
-              <button type="button" class="btn-icon" [routerLink]="['/puntos', punto.id]">
-                <img src="icoEdit.ico" alt="Editar" />
-                <span class="btn-text">Editar</span>
+              <button class="btn-icon btn-edit" title="Editar punto" [routerLink]="['/puntos', punto.id]">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-route" title="Crear ruta" [routerLink]="['/rutas/crear']" [queryParams]="{ puntoId: punto.id }">
+                <i class="fas fa-route"></i>
               </button>
             </div>
           </td>
-        </tr>
-        <!-- Fila vacía para mantener la estructura -->
-        <tr class="fila-placeholder">
-          <td style="visibility: hidden;">Nombre------------------------</td>
-          <td style="visibility: hidden;">Descripción-------------------</td>
-          <td style="visibility: hidden;">Latitud-----------------------</td>
-          <td style="visibility: hidden;">Longitud----------------------</td>
-          <td style="visibility: hidden;">------------------------------</td>
-          <td style="visibility: hidden;">Usuario-----------------------</td>
-          <td style="visibility: hidden;">Acciones----------------------</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Mensaje cuando no hay puntos -->
-  <div *ngIf="!loading && !error && puntosFiltrados.length === 0" class="alert alert-info">
-    No hay puntos de localización disponibles.
+  <!-- Footer de paginación -->
+  <div class="pagination-footer">
+    <div class="pagination-controls-wrapper">
+      <div class="pagination-controls" *ngIf="totalPaginas > 1">
+        <button class="page-btn" [disabled]="paginaActual === 1" (click)="paginaActual = paginaActual - 1">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <span class="page-indicator">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+        <button class="page-btn" [disabled]="paginaActual === totalPaginas" (click)="paginaActual = paginaActual + 1">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+      <p class="total-puntos">Total de puntos: {{ puntosFiltrados.length }}</p>
+    </div>
   </div>
 </div>
-
-<router-outlet></router-outlet>
-
-<app-popup-exito
-  [mostrar]="mostrarMensaje"
-  [mensaje]="mensajeTexto"
-  [tipo]="tipoMensaje">
-</app-popup-exito>

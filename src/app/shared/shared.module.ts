@@ -5,12 +5,14 @@ import { RouterModule } from '@angular/router';
 import { DuracionPipe } from './pipes/duracion.pipe';
 import { PopupExitoComponent } from './components/popup-exito/popup-exito.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { CeilPipe } from './pipes/ceil.pipe';
 
 
 
 @NgModule({
   declarations: [
     DuracionPipe,
+    CeilPipe,
     PopupExitoComponent,
     ConfirmDialogComponent
   ],
@@ -23,6 +25,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
   ],
   exports: [
     DuracionPipe,
+    CeilPipe,
     PopupExitoComponent,
     ConfirmDialogComponent,
   ],

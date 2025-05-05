@@ -15,6 +15,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HuellaCarbonoComponent } from './components/huella-carbono/huella-carbono.component';
 import { CompararTransportesComponent } from './components/comparar-transportes/comparar-transportes.component';
 import { DialogModule } from 'primeng/dialog';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 
 
@@ -37,7 +38,8 @@ import { DialogModule } from 'primeng/dialog';
     SharedModule,
     CoreModule,
     HttpClientModule,
-    DialogModule
+    DialogModule,
+    NgxChartsModule
 ]
 })
 export class RutasModule { }
