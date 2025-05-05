@@ -127,6 +127,12 @@ export class TopBarComponent {
           { label: 'Guías en PDF', icon: 'fas fa-file-pdf', action: () => this.router.navigate(['/ayuda/guias']) }
         ];
 
+      } else if (url.includes('perfil')) {
+        this.title = 'Perfil de Usuario';
+        this.menuOptions = [
+          { label: 'Mi perfil', icon: 'fas fa-info-circle', action: () => this.router.navigate(['/perfil/mi-perfil']) },
+        ];
+
       } else {
         this.title = '';
         this.menuOptions = [];

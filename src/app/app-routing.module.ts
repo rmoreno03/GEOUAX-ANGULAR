@@ -88,6 +88,13 @@ const routes: Routes = [
           import('./features/settings/settings.module').then(
             m => m.SettingsModule
           )
+      },
+      {
+        path: 'perfil',
+        loadChildren: () =>
+          import('./features/perfil/perfil.module').then(
+            m => m.PerfilModule
+          )
       }
     ]
   },

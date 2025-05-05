@@ -100,7 +100,10 @@
       </div>
 
       <div class="acciones">
-        <button class="btn-danger" (click)="confirmarEliminar()">
+        <button
+          class="btn-danger"
+          *ngIf="esCreador"
+          (click)="confirmarEliminar()">
           <i class="fas fa-trash"></i> Eliminar ruta
         </button>
 
@@ -108,6 +111,7 @@
           <i class="fas fa-arrow-left"></i> Volver
         </button>
       </div>
+
 
       <div class="info-seccion" *ngIf="ruta?.isPublic && !esCreador">
         <div class="info-header">

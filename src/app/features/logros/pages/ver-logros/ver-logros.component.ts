@@ -1,5 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 
+interface Logro {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  icono: string;
+  categoria: string;
+  nivel: 'bronce' | 'plata' | 'oro';
+  completado: boolean;
+  fechaObtencion: Date | null;
+  progreso: number;
+}
+
+
 @Component({
   standalone: false,
   selector: 'app-ver-logros',
@@ -20,7 +33,7 @@ export class VerLogrosComponent implements OnInit {
       descripcion: 'Completa tu primera ruta',
       icono: 'map',
       categoria: 'distancia',
-      nivel: 'bronce',
+      nivel: 'bronce' as const,
       completado: true,
       fechaObtencion: new Date('2024-12-15'),
       progreso: 100
@@ -31,7 +44,7 @@ export class VerLogrosComponent implements OnInit {
       descripcion: 'Completa 5 rutas antes de las 8:00 AM',
       icono: 'sun',
       categoria: 'tiempo',
-      nivel: 'plata',
+      nivel: 'plata' as const,
       completado: true,
       fechaObtencion: new Date('2025-01-05'),
       progreso: 100
@@ -42,7 +55,7 @@ export class VerLogrosComponent implements OnInit {
       descripcion: 'Recorre un total de 100 kilómetros',
       icono: 'road',
       categoria: 'distancia',
-      nivel: 'oro',
+      nivel: 'oro' as const,
       completado: false,
       fechaObtencion: null,
       progreso: 78
@@ -53,7 +66,7 @@ export class VerLogrosComponent implements OnInit {
       descripcion: 'Registra 20 puntos de interés con fotos',
       icono: 'camera',
       categoria: 'puntos',
-      nivel: 'bronce',
+      nivel: 'bronce' as const,
       completado: true,
       fechaObtencion: new Date('2025-02-10'),
       progreso: 100
@@ -64,7 +77,7 @@ export class VerLogrosComponent implements OnInit {
       descripcion: 'Alcanza 10 puntos con altitud superior a 1500m',
       icono: 'mountain',
       categoria: 'puntos',
-      nivel: 'plata',
+      nivel: 'plata' as const,
       completado: false,
       fechaObtencion: null,
       progreso: 60
@@ -75,7 +88,7 @@ export class VerLogrosComponent implements OnInit {
       descripcion: 'Completa 15 rutas utilizando transporte público',
       icono: 'leaf',
       categoria: 'ecologia',
-      nivel: 'oro',
+      nivel: 'oro' as const,
       completado: false,
       fechaObtencion: null,
       progreso: 40
@@ -121,7 +134,7 @@ export class VerLogrosComponent implements OnInit {
   }
 
   // Método para obtener logros filtrados
-  obtenerLogrosFiltrados(): any[] {
+  obtenerLogrosFiltrados(): Logro[] {
     if (this.filtroActivo === 'todos') {
       return this.logros;
     } else {

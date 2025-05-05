@@ -66,6 +66,10 @@
       <div
         *ngFor="let filtro of filtros"
         (click)="cambiarFiltro(filtro.id)"
+        (keydown.enter)="cambiarFiltro(filtro.id)"
+        tabindex="0"
+        role="button"
+        [attr.aria-pressed]="filtroActivo === filtro.id"
         [class.active]="filtroActivo === filtro.id"
         class="filtro-item">
         {{ filtro.nombre }}
@@ -120,7 +124,7 @@
 
           <div class="detalle-item" *ngIf="reto.estado === 'completado'">
             <i class="fas fa-trophy"></i>
-            <span>Completado: {{ formatearFecha(reto.fechaCompletado) }}</span>
+            <span>Completado: {{ reto.fechaCompletado ? formatearFecha(reto.fechaCompletado) : 'Fecha no disponible' }}</span>
           </div>
 
           <div class="detalle-item">

@@ -46,6 +46,10 @@
       <i class="fas fa-question-circle"></i>
       <span *ngIf="!collapsed">Ayuda</span>
     </a>
+    <a routerLink="/perfil" [attr.title]="collapsed ? 'Perfil' : null" [routerLinkActive]="'active'">
+      <i class="fas fa-profile"></i>
+      <span *ngIf="!collapsed">Perfil</span>
+    </a>
   </nav>
 
   <!-- Botón de Cerrar Sesión -->

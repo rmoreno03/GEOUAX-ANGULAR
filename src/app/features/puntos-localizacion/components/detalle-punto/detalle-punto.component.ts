@@ -8,6 +8,10 @@ import { MessageService } from '../../../../core/services/message.service';
 import { finalize } from 'rxjs/operators';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Timestamp } from 'firebase/firestore';
+import { ImageValidationService, ValidationResult } from '../../services/imageValidator.service';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 
 @Component({
   standalone: false,
@@ -37,6 +41,7 @@ export class DetallePuntoComponent implements AfterViewInit {
     private router: Router,
     private puntosService: PuntosLocalizacionService,
     private messageService: MessageService,
+    private imageValidationService: ImageValidationService,
     @Inject(forwardRef(() => AngularFireStorage)) private storage: AngularFireStorage // Usar forwardRef para romper la dependencia circular
   ) {}
 
@@ -247,6 +252,22 @@ export class DetallePuntoComponent implements AfterViewInit {
       });
   }
 
+  async validarImagenes(files: File[]): Promise<ValidationResult[]> {
+    const observables = files.map(file =>
+      this.imageValidationService.validateImage(file).pipe(
+        catchError(() => of({ isValid: false, reason: 'Error en validación' }))
+      )
+    );
+
+    return await new Promise((resolve, reject) => {
+      forkJoin(observables).subscribe({
+        next: results => resolve(results),
+        error: err => reject(err)
+      });
+    });
+  }
+
+
   async guardarCambios(): Promise<void> {
     if (!this.punto?.id) return;
 
@@ -280,10 +301,42 @@ export class DetallePuntoComponent implements AfterViewInit {
       return;
     }
 
-    // Eliminar las fotos que están marcadas para eliminar
+    // 🔍 Validar nuevas imágenes antes de subir
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const files = fileInput?.files ? Array.from(fileInput.files) : [];
+
+    if (files.length > 0) {
+      this.subiendoFotos = true;
+
+      try {
+        const resultados = await this.validarImagenes(files);
+        const bloqueadas = resultados.filter(r => !r.isValid);
+
+        if (bloqueadas.length > 0) {
+          const etiquetasBloqueadas = bloqueadas.flatMap(r => r.etiquetasDetectadas || []);
+          const etiquetasUnicas = [...new Set(etiquetasBloqueadas)];
+
+          this.mensajeTexto = `Se bloquearon ${bloqueadas.length} imagen${bloqueadas.length > 1 ? 'es' : ''} por contenido no permitido: ${etiquetasUnicas.join(', ')}`;
+          this.tipoMensaje = 'warning';
+          this.mostrarMensaje = true;
+          this.subiendoFotos = false;
+          setTimeout(() => this.mostrarMensaje = false, 4500);
+          return;
+        }
+      } catch (error) {
+        console.error('Error validando imágenes:', error);
+        this.mensajeTexto = 'Error al validar las imágenes. Intenta de nuevo.';
+        this.tipoMensaje = 'warning';
+        this.mostrarMensaje = true;
+        this.subiendoFotos = false;
+        setTimeout(() => this.mostrarMensaje = false, 4000);
+        return;
+      }
+    }
+
+    // Eliminar fotos marcadas
     if (hayFotosParaEliminar && this.punto?.fotos) {
-      // Filtrar las fotos que no están marcadas para eliminar
-      this.punto.fotos = this.punto.fotos.filter((_, index) => !this.fotosAEliminar[index]);
+      this.punto.fotos = this.punto.fotos.filter((_, i) => !this.fotosAEliminar[i]);
     }
 
     try {
@@ -294,10 +347,7 @@ export class DetallePuntoComponent implements AfterViewInit {
       this.mostrarMensaje = true;
       setTimeout(() => this.mostrarMensaje = false, 3500);
 
-      // Actualizar el punto original con los cambios guardados
       this.puntoOriginal = JSON.parse(JSON.stringify(this.punto));
-
-      // Reiniciar arrays de control
       if (this.punto?.fotos) {
         this.fotosAEliminar = new Array(this.punto.fotos.length).fill(false);
       }

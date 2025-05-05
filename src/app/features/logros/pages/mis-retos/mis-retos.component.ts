@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Reto } from '../../../../models/reto.model';
 
 @Component({
   standalone: false,
@@ -13,7 +14,7 @@ export class MisRetosComponent implements OnInit {
   filtroActivo = 'activos';
 
   // Datos simulados de retos
-  retos = [
+  retos: Reto[] = [
     {
       id: 1,
       nombre: 'Conquistador de cumbres',
@@ -141,7 +142,7 @@ export class MisRetosComponent implements OnInit {
   }
 
   // Método para obtener retos filtrados
-  obtenerRetosFiltrados(): any[] {
+  obtenerRetosFiltrados(): Reto[] {
     switch(this.filtroActivo) {
       case 'activos':
         return this.retos.filter(reto => reto.estado === 'activo');

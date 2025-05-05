@@ -1,0 +1,243 @@
+<!-- Pantalla de carga -->
+<div class="loading-container" *ngIf="cargando">
+  <div class="spinner"></div>
+  <p>Cargando tu perfil...</p>
+</div>
+
+<!-- Error -->
+<div class="error-container" *ngIf="error" role="alert">
+  <div class="error-icon">⚠️</div>
+  <p>{{ mensajeError }}</p>
+  <button class="btn-secondary" (click)="reintentar()">Reintentar</button>
+</div>
+
+<!-- Contenido del perfil -->
+<div class="perfil-container" *ngIf="usuario && !cargando">
+  <div class="perfil-header">
+    <div class="perfil-avatar-container">
+      <img [src]="usuario.fotoUrl || 'perfilDefault.png'" alt="Foto de perfil" class="avatar" loading="lazy" />
+      <button class="cambiar-foto-btn" (click)="abrirSelectorFoto()">
+        <i class="fas fa-camera"></i>
+      </button>
+    </div>
+
+    <div class="perfil-info">
+      <h1>{{ usuario.nombre }}</h1>
+      <p class="email">{{ usuario.email }}</p>
+      <p class="fecha-registro">Miembro desde el  {{ formatFecha(usuario.fechaRegistro) }}</p>
+    </div>
+  </div>
+
+  <!-- Tabs de navegación -->
+  <div class="perfil-tabs">
+    <button
+      [ngClass]="{'active': tabActual === 'info'}"
+      (click)="cambiarTab('info')">
+      Información
+    </button>
+    <button
+      [ngClass]="{'active': tabActual === 'rutas'}"
+      (click)="cambiarTab('rutas')">
+      Mis Rutas <span class="contador" *ngIf="rutasPublicas.length">{{ rutasPublicas.length }}</span>
+    </button>
+    <button
+      [ngClass]="{'active': tabActual === 'amigos'}"
+      (click)="cambiarTab('amigos')">
+      Amigos <span class="contador" *ngIf="usuario.amigos?.length">{{ usuario.amigos?.length }}</span>
+    </button>
+  </div>
+
+  <!-- Contenido de las tabs -->
+  <div class="tab-content">
+    <!-- Tab de información -->
+    <div *ngIf="tabActual === 'info'" class="tab-info">
+      <form [formGroup]="perfilForm" (ngSubmit)="guardar()">
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            placeholder="Tu nombre" />
+          <div class="error-message" *ngIf="nombreInvalido">
+            El nombre es obligatorio (mínimo 2 caracteres)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="biografia">Biografía</label>
+          <textarea
+            id="biografia"
+            formControlName="biografia"
+            placeholder="Cuéntanos sobre ti..."
+            rows="4"></textarea>
+          <div class="hint-text">{{ 280 - (perfilForm.get('biografia')?.value?.length || 0) }} caracteres restantes</div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="perfilForm.invalid || guardando">
+            <span *ngIf="!guardando">Guardar cambios</span>
+            <span *ngIf="guardando">Guardando...</span>
+          </button>
+          <button
+            type="button"
+            class="btn-outline"
+            (click)="reiniciarFormulario()"
+            [disabled]="guardando">
+            Cancelar
+          </button>
+        </div>
+      </form>
+
+      <!-- Mensaje de éxito -->
+      <div class="success-message" *ngIf="perfilActualizado">
+        <i class="fas fa-check-circle"></i> Perfil actualizado correctamente
+      </div>
+    </div>
+
+    <!-- Tab de rutas -->
+    <div *ngIf="tabActual === 'rutas'" class="tab-rutas">
+      <div *ngIf="cargandoRutas" class="loading-text">
+        <div class="spinner small"></div>
+        <span>Cargando tus rutas...</span>
+      </div>
+
+      <div *ngIf="!cargandoRutas && rutasPublicas.length === 0" class="empty-state">
+        <i class="fas fa-route empty-icon"></i>
+        <h3>Aún no tienes rutas públicas</h3>
+        <p>Las rutas que compartas aparecerán aquí</p>
+        <button class="btn-primary" [routerLink]="['/rutas/nueva']">Crear ruta</button>
+      </div>
+
+      <ul class="rutas-grid" *ngIf="!cargandoRutas && rutasPublicas.length > 0">
+        <li *ngFor="let ruta of rutasPublicas" class="ruta-card">
+          <div class="ruta-preview" [ngStyle]="{'background-image': 'url(' + (ruta.imagenUrl || 'assets/img/default-route.jpg') + ')'}">
+            <span class="ruta-distancia">{{ ruta.distanciaKm | number:'1.1-1' }} km</span>
+          </div>
+          <div class="ruta-info">
+            <h3>{{ ruta.nombre }}</h3>
+            <p class="ruta-descripcion">{{ ruta.descripcion?.slice(0, 70) || '' }}{{ (ruta.descripcion?.length || 0) > 70 ? '...' : '' }}</p>
+            <div class="ruta-meta">
+              <span class="ruta-fecha">{{ formatFecha(ruta.fechaCreacion )}}</span>
+              <span class="ruta-visitas"><i class="fas fa-eye"></i> {{ ruta.visitas || 0 }}</span>
+            </div>
+            <div class="ruta-actions">
+              <button class="btn-sm" [routerLink]="['/rutas/detalle', ruta.id]">Ver detalle</button>
+              <button class="btn-sm btn-outline" [routerLink]="['/rutas/editar', ruta.id]">Editar</button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tab de amigos -->
+    <div *ngIf="tabActual === 'amigos'" class="tab-amigos">
+      <div class="amigos-search">
+        <input
+          type="text"
+          placeholder="Buscar amigos..."
+          [(ngModel)]="busquedaAmigos"
+          (input)="buscarAmigos()" />
+      </div>
+
+      <div *ngIf="cargandoAmigos" class="loading-text">
+        <div class="spinner small"></div>
+        <span>Cargando amigos...</span>
+      </div>
+
+      <div *ngIf="!cargandoAmigos && (!usuario.amigos || usuario.amigos.length === 0)" class="empty-state">
+        <i class="fas fa-user-friends empty-icon"></i>
+        <h3>Aún no tienes amigos</h3>
+        <p>Añade amigos para compartir tus rutas</p>
+        <button class="btn-primary" (click)="abrirBuscadorUsuarios()">Buscar usuarios</button>
+      </div>
+
+      <ul class="amigos-lista" *ngIf="!cargandoAmigos && amigosData.length > 0">
+        <li *ngFor="let amigo of amigosData" class="amigo-item">
+          <img [src]="amigo.fotoUrl || 'perfilDefault.png'" alt="Foto de {{ amigo.nombre }}" class="amigo-avatar" />
+          <div class="amigo-info">
+            <h3>{{ amigo.nombre }}</h3>
+            <p class="amigo-bio">{{ amigo.biografia?.slice(0, 50) || '' }}{{ (amigo.biografia?.length || 0) > 50 ? '...' : '' }}</p>
+          </div>
+          <div class="amigo-actions">
+            <button class="btn-sm" [routerLink]="['/perfil', amigo.uid]">Ver perfil</button>
+            <button class="btn-sm btn-danger" (click)="eliminarAmigo(amigo)">Eliminar</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para seleccionar foto -->
+<div class="modal" *ngIf="mostrarModalFoto">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Cambiar foto de perfil</h2>
+      <button class="btn-close" (click)="cerrarModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="foto-preview">
+        <img [src]="previewFotoUrl || usuario?.fotoUrl || 'perfilDefault.png'" alt="Vista previa" />
+      </div>
+      <div class="foto-options">
+        <label class="btn-secondary upload-btn">
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+          <i class="fas fa-upload"></i> Subir foto
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" [disabled]="!nuevoArchivo" (click)="subirFoto()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para buscar usuarios -->
+<div class="modal" *ngIf="mostrarModalBusqueda">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Buscar usuarios</h2>
+      <button class="btn-close" (click)="cerrarModalBusqueda()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Nombre o email"
+          [(ngModel)]="busquedaUsuarios"
+          (input)="buscarUsuarios()" />
+      </div>
+
+      <div *ngIf="cargandoUsuarios" class="loading-text">
+        <div class="spinner small"></div>
+        <span>Buscando usuarios...</span>
+      </div>
+
+      <ul class="usuarios-resultados">
+        <li *ngFor="let user of resultadosBusqueda" class="usuario-item" [class.es-amigo]="esAmigo(user.uid)">
+          <img [src]="user.fotoUrl || 'perfilDefault.png'" alt="Foto de {{ user.nombre }}" class="usuario-avatar" />
+          <div class="usuario-info">
+            <h3>{{ user.nombre }}</h3>
+            <p>{{ user.email }}</p>
+          </div>
+          <button
+            *ngIf="!esAmigo(user.uid)"
+            class="btn-sm"
+            (click)="agregarAmigo(user)">
+            Añadir
+          </button>
+          <span *ngIf="esAmigo(user.uid)" class="ya-amigos">Ya son amigos</span>
+        </li>
+      </ul>
+
+      <div *ngIf="resultadosBusqueda.length === 0 && busquedaUsuarios.length > 0 && !cargandoUsuarios" class="no-resultados">
+        No se encontraron usuarios con ese criterio
+      </div>
+    </div>
+  </div>
+</div>

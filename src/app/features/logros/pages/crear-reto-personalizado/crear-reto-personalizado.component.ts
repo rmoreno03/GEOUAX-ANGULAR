@@ -1,6 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
+interface Amigo {
+  id: number;
+  nombre: string;
+  imagen: string | null;
+  seleccionado: boolean;
+}
+
+
 @Component({
   standalone: false,
   selector: 'app-crear-reto-personalizado',
@@ -53,7 +61,7 @@ throw new Error('Method not implemented.');
   ];
 
   // Amigos disponibles para invitar (simulados)
-  amigosDisponibles = [
+  amigosDisponibles: Amigo[] = [
     { id: 1, nombre: 'Ana García', imagen: null, seleccionado: false },
     { id: 2, nombre: 'Carlos Pérez', imagen: null, seleccionado: false },
     { id: 3, nombre: 'Laura Martínez', imagen: null, seleccionado: false },
@@ -127,7 +135,7 @@ throw new Error('Method not implemented.');
   }
 
   // Método para alternar la selección de un amigo
-  toggleAmigo(amigo: any): void {
+  toggleAmigo(amigo: Amigo): void {
     amigo.seleccionado = !amigo.seleccionado;
 
     // Actualizamos la lista de amigos seleccionados en el formulario

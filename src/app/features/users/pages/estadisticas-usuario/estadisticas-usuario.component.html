@@ -23,7 +23,12 @@
         *ngFor="let usuario of filtrarUsuarios()"
         class="user-item"
         [class.active]="usuarioSeleccionado?.id === usuario.id"
-        (click)="seleccionarUsuario(usuario)">
+        (click)="seleccionarUsuario(usuario)"
+        (keydown.enter)="seleccionarUsuario(usuario)"
+        tabindex="0"
+        role="button"
+        [attr.aria-pressed]="usuarioSeleccionado?.id === usuario.id">
+
         <div class="user-avatar">
           <i class="fas fa-user-circle"></i>
         </div>

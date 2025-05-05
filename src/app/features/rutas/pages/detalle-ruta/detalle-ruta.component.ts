@@ -343,7 +343,7 @@ export class DetalleRutaComponent implements OnInit {
     }
 
   async eliminarRuta(): Promise<void> {
-    if (!this.ruta?.id) return;
+    if (!this.ruta?.id || !this.esCreador) return; // Añadido el bloqueo lógico
 
     try {
       await this.rutasService.eliminarRutaPorId(this.ruta.id);
@@ -352,7 +352,6 @@ export class DetalleRutaComponent implements OnInit {
       this.tipoMensaje = 'eliminado';
       this.mostrarMensaje = true;
 
-      // Redirigir después de mostrar brevemente el mensaje
       setTimeout(() => {
         this.router.navigate(['/rutas/mis-rutas']);
       }, 1500);
@@ -364,6 +363,7 @@ export class DetalleRutaComponent implements OnInit {
       this.mostrarConfirmacion = false;
     }
   }
+
 
   mostrarMensajeError(mensaje: string): void {
     this.mensajeTexto = mensaje;

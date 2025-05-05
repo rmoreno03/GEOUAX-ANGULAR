@@ -61,8 +61,13 @@
       <div
         *ngFor="let categoria of categorias"
         (click)="filtrarPorCategoria(categoria.id)"
+        (keydown.enter)="filtrarPorCategoria(categoria.id)"
+        tabindex="0"
+        role="button"
+        [attr.aria-pressed]="filtroActivo === categoria.id"
         [class.active]="filtroActivo === categoria.id"
-        class="filtro-item">
+        class="filtro-item"
+      >
         <i class="fas fa-{{ categoria.icono }}"></i>
         <span>{{ categoria.nombre }}</span>
       </div>

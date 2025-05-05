@@ -1,6 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
-import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import mapboxgl, { MapMouseEvent } from 'mapbox-gl';
+import MapboxGeocoder, { Result as GeocoderResult } from '@mapbox/mapbox-gl-geocoder';
 import { environment } from '../../../../../environments/environment';
 import { PuntosLocalizacionService } from '../../services/puntosLocalizacion.service';
 import { PuntoLocalizacion } from '../../../../models/punto-localizacion.model';
@@ -11,8 +11,6 @@ import { MessageService } from '../../../../core/services/message.service';
 import { ImageValidationService, ValidationResult } from '../../services/imageValidator.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
-
 
 @Component({
   selector: 'app-crear-punto',
@@ -53,7 +51,7 @@ export class CrearPuntoComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    (mapboxgl as any).accessToken = environment.mapbox_key;
+    mapboxgl.accessToken = environment.mapbox_key;
 
     this.map = new mapboxgl.Map({
       container: 'map-preview',
@@ -63,21 +61,23 @@ export class CrearPuntoComponent implements AfterViewInit {
     });
 
     const geocoder = new MapboxGeocoder({
-      accessToken: (mapboxgl as any).accessToken,
-      mapboxgl: mapboxgl as any,
+      accessToken: mapboxgl.accessToken,
+      // @ts-expect-error: mapbox-gl-geocoder types are not compatible with mapbox-gl
+      mapboxgl: mapboxgl,
       marker: false,
       placeholder: 'Buscar ubicación...',
       zoom: 14
     });
 
+
     this.map.addControl(geocoder, 'top-left');
 
-    geocoder.on('result', (e) => {
-      const coords = e.result.center;
+    geocoder.on('result', (e: { result: GeocoderResult }) => {
+      const coords: [number, number] = e.result.center as [number, number];
       this.map.flyTo({ center: coords, zoom: 14 });
     });
 
-    this.map.on('click', (event) => {
+    this.map.on('click', (event: MapMouseEvent) => {
       const { lng, lat } = event.lngLat;
 
       this.punto.latitud = lat;
@@ -93,8 +93,6 @@ export class CrearPuntoComponent implements AfterViewInit {
     });
   }
 
-
-  //metodo para guardar los puntos que pasan por la validacion de ia
   async guardarPunto() {
     if (
       this.punto.nombre &&
@@ -106,7 +104,6 @@ export class CrearPuntoComponent implements AfterViewInit {
       this.uploading = true;
       this.validating = true;
 
-      // validación si hay imágenes
       if (this.selectedFiles.length > 0) {
         try {
           const validationResults = await this.validarImagenes();
@@ -115,7 +112,6 @@ export class CrearPuntoComponent implements AfterViewInit {
           const invalidImages = validationResults.filter(result => result && !result.isValid);
 
           if (invalidImages.length > 0) {
-            // diccionario de traducciones para mostrar etiquetas en español
             const etiquetasTraducidas: Record<string, string | null> = {
               'gun': 'arma de fuego',
               'firearm': 'arma de fuego',
@@ -180,7 +176,6 @@ export class CrearPuntoComponent implements AfterViewInit {
 
       this.validating = false;
 
-      // subida de imágenes
       const urls: string[] = [];
       try {
         for (const file of this.selectedFiles) {
@@ -199,7 +194,6 @@ export class CrearPuntoComponent implements AfterViewInit {
 
       this.punto.fotos = urls;
 
-      // guardamos el punto
       try {
         await this.puntosService.crearPunto(this.punto as PuntoLocalizacion);
         this.mensajeService.setMensaje('Punto creado con éxito', 'exito');
@@ -221,11 +215,6 @@ export class CrearPuntoComponent implements AfterViewInit {
     this.uploading = false;
   }
 
-
-  /**
-   * Valida todas las imágenes seleccionadas
-   * @returns Promise con un array de resultados de validación
-   */
   async validarImagenes(): Promise<ValidationResult[]> {
     if (this.selectedFiles.length === 0) {
       return [];
@@ -233,34 +222,23 @@ export class CrearPuntoComponent implements AfterViewInit {
 
     console.log(`Iniciando validación de ${this.selectedFiles.length} imágenes`);
 
-    // Mostrar información de cada archivo para depuración
     this.selectedFiles.forEach((file, index) => {
-      console.log(`Archivo ${index+1}:`, {
+      console.log(`Archivo ${index + 1}:`, {
         nombre: file.name,
         tipo: file.type,
         tamaño: `${(file.size / 1024).toFixed(2)} KB`
       });
     });
 
-    // Convertimos los observables de validación a promesas
     const validationObservables = this.selectedFiles.map(file =>
       this.imageValidationService.validateImage(file).pipe(
         catchError(error => {
           console.error('Error validando imagen:', error);
-          // Si es un HttpErrorResponse, mostrar más detalles
-          if (error.name === 'HttpErrorResponse') {
-            console.error('Status:', error.status);
-            console.error('Mensaje:', error.message);
-            if (error.error) {
-              console.error('Detalle del error:', error.error);
-            }
-          }
           return of({ isValid: false, reason: 'Error en la validación' });
         })
       )
     );
 
-    // Esperamos a que todas las validaciones terminen
     return await new Promise((resolve, reject) => {
       forkJoin(validationObservables).subscribe({
         next: results => {

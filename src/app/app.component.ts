@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Auth, authState } from '@angular/fire/auth';
 import { filter, take } from 'rxjs/operators';
@@ -10,11 +10,12 @@ import { filter, take } from 'rxjs/operators';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  private auth = inject(Auth);
-  private router = inject(Router);
+  constructor(
+    private router: Router,
+    private auth: Auth
+  ) {}
 
   ngOnInit(): void {
-    // Esperamos a que termine la primera navegación
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       take(1)

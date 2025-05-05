@@ -1,22 +1,24 @@
 import { Injectable } from '@angular/core';
 import { CanActivateChild, Router, UrlTree } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { Auth, authState } from '@angular/fire/auth';
 import { Observable, take, map } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class NoAuthGuard implements CanActivateChild {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private auth: Auth,
+    private router: Router
+  ) {}
 
   canActivateChild(): Observable<boolean | UrlTree> {
-    return this.authService.getAuthStatus().pipe(
+    return authState(this.auth).pipe(
       take(1),
-      map(isLoggedIn => {
-        if (isLoggedIn) {
+      map(user => {
+        if (user) {
           return this.router.createUrlTree(['/puntos']);
         }
         return true;
       })
     );
   }
-
 }

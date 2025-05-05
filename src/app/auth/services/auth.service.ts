@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import {
@@ -10,10 +10,12 @@ import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private injector = inject(Injector);
   private auth = inject(Auth);
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
 
   constructor(private router: Router) {
+    // Ejecutar authState dentro del contexto de inyección
     authState(this.auth).subscribe(user => {
       const loggedIn = !!user;
       this.isLoggedInSubject.next(loggedIn);
@@ -29,7 +31,6 @@ export class AuthService {
       }
     });
   }
-
 
   login(email: string, password: string): Promise<void> {
     return signInWithEmailAndPassword(this.auth, email, password)
@@ -53,7 +54,7 @@ export class AuthService {
     return signOut(this.auth)
       .then(() => {
         this.isLoggedInSubject.next(false);
-        this.router.navigate(['/auth/login']);
+        this.router.navigate(['/landing']);
       })
       .catch(error => {
         console.error('❌ Error al cerrar sesión:', error);

@@ -2,6 +2,13 @@ import { Component, OnInit, Input } from '@angular/core';
 import { RutasService } from '../../services/rutas.service';
 import { ScaleType } from '@swimlane/ngx-charts';
 
+interface ComparativaTransporte {
+  type: string;
+  emission: number;
+  label: string;
+  class: string;
+}
+
 @Component({
   selector: 'app-comparar-transportes',
   templateUrl: './comparar-transportes.component.html',
@@ -12,7 +19,7 @@ export class CompararTransportesComponent implements OnInit {
   @Input() distanciaKm?: number;
   @Input() tipoActual?: string;
 
-  opciones: any[] = [];
+  opciones: ComparativaTransporte[] = [];
 
   showChart = false;
   chartData: { name: string; value: number }[] = [];

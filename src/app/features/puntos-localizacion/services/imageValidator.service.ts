@@ -10,6 +10,17 @@ export interface ValidationResult {
   tipoDeteccion?: 'safeSearch' | 'etiquetaProhibida';
 }
 
+interface VisionAPIResponse {
+  responses: {
+    safeSearchAnnotation?: {
+      adult?: string;
+      violence?: string;
+      racy?: string;
+    };
+    labelAnnotations?: { description: string }[];
+  }[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,7 +29,6 @@ export class ImageValidationService {
 
   // valida imagen con Vision API (SafeSearch + etiquetas)
   validateImage(file: File): Observable<ValidationResult> {
-    // si pasa de 4MB, ni lo intentamos
     if (file.size > 4 * 1024 * 1024) {
       console.warn('Imagen demasiado grande:', file.size);
       return of({
@@ -48,15 +58,20 @@ export class ImageValidationService {
 
           const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${environment.google_vision_api_key}`;
 
-          return this.http.post<any>(apiUrl, requestBody).pipe(
+          return this.http.post<VisionAPIResponse>(apiUrl, requestBody).pipe(
             catchError((error: HttpErrorResponse) => {
               console.error('Fallo llamando a Vision API:', error);
-              return of({
-                isValid: false,
-                reason: `Error de validación: ${error.status} - ${error.statusText || 'Desconocido'}`
-              });
+              return of(null); // devolvemos null para evitar procesar
             }),
-            map(response => this.procesarRespuesta(response))
+            map(response => {
+              if (!response) {
+                return {
+                  isValid: false,
+                  reason: 'Error en la validación con la API'
+                };
+              }
+              return this.procesarRespuesta(response);
+            })
           );
         } catch (error) {
           console.error('Error preparando la petición:', error);
@@ -70,15 +85,17 @@ export class ImageValidationService {
   }
 
   // analiza lo que devuelve la API
-  private procesarRespuesta(response: any): ValidationResult {
+  private procesarRespuesta(response: VisionAPIResponse): ValidationResult {
     const safeSearch = response.responses?.[0]?.safeSearchAnnotation;
     const labels = response.responses?.[0]?.labelAnnotations || [];
 
-    const etiquetasDetectadas = labels.map((l: any) => l.description.toLowerCase());
+    const etiquetasDetectadas = labels.map((l: { description: string }) =>
+      l.description.toLowerCase()
+    );
+
     console.log('SafeSearch:', safeSearch);
     console.log('Etiquetas detectadas:', etiquetasDetectadas);
 
-    // si detecta contenido explícito, no lo dejamos pasar
     if (
       safeSearch?.adult === 'LIKELY' || safeSearch?.adult === 'VERY_LIKELY' ||
       safeSearch?.violence === 'LIKELY' || safeSearch?.violence === 'VERY_LIKELY' ||
@@ -92,32 +109,19 @@ export class ImageValidationService {
       };
     }
 
-    // etiquetas que bloqueamos (todo lo que no encaja en GeoUAX)
     const etiquetasProhibidas = [
-      // armas de fuego
       'gun', 'weapon', 'firearm', 'pistol', 'revolver', 'rifle', 'shotgun', 'handgun', 'sniper rifle', 'machine gun',
-
-      // cuchillos y similares
       'knife', 'blade', 'dagger', 'machete',
-
-      // explosivos
       'bomb', 'grenade', 'explosive', 'missile', 'rocket launcher', 'land mine',
-
-      // balas y munición
       'bullet', 'ammunition', 'cartridge', 'shell',
-
-      // drogas
       'drugs', 'narcotic', 'cocaine', 'heroin', 'marijuana', 'syringe', 'needle', 'pill', 'opioid',
-
-      // contenido sexual
       'nude', 'nudity', 'porn', 'erotic', 'underwear', 'lingerie', 'sex toy', 'condom', 'adult toy',
-
-      // violencia explícita
       'blood', 'wound', 'corpse', 'dead body', 'murder', 'execution', 'suicide', 'self harm', 'cutting'
     ];
 
-    // miramos si hay alguna etiqueta prohibida
-    const contieneEtiquetaProhibida = etiquetasProhibidas.some(tag => etiquetasDetectadas.includes(tag));
+    const contieneEtiquetaProhibida = etiquetasProhibidas.some(tag =>
+      etiquetasDetectadas.includes(tag)
+    );
 
     if (contieneEtiquetaProhibida) {
       return {
@@ -128,7 +132,6 @@ export class ImageValidationService {
       };
     }
 
-    // si pasa todo, se aprueba
     return {
       isValid: true,
       etiquetasDetectadas

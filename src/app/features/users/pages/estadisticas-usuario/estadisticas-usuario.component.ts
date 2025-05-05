@@ -1,5 +1,70 @@
 import { Component, OnInit } from '@angular/core';
 
+interface Usuario {
+  id: number;
+  nombre: string;
+  email: string;
+  rol: string;
+  fechaRegistro: Date;
+  ultimoAcceso: Date;
+  imagen: string | null;
+}
+
+interface PuntoInteres {
+  nombre: string;
+  visitas: number;
+}
+
+interface ActividadMensual {
+  mes: string;
+  rutas: number;
+  kilometros: number;
+}
+
+interface DistribucionTipo {
+  tipo: string;
+  porcentaje: number;
+  rutas: number;
+}
+
+interface RutaMasLarga {
+  nombre: string;
+  distancia: number;
+  fecha: Date;
+}
+
+interface EstadisticasUsuario {
+  totalRutas: number;
+  totalPuntos: number;
+  totalKilometros: number;
+  mediaKilometros: number;
+  tiempoTotal: string;
+  mediaVelocidad: string;
+  altitudMaxima: number;
+  desnivelAcumulado: number;
+  rutaMasLarga: RutaMasLarga;
+  puntosInteres: PuntoInteres[];
+  actividadMensual: ActividadMensual[];
+  distribucionTipos: DistribucionTipo[];
+  logrosConseguidos: number;
+  totalLogros: number;
+  retosCompletados: number;
+  retosActivos: number;
+}
+
+type TipoActividad = 'ruta' | 'punto' | 'logro' | 'reto';
+
+interface Actividad {
+  tipo: TipoActividad;
+  nombre: string;
+  fecha: Date;
+  kilometros?: number;
+  tiempo?: string;
+  ubicacion?: string;
+  descripcion?: string;
+  progreso?: number;
+}
+
 @Component({
   standalone: false,
   selector: 'app-estadisticas-usuario',
@@ -7,17 +72,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./estadisticas-usuario.component.css']
 })
 export class EstadisticasUsuarioComponent implements OnInit {
-  // Estados de la interfaz
   loading = false;
   error = '';
-  usuarioSeleccionado: any = null;
+  usuarioSeleccionado: Usuario | null = null;
   periodoSeleccionado = 'mensual';
-
-  // Búsqueda de usuarios
   usuarioBusqueda = '';
 
-  // Lista de usuarios disponibles
-  usuarios = [
+  usuarios: Usuario[] = [
     {
       id: 1,
       nombre: 'Juan Pérez',
@@ -65,8 +126,7 @@ export class EstadisticasUsuarioComponent implements OnInit {
     }
   ];
 
-  // Datos de estadísticas del usuario seleccionado
-  estadisticasUsuario = {
+  estadisticasUsuario: EstadisticasUsuario = {
     totalRutas: 28,
     totalPuntos: 142,
     totalKilometros: 756.3,
@@ -107,8 +167,7 @@ export class EstadisticasUsuarioComponent implements OnInit {
     retosActivos: 2
   };
 
-  // Actividad reciente del usuario
-  actividadReciente = [
+  actividadReciente: Actividad[] = [
     {
       tipo: 'ruta',
       nombre: 'Ruta del Pico de la Miel',
@@ -144,84 +203,55 @@ export class EstadisticasUsuarioComponent implements OnInit {
     }
   ];
 
-
   ngOnInit(): void {
-    // Al iniciar, seleccionamos el primer usuario por defecto
     if (this.usuarios.length > 0) {
       this.seleccionarUsuario(this.usuarios[0]);
     }
   }
 
-  // Método para seleccionar un usuario y cargar sus estadísticas
-  seleccionarUsuario(usuario: any): void {
+  seleccionarUsuario(usuario: Usuario): void {
     this.loading = true;
     this.usuarioSeleccionado = usuario;
-
-    // Simulación de carga de datos
-    setTimeout(() => {
-      // Aquí iría la petición al servicio para cargar las estadísticas del usuario
-      this.loading = false;
-    }, 1200);
+    setTimeout(() => this.loading = false, 1200);
   }
 
-  // Método para filtrar usuarios en la búsqueda
-  filtrarUsuarios(): any[] {
-    if (!this.usuarioBusqueda) {
-      return this.usuarios;
-    }
-
+  filtrarUsuarios(): Usuario[] {
+    if (!this.usuarioBusqueda) return this.usuarios;
     const filtro = this.usuarioBusqueda.toLowerCase();
-    return this.usuarios.filter(usuario => {
-      return usuario.nombre.toLowerCase().includes(filtro) ||
-             usuario.email.toLowerCase().includes(filtro);
-    });
+    return this.usuarios.filter(usuario =>
+      usuario.nombre.toLowerCase().includes(filtro) ||
+      usuario.email.toLowerCase().includes(filtro)
+    );
   }
 
-  // Método para cambiar el período de estadísticas
   cambiarPeriodo(periodo: string): void {
     this.periodoSeleccionado = periodo;
     this.loading = true;
-
-    // Simulación de carga de datos para el nuevo período
-    setTimeout(() => {
-      // Aquí iría la petición al servicio para cargar las estadísticas del período seleccionado
-      this.loading = false;
-    }, 800);
+    setTimeout(() => this.loading = false, 800);
   }
 
-  // Método para formatear fecha
   formatFecha(fecha: Date): string {
-    return fecha.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
-  // Método para formatear fecha relativa
   formatearFechaRelativa(fecha: Date): string {
     const ahora = new Date();
-    const diferenciaDias = Math.floor((ahora.getTime() - fecha.getTime()) / (1000 * 3600 * 24));
-
-    if (diferenciaDias === 0) return 'Hoy';
-    if (diferenciaDias === 1) return 'Ayer';
-    if (diferenciaDias < 7) return `Hace ${diferenciaDias} días`;
-    if (diferenciaDias < 30) return `Hace ${Math.floor(diferenciaDias / 7)} semanas`;
-    return `Hace ${Math.floor(diferenciaDias / 30)} meses`;
+    const dias = Math.floor((ahora.getTime() - fecha.getTime()) / (1000 * 3600 * 24));
+    if (dias === 0) return 'Hoy';
+    if (dias === 1) return 'Ayer';
+    if (dias < 7) return `Hace ${dias} días`;
+    if (dias < 30) return `Hace ${Math.floor(dias / 7)} semanas`;
+    return `Hace ${Math.floor(dias / 30)} meses`;
   }
 
-  // Método para calcular el color de la barra de progreso según el valor
   getColorProgreso(valor: number): string {
     if (valor >= 75) return 'high';
     if (valor >= 40) return 'medium';
     return 'low';
   }
 
-  // Método para exportar estadísticas del usuario
   exportarEstadisticas(): void {
     if (!this.usuarioSeleccionado) return;
-
-    // Aquí iría la lógica para exportar las estadísticas a CSV/PDF
     console.log('Exportando estadísticas de', this.usuarioSeleccionado.nombre);
     alert(`Exportando estadísticas de ${this.usuarioSeleccionado.nombre} en formato PDF...`);
   }

@@ -20,6 +20,15 @@ import { TipoRuta } from '../../../models/ruta.model';
 import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
 import { CarbonFootprintService } from './carbonFootprint.service';
 
+interface ComparativaTransporte {
+  type: string;
+  emission: number;
+  label: string;
+  class: string;
+}
+
+
+
 @Injectable({ providedIn: 'root' })
 export class RutasService {
   private firestore = inject(Firestore);
@@ -112,7 +121,7 @@ export class RutasService {
     }
   }
 
-  // NUEVO: Método para calcular/actualizar la huella de carbono de una ruta existente
+  // Método para calcular/actualizar la huella de carbono de una ruta existente
   async calcularHuellaCarbono(rutaId: string, tipoTransporte?: TipoRuta, pasajeros = 1): Promise<CarbonFootprintData | null> {
     try {
       const rutaRef = doc(this.firestore, 'rutas', rutaId);
@@ -147,13 +156,12 @@ export class RutasService {
     }
   }
 
-  // NUEVO: Método para simular huella de carbono sin guardar en la base de datos
+  // Método para simular huella de carbono sin guardar en la base de datos
   simularHuellaCarbono(distanciaKm: number, tipoTransporte: TipoRuta, pasajeros = 1): CarbonFootprintData {
     return this.carbonService.calculateCarbonFootprint(distanciaKm, tipoTransporte, pasajeros);
   }
 
-  // NUEVO: Método para obtener datos comparativos de diferentes medios de transporte
-  getComparativaTransportes(distanciaKm: number): any[] {
+  getComparativaTransportes(distanciaKm: number): ComparativaTransporte[] {
     return this.carbonService.getComparisonData(distanciaKm);
   }
 
@@ -183,6 +191,26 @@ export class RutasService {
     }
   }
 
+  async cargarRutasPublicasPorUsuario(usuarioId: string): Promise<Ruta[]> {
+    try {
+      const q = query(
+        this.rutasRef,
+        where('usuarioCreador', '==', usuarioId),
+        where('isPublic', '==', true)
+      );
+
+      const snapshot = await getDocs(q);
+
+      return snapshot.docs.map(doc =>
+        this.mapearRuta(doc.id, doc.data() as Omit<Ruta, 'id'>)
+      );
+    } catch (error) {
+      console.error('Error al cargar rutas públicas del usuario:', error);
+      return [];
+    }
+  }
+
+
   async obtenerRutaPorId(id: string): Promise<Ruta | null> {
     try {
       const docRef = doc(this.firestore, `rutas/${id}`);
@@ -197,7 +225,7 @@ export class RutasService {
     }
   }
 
-  // MODIFICADO: Actualizar el método mapearRuta para incluir carbonFootprint
+  // Actualizar el método mapearRuta para incluir carbonFootprint
   private mapearRuta(id: string, data: Omit<Ruta, 'id'>): Ruta {
     return {
       id,
