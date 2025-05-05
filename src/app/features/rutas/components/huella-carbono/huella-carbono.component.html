@@ -1,0 +1,106 @@
+<div class="info-seccion huella-carbono">
+  <div class="info-header">
+    <i class="fas fa-leaf"></i>
+    <h3>Huella de Carbono</h3>
+    <span class="eco-tag" [ngClass]="getEmissionClass()">
+      {{ getEmissionLabel() }}
+    </span>
+  </div>
+
+  <div class="carbon-content" *ngIf="ruta?.carbonFootprint">
+    <!-- Resultado principal -->
+    <div class="carbon-main">
+      <div class="carbon-value-container" [ngClass]="getEmissionClass()">
+        <span class="carbon-value">{{ formatNumber(ruta.carbonFootprint?.totalEmission ?? 0) }}</span>
+        <span class="carbon-unit">kg CO₂</span>
+      </div>
+      <div class="carbon-transport">
+        {{ ruta.carbonFootprint?.transportType }}
+      </div>
+    </div>
+
+    <!-- Botón para expandir/colapsar detalles -->
+    <button class="eco-toggle-btn" (click)="toggleDetails()">
+      <i class="fas" [ngClass]="showDetails ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      {{ showDetails ? 'Ocultar detalles' : 'Ver detalles' }}
+    </button>
+
+    <!-- Detalles -->
+    <div class="carbon-details" *ngIf="showDetails">
+      <!-- Equivalencias -->
+      <div class="equivalencias">
+        <h4>Equivalencias</h4>
+        <div class="equivalencia-grid">
+          <div class="equivalencia-item">
+            <i class="fas fa-tree"></i>
+            <div class="eq-text">
+              <span class="eq-value">{{ ruta.carbonFootprint?.equivalentActivities?.treeDays }}</span>
+              <span class="eq-label">días de absorción de un árbol</span>
+            </div>
+          </div>
+          <div class="equivalencia-item">
+            <i class="fas fa-lightbulb"></i>
+            <div class="eq-text">
+              <span class="eq-value">{{ ruta.carbonFootprint?.equivalentActivities?.lightBulbHours }}</span>
+              <span class="eq-label">horas de bombilla LED</span>
+            </div>
+          </div>
+          <div class="equivalencia-item">
+            <i class="fas fa-utensils"></i>
+            <div class="eq-text">
+              <span class="eq-value">{{ ruta.carbonFootprint?.equivalentActivities?.meatMeals }}</span>
+              <span class="eq-label">comidas con carne de res</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recomendaciones -->
+      <div class="recomendaciones" *ngIf="(ruta?.carbonFootprint?.recommendations ?? []).length > 0">
+        <h4>Recomendaciones</h4>
+        <ul>
+          <li *ngFor="let recomendacion of ruta.carbonFootprint?.recommendations ?? []">
+            {{ recomendacion }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Ahorros potenciales -->
+      <div class="ahorros" *ngIf="ruta.carbonFootprint?.potentialSavings && objectKeys(ruta.carbonFootprint?.potentialSavings ?? {}).length > 0">
+        <h4>Ahorros potenciales</h4>
+        <ul>
+          <li *ngFor="let tipo of objectKeys(ruta.carbonFootprint?.potentialSavings ?? {})">
+            <span class="ahorro-tipo">{{ tipo }}:</span>
+            <span class="ahorro-valor">{{ formatNumber(ruta.carbonFootprint?.potentialSavings?.[tipo] ?? 0) }} kg CO₂</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Botón para comparar transportes -->
+      <button class="comparar-btn" (click)="abrirComparacionTransportes()">
+        <i class="fas fa-exchange-alt"></i>
+        Comparar otros medios de transporte
+      </button>
+    </div>
+  </div>
+
+  <!-- Si no hay datos de huella de carbono -->
+  <div class="carbon-empty" *ngIf="!ruta?.carbonFootprint">
+    <p>La huella de carbono de esta ruta aún no ha sido calculada.</p>
+    <button class="calcular-btn" *ngIf="mostrarActualizarBtn" [disabled]="calculando" (click)="actualizarHuella()">
+      <i class="fas" [ngClass]="calculando ? 'fa-spinner fa-spin' : 'fa-calculator'"></i>
+      {{ calculando ? 'Calculando...' : 'Calcular huella' }}
+    </button>
+  </div>
+</div>
+
+<!-- DIALOGO DE PRIMENG -->
+<p-dialog header="Comparar transportes" [(visible)]="mostrarDialogoComparacion" [modal]="true"
+          [style]="{width: '600px'}" [baseZIndex]="10000" [maximizable]="true"
+          [closeOnEscape]="true" [dismissableMask]="true">
+  <app-comparar-transportes
+    *ngIf="mostrarDialogoComparacion"
+    [distanciaKm]="ruta.distanciaKm"
+    [tipoActual]="ruta.tipoRuta">
+  </app-comparar-transportes>
+</p-dialog>

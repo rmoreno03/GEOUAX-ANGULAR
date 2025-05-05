@@ -27,6 +27,7 @@ export class DetalleRutaComponent implements OnInit {
   fotoAmpliada: string | null = null;
   valoracionSeleccionada = 0;
   esCreador = false;
+  objectKeys = Object.keys;
 
   constructor(
     private route: ActivatedRoute,

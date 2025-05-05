@@ -1,0 +1,65 @@
+<div class="comparar-container">
+  <h2 class="comparar-titulo">
+    <i class="fas fa-exchange-alt"></i>
+    Comparativa de medios de transporte
+  </h2>
+
+  <div class="comparar-subtitulo">
+    Para una distancia de {{ distanciaKm }} km
+  </div>
+
+  <!-- Gráfica (opcional, si decides activarla con ngx-charts o similar) -->
+  <div class="chart-container" *ngIf="showChart">
+    <!-- Aquí podría ir una gráfica en el futuro -->
+  </div>
+
+  <!-- Lista de opciones -->
+  <div class="opciones-lista">
+    <div class="opcion-item" *ngFor="let opcion of opciones" [ngClass]="{'opcion-actual': opcion.type === tipoActual}">
+      <div class="opcion-header" [ngClass]="opcion.class">
+        <h3 class="opcion-titulo">{{ opcion.type }}</h3>
+        <div class="opcion-valor">
+          <span class="opcion-emision">{{ formatNumber(opcion.emission) }}</span>
+          <span class="opcion-unidad">kg CO₂</span>
+        </div>
+      </div>
+
+      <div class="opcion-body">
+        <div class="opcion-tag" [ngClass]="opcion.class">
+          {{ opcion.label }}
+        </div>
+
+        <div class="opcion-stats">
+          <div class="opcion-stat">
+            <i class="fas fa-leaf"></i>
+            <div class="stat-texto">
+              <span class="stat-valor">{{ calcularPorcentajeAhorro(opcion.emission) | number:'1.0-0' }}%</span>
+              <span class="stat-label">menos emisiones que la opción más contaminante</span>
+            </div>
+          </div>
+
+          <div class="opcion-stat">
+            <i class="fas fa-calendar-alt"></i>
+            <div class="stat-texto">
+              <span class="stat-valor">{{ formatNumber(calcularBeneficioAnual(opcion.emission)) }} kg CO₂</span>
+              <span class="stat-label">emisiones anuales (3 veces/semana)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nota informativa -->
+  <div class="eco-nota">
+    <i class="fas fa-info-circle"></i>
+    <p>
+      Al elegir medios de transporte sostenibles reduces tu huella de carbono y contribuyes a mitigar el cambio climático.
+    </p>
+  </div>
+
+  <!-- Botón de cerrar (visual solamente, el cierre se hace desde el diálogo padre) -->
+  <div class="comparar-acciones">
+    <button pButton type="button" label="Cerrar" class="btn-cerrar" (click)="cerrar()"></button>
+  </div>
+</div>

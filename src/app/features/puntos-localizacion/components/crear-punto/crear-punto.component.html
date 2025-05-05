@@ -17,7 +17,13 @@
         <input type="text" id="longitud" name="longitud" [(ngModel)]="punto.longitud" readonly />
 
         <label for="fotos">Seleccionar Fotos</label>
-        <input type="file" id="fotos" (change)="onFotosSeleccionadas($event)" multiple accept="image/*" />
+        <input type="file" id="fotos" (change)="onFotosSeleccionadas($event)" multiple accept="image/*"
+               [disabled]="uploading || validating" />
+
+        <div *ngIf="validating" class="validating-message">
+          <i class="fa fa-spinner fa-spin"></i>
+          <p>Validando imágenes con IA...</p>
+        </div>
 
         <div class="preview-container" *ngIf="previewUrls.length > 0">
           <h4>Previsualización</h4>
@@ -26,10 +32,13 @@
           </div>
         </div>
 
-
         <div class="botones">
-          <button type="submit" class="btn-primary">Guardar Punto</button>
-          <button type="button" class="btn-secondary" routerLink="/puntos-localizacion">Volver</button>
+          <button type="submit" class="btn-primary" [disabled]="uploading || validating">
+            <span *ngIf="!uploading && !validating">Guardar Punto</span>
+            <span *ngIf="validating">Validando...</span>
+            <span *ngIf="uploading && !validating">Subiendo...</span>
+          </button>
+          <button type="button" class="btn-secondary" routerLink="/puntos-localizacion" [disabled]="uploading || validating">Volver</button>
         </div>
       </form>
     </div>
@@ -45,4 +54,3 @@
   [mensaje]="mensajeTexto"
   [tipo]="tipoMensaje">
 </app-popup-exito>
-

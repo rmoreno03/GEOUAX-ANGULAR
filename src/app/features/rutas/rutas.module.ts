@@ -12,6 +12,9 @@ import { SharedModule } from '../../shared/shared.module';
 import { RutasPublicasComponent } from './pages/rutas-publicas/rutas-publicas.component';
 import { CoreModule } from '../../core/core.module';
 import { HttpClientModule } from '@angular/common/http';
+import { HuellaCarbonoComponent } from './components/huella-carbono/huella-carbono.component';
+import { CompararTransportesComponent } from './components/comparar-transportes/comparar-transportes.component';
+import { DialogModule } from 'primeng/dialog';
 
 
 
@@ -22,7 +25,9 @@ import { HttpClientModule } from '@angular/common/http';
     MisRutasComponent,
     VerTodasComponent,
     DetalleRutaComponent,
-    RutasPublicasComponent
+    RutasPublicasComponent,
+    HuellaCarbonoComponent,
+    CompararTransportesComponent
   ],
   imports: [
     CommonModule,
@@ -31,7 +36,8 @@ import { HttpClientModule } from '@angular/common/http';
     DropdownModule,
     SharedModule,
     CoreModule,
-    HttpClientModule
+    HttpClientModule,
+    DialogModule
 ]
 })
 export class RutasModule { }

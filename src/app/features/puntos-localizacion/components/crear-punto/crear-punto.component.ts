@@ -7,6 +7,9 @@ import { Router } from '@angular/router';
 import { Timestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { MessageService } from '../../../../core/services/message.service';
+import { ImageValidationService, ValidationResult } from '../../services/imageValidator.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-crear-punto',
@@ -20,6 +23,7 @@ export class CrearPuntoComponent implements AfterViewInit {
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
   uploading = false;
+  validating = false;
   mostrarMensaje = false;
   mensajeTexto = '';
   tipoMensaje: 'exito' | 'eliminado' | 'warning' = 'exito';
@@ -27,7 +31,6 @@ export class CrearPuntoComponent implements AfterViewInit {
   private auth = getAuth();
   private user = this.auth.currentUser;
   private uid = this.user?.uid;
-
 
   punto: Partial<PuntoLocalizacion> = {
     nombre: '',
@@ -42,7 +45,8 @@ export class CrearPuntoComponent implements AfterViewInit {
   constructor(
     private puntosService: PuntosLocalizacionService,
     private router: Router,
-    private mensajeService: MessageService
+    private mensajeService: MessageService,
+    private imageValidationService: ImageValidationService
   ) {}
 
   ngAfterViewInit(): void {
@@ -72,6 +76,7 @@ export class CrearPuntoComponent implements AfterViewInit {
     });
   }
 
+  //metodo para guardar los puntos que pasan por la validacion de ia
   async guardarPunto() {
     if (
       this.punto.nombre &&
@@ -81,37 +86,175 @@ export class CrearPuntoComponent implements AfterViewInit {
       this.punto.longitud !== undefined
     ) {
       this.uploading = true;
-      const urls: string[] = [];
+      this.validating = true;
 
+      // validación si hay imágenes
+      if (this.selectedFiles.length > 0) {
+        try {
+          const validationResults = await this.validarImagenes();
+          console.log('Resultados de validación:', validationResults);
+
+          const invalidImages = validationResults.filter(result => result && !result.isValid);
+
+          if (invalidImages.length > 0) {
+            // diccionario de traducciones para mostrar etiquetas en español
+            const etiquetasTraducidas: { [key: string]: string | null } = {
+              'gun': 'arma de fuego',
+              'firearm': 'arma de fuego',
+              'revolver': 'revólver',
+              'pistol': 'pistola',
+              'air gun': 'pistola de aire comprimido',
+              'gun barrel': 'cañón de arma',
+              'trigger': 'gatillo',
+              'rifle': 'rifle',
+              'machine gun': 'ametralladora',
+              'knife': 'cuchillo',
+              'blade': 'hoja',
+              'bomb': 'bomba',
+              'grenade': 'granada',
+              'bullet': 'bala',
+              'ammunition': 'munición',
+              'cocaine': 'cocaína',
+              'heroin': 'heroína',
+              'marijuana': 'marihuana',
+              'syringe': 'jeringuilla',
+              'needle': 'aguja',
+              'porn': 'contenido sexual',
+              'nude': 'desnudo',
+              'blood': 'sangre',
+              'corpse': 'cadáver',
+              'everyday carry': 'arma personal',
+              'wood': null,
+              'iron': null
+            };
+
+            const etiquetasBloqueadas = invalidImages
+              .flatMap(img => img.etiquetasDetectadas || [])
+              .filter((value, index, self) => self.indexOf(value) === index);
+
+            const etiquetasBloqueadasTraducidas = etiquetasBloqueadas
+              .map(e => etiquetasTraducidas[e] || null)
+              .filter(e => e);
+
+            const etiquetasTexto = etiquetasBloqueadasTraducidas.length > 0
+              ? ` por contener: ${etiquetasBloqueadasTraducidas.join(', ')}.`
+              : '.';
+
+            this.mensajeTexto = `Se bloqueó ${invalidImages.length} imagen${invalidImages.length > 1 ? 'es' : ''}${etiquetasTexto}`;
+            this.tipoMensaje = 'warning';
+            this.mostrarMensaje = true;
+            this.uploading = false;
+            this.validating = false;
+            setTimeout(() => (this.mostrarMensaje = false), 5000);
+            return;
+          }
+        } catch (error) {
+          console.error('Error validando imágenes:', error);
+          this.mensajeTexto = 'Error al validar las imágenes. Intenta de nuevo.';
+          this.tipoMensaje = 'warning';
+          this.mostrarMensaje = true;
+          this.uploading = false;
+          this.validating = false;
+          setTimeout(() => (this.mostrarMensaje = false), 4000);
+          return;
+        }
+      }
+
+      this.validating = false;
+
+      // subida de imágenes
+      const urls: string[] = [];
       try {
         for (const file of this.selectedFiles) {
           const url = await this.puntosService.subirFoto(file);
           urls.push(url);
         }
       } catch (error) {
-        console.error('Error subiendo la foto:', error); // 👈 Este log es CLAVE
-        this.mensajeTexto = 'Error al subir las fotos. Revisa la consola.';
+        console.error('Error subiendo imágenes:', error);
+        this.mensajeTexto = 'No se pudieron subir las fotos. Intenta más tarde.';
         this.tipoMensaje = 'warning';
         this.mostrarMensaje = true;
+        this.uploading = false;
+        setTimeout(() => (this.mostrarMensaje = false), 4000);
         return;
       }
 
-
       this.punto.fotos = urls;
-      console.log('Archivos seleccionados:', this.selectedFiles);
 
-
-      await this.puntosService.crearPunto(this.punto as PuntoLocalizacion);
-      this.mensajeService.setMensaje('Punto creado con éxito!', 'exito');
-      this.router.navigate(['/puntos-localizacion']);
+      // guardamos el punto
+      try {
+        await this.puntosService.crearPunto(this.punto as PuntoLocalizacion);
+        this.mensajeService.setMensaje('Punto creado con éxito', 'exito');
+        this.router.navigate(['/puntos-localizacion']);
+      } catch (error) {
+        console.error('Error guardando punto:', error);
+        this.mensajeTexto = 'No se pudo guardar el punto. Intenta de nuevo.';
+        this.tipoMensaje = 'warning';
+        this.mostrarMensaje = true;
+        setTimeout(() => (this.mostrarMensaje = false), 4000);
+      }
     } else {
-      this.mensajeTexto = 'Por favor, completa todos los campos y selecciona una ubicación.';
+      this.mensajeTexto = 'Faltan campos por completar o no se seleccionó ubicación.';
       this.tipoMensaje = 'warning';
       this.mostrarMensaje = true;
-      setTimeout(() => (this.mostrarMensaje = false), 3500);
+      setTimeout(() => (this.mostrarMensaje = false), 3000);
     }
 
     this.uploading = false;
+  }
+
+
+  /**
+   * Valida todas las imágenes seleccionadas
+   * @returns Promise con un array de resultados de validación
+   */
+  async validarImagenes(): Promise<ValidationResult[]> {
+    if (this.selectedFiles.length === 0) {
+      return [];
+    }
+
+    console.log(`Iniciando validación de ${this.selectedFiles.length} imágenes`);
+
+    // Mostrar información de cada archivo para depuración
+    this.selectedFiles.forEach((file, index) => {
+      console.log(`Archivo ${index+1}:`, {
+        nombre: file.name,
+        tipo: file.type,
+        tamaño: `${(file.size / 1024).toFixed(2)} KB`
+      });
+    });
+
+    // Convertimos los observables de validación a promesas
+    const validationObservables = this.selectedFiles.map(file =>
+      this.imageValidationService.validateImage(file).pipe(
+        catchError(error => {
+          console.error('Error validando imagen:', error);
+          // Si es un HttpErrorResponse, mostrar más detalles
+          if (error.name === 'HttpErrorResponse') {
+            console.error('Status:', error.status);
+            console.error('Mensaje:', error.message);
+            if (error.error) {
+              console.error('Detalle del error:', error.error);
+            }
+          }
+          return of({ isValid: false, reason: 'Error en la validación' });
+        })
+      )
+    );
+
+    // Esperamos a que todas las validaciones terminen
+    return await new Promise((resolve, reject) => {
+      forkJoin(validationObservables).subscribe({
+        next: results => {
+          console.log('Resultados de validación:', results);
+          resolve(results);
+        },
+        error: err => {
+          console.error('Error en forkJoin:', err);
+          reject(err);
+        }
+      });
+    });
   }
 
   onFotosSeleccionadas(event: Event): void {
@@ -131,5 +274,4 @@ export class CrearPuntoComponent implements AfterViewInit {
       reader.readAsDataURL(file);
     });
   }
-
 }

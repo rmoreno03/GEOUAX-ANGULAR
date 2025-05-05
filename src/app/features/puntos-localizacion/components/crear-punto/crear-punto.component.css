@@ -105,7 +105,7 @@ h2 {
   margin-right: 8px;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not([disabled]) {
   transform: scale(1.05);
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
 }
@@ -127,9 +127,17 @@ h2 {
   text-transform: uppercase;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not([disabled]) {
   transform: scale(1.05);
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para botones deshabilitados */
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* contenedor de previsualización de imágenes */
@@ -166,6 +174,37 @@ h2 {
 #map-preview {
   width: 89.5vh;
   height: 72.5vh;
+}
+
+/* Nuevo: mensaje de validación */
+.validating-message {
+  margin: 10px 0;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f0f8ff, #e6f0fa);
+  border-left: 4px solid #0078d4;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  animation: pulse 1.5s infinite;
+}
+
+/* Animación para el mensaje de validación */
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+.validating-message i {
+  margin-right: 10px;
+  color: #0078d4;
+}
+
+.validating-message p {
+  margin: 0;
+  font-weight: 500;
+  color: #333;
 }
 
 /* adaptación para tablets */

@@ -28,6 +28,21 @@ export interface LineStringGeometry {
   coordinates: number[][];
 }
 
+// Datos de huella de carbono
+export interface CarbonFootprintData {
+  totalEmission: number;       // en kg de CO2
+  transportType: string;       // tipo de transporte usado
+  equivalentActivities: {      // actividades equivalentes
+    treeDays: number;
+    lightBulbHours: number;
+    meatMeals: number;
+  };
+  recommendations: string[];   // recomendaciones personalizadas
+  potentialSavings?: {         // potencial de ahorro con otros medios
+    [key: string]: number;     // tipo de transporte -> kg CO2 ahorrados
+  }
+}
+
 export interface Ruta {
   id?: string;
   nombre: string;
@@ -44,6 +59,7 @@ export interface Ruta {
   ubicacionInicio?: string;
   tiempoEstimado?: string;
   isPublic?: boolean;
+  carbonFootprint?: CarbonFootprintData;
 }
 
 

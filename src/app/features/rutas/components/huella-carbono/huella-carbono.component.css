@@ -1,0 +1,277 @@
+.huella-carbono {
+  margin-top: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  padding: 0 0 12px;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.info-header i {
+  color: #27ae60;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.info-header h3 {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.eco-tag {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+.eco-zero {
+  background: #27ae60;
+  color: white;
+}
+
+.eco-low {
+  background: #2ecc71;
+  color: white;
+}
+
+.eco-medium {
+  background: #f39c12;
+  color: white;
+}
+
+.eco-high {
+  background: #e74c3c;
+  color: white;
+}
+
+.eco-neutral {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+.carbon-content {
+  padding-top: 15px;
+}
+
+.carbon-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.carbon-value-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.carbon-value-container:hover {
+  transform: scale(1.05);
+}
+
+.carbon-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.carbon-unit {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.carbon-transport {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.eco-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #2980b9;
+  font-size: 0.9rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin: 0 auto 10px;
+  transition: all 0.2s ease;
+}
+
+.eco-toggle-btn:hover {
+  color: #3498db;
+}
+
+.eco-toggle-btn i {
+  margin-right: 5px;
+  font-size: 0.8rem;
+}
+
+.carbon-details {
+  padding-top: 10px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.equivalencias, .recomendaciones, .ahorros {
+  margin-bottom: 20px;
+}
+
+.equivalencias h4, .recomendaciones h4, .ahorros h4 {
+  font-size: 1rem;
+  margin: 0 0 10px;
+  color: #333;
+  font-weight: 600;
+}
+
+.equivalencia-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.equivalencia-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.equivalencia-item:hover {
+  background: #f0f2f5;
+  transform: translateY(-2px);
+}
+
+.equivalencia-item i {
+  font-size: 1.5rem;
+  color: #27ae60;
+  margin-right: 10px;
+  width: 30px;
+  text-align: center;
+}
+
+.eq-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.eq-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.eq-label {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.recomendaciones ul, .ahorros ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.recomendaciones li, .ahorros li {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.ahorro-tipo {
+  font-weight: 500;
+}
+
+.ahorro-valor {
+  font-weight: 700;
+  color: #27ae60;
+  margin-left: 5px;
+}
+
+.comparar-btn, .calcular-btn {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 15px auto 5px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.comparar-btn:hover, .calcular-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.comparar-btn:active, .calcular-btn:active {
+  transform: translateY(0);
+}
+
+.comparar-btn i, .calcular-btn i {
+  margin-right: 8px;
+}
+
+.calcular-btn[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.carbon-empty {
+  padding: 15px 0;
+  text-align: center;
+  color: #7f8c8d;
+}
+
+.carbon-empty p {
+  margin: 0 0 15px;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .equivalencia-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .equivalencia-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -15,17 +15,17 @@ import {
 import { Auth } from '@angular/fire/auth';
 import mbxDirections from '@mapbox/mapbox-sdk/services/directions';
 import { environment } from '../../../../environments/environment';
-import { Ruta } from '../../../models/ruta.model';
+import { Ruta, CarbonFootprintData } from '../../../models/ruta.model';
 import { TipoRuta } from '../../../models/ruta.model';
 import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
-
-
+import { CarbonFootprintService } from './carbonFootprint.service';
 
 @Injectable({ providedIn: 'root' })
 export class RutasService {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
   private rutasRef = collection(this.firestore, 'rutas');
+  private carbonService = inject(CarbonFootprintService);
 
   directionsClient = mbxDirections({ accessToken: environment.mapbox_key });
 
@@ -48,18 +48,7 @@ export class RutasService {
     return 'driving';
   }
 
-  private generarStaticMapUrl(coordenadas: [number, number][]): string {
-    const path = coordenadas.map(([lon, lat]) => `${lon},${lat}`).join(',');
-    const overlay = `path-5+f7941d-0.5(${path})`;
-
-    const lons = coordenadas.map(c => c[0]);
-    const lats = coordenadas.map(c => c[1]);
-    const lonCenter = lons.reduce((a, b) => a + b) / lons.length;
-    const latCenter = lats.reduce((a, b) => a + b) / lats.length;
-
-    return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${encodeURIComponent(overlay)}/${lonCenter},${latCenter},13/600x300@2x?access_token=${environment.mapbox_key}`;
-  }
-
+  // Método modificado para incluir cálculo de huella de carbono
   async crearRuta(
     rutaParcial: Omit<Ruta, 'fechaCreacion' | 'usuarioCreador' | 'distanciaKm' | 'duracionMin' | 'imagenUrl'>
   ): Promise<void> {
@@ -94,6 +83,13 @@ export class RutasService {
 
       const imagenUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${lonCenter},${latCenter},13/600x300@2x?access_token=${environment.mapbox_key}`;
 
+      // NUEVO: Calcular la huella de carbono
+      const carbonFootprint = this.carbonService.calculateCarbonFootprint(
+        distanciaKm,
+        tipoRuta,
+        1 // Por defecto, un solo pasajero
+      );
+
       // Crear la ruta completa con todos los datos
       const ruta: Ruta = {
         ...rutaParcial,
@@ -102,7 +98,8 @@ export class RutasService {
         usuarioCreador: this.getUserId() ?? 'desconocido',
         distanciaKm,
         duracionMin,
-        imagenUrl
+        imagenUrl,
+        carbonFootprint // NUEVO: Incluir datos de huella de carbono
       };
 
       // Guardar la ruta en Firestore
@@ -115,6 +112,52 @@ export class RutasService {
     }
   }
 
+  // NUEVO: Método para calcular/actualizar la huella de carbono de una ruta existente
+  async calcularHuellaCarbono(rutaId: string, tipoTransporte?: TipoRuta, pasajeros: number = 1): Promise<CarbonFootprintData | null> {
+    try {
+      const rutaRef = doc(this.firestore, 'rutas', rutaId);
+      const rutaSnap = await getDoc(rutaRef);
+
+      if (!rutaSnap.exists()) {
+        console.error('No se encontró la ruta con ID:', rutaId);
+        return null;
+      }
+
+      const rutaData = rutaSnap.data() as Ruta;
+
+      // Usar el tipo de transporte especificado o el de la ruta
+      const transportType = tipoTransporte || rutaData.tipoRuta;
+
+      // Calcular la huella de carbono
+      const carbonData = this.carbonService.calculateCarbonFootprint(
+        rutaData.distanciaKm,
+        transportType,
+        pasajeros
+      );
+
+      // Actualizar la ruta con los datos de huella de carbono
+      await updateDoc(rutaRef, {
+        carbonFootprint: carbonData
+      });
+
+      return carbonData;
+    } catch (error) {
+      console.error('Error al calcular/actualizar huella de carbono:', error);
+      return null;
+    }
+  }
+
+  // NUEVO: Método para simular huella de carbono sin guardar en la base de datos
+  simularHuellaCarbono(distanciaKm: number, tipoTransporte: TipoRuta, pasajeros: number = 1): CarbonFootprintData {
+    return this.carbonService.calculateCarbonFootprint(distanciaKm, tipoTransporte, pasajeros);
+  }
+
+  // NUEVO: Método para obtener datos comparativos de diferentes medios de transporte
+  getComparativaTransportes(distanciaKm: number): any[] {
+    return this.carbonService.getComparisonData(distanciaKm);
+  }
+
+  // Mantener el resto de métodos existentes...
 
   async cargarRutasPorUsuario(usuarioId: string): Promise<Ruta[]> {
     try {
@@ -154,6 +197,7 @@ export class RutasService {
     }
   }
 
+  // MODIFICADO: Actualizar el método mapearRuta para incluir carbonFootprint
   private mapearRuta(id: string, data: Omit<Ruta, 'id'>): Ruta {
     return {
       id,
@@ -179,7 +223,8 @@ export class RutasService {
       imagenUrl: data.imagenUrl || '',
       ubicacionInicio: data.ubicacionInicio || '',
       tiempoEstimado: data.tiempoEstimado || '',
-      isPublic: data.isPublic || false
+      isPublic: data.isPublic || false,
+      carbonFootprint: data.carbonFootprint // NUEVO: Incluir carbonFootprint
     };
   }
 
@@ -224,4 +269,6 @@ export class RutasService {
       console.error('Error al actualizar valoracion:', error);
     }
   }
+
 }
+

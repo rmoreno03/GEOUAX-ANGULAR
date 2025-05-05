@@ -11,6 +11,7 @@ export const environment = {
   },
   mapbox_key: 'pk.eyJ1Ijoicm1vcmVubzAzIiwiYSI6ImNtOHdzOXBhNDA2NDYybHIxbThqOHR3cXIifQ.4vsuh0it8sEzlVo1mfRPCA',
   firebaseFunctionsUrl: 'https://generarmapaimagen-zipgrys2wq-uc.a.run.app',
+  google_vision_api_key: 'AIzaSyCOucsB8gmbywPTx3gAQr2kgr5PzBPHtMc',
 };
 
 
