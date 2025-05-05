@@ -144,7 +144,6 @@ export class EstadisticasUsuarioComponent implements OnInit {
     }
   ];
 
-  constructor() { }
 
   ngOnInit(): void {
     // Al iniciar, seleccionamos el primer usuario por defecto

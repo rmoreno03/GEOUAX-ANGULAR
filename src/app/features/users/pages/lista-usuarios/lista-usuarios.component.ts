@@ -84,7 +84,6 @@ export class ListaUsuariosComponent implements OnInit {
     { nombre: 'acciones', titulo: 'Acciones', visible: true }
   ];
 
-  constructor() { }
 
   ngOnInit(): void {
     this.cargarUsuarios();

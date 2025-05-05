@@ -1,3 +1,4 @@
+<!-- roles.component.html corregido para cumplir ESLint de accesibilidad -->
 <div class="roles-container">
   <!-- Spinner de carga -->
   <div *ngIf="loading" class="loading-spinner">
@@ -31,11 +32,15 @@
         </div>
 
         <div class="roles-list">
-          <div
+          <button
             *ngFor="let rol of roles"
+            type="button"
             class="rol-item"
             [class.active]="rolSeleccionado?.id === rol.id"
-            (click)="seleccionarRol(rol)">
+            (click)="seleccionarRol(rol)"
+            (keydown.enter)="seleccionarRol(rol)"
+            (keydown.space)="seleccionarRol(rol)"
+            tabindex="0">
             <div class="rol-header">
               <div class="rol-title">
                 <h4>{{ rol.nombre }}</h4>
@@ -64,7 +69,7 @@
                 <span>{{ rol.permisos.length }} permisos</span>
               </div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -117,8 +122,7 @@
           </div>
 
           <div class="form-group">
-            <label>Permisos</label>
-
+            <p class="grupo-label">Permisos</p>
             <div class="permisos-secciones">
               <div *ngFor="let categoria of categoriasPermisos" class="categoria-permisos">
                 <div class="categoria-header">
@@ -135,9 +139,10 @@
 
                 <div class="permisos-lista">
                   <div *ngFor="let permiso of getPermisosPorCategoria(categoria.id)" class="permiso-item">
-                    <label class="checkbox-container">
+                    <label class="checkbox-container" [attr.for]="'permiso-' + permiso.id">
                       <input
                         type="checkbox"
+                        [id]="'permiso-' + permiso.id"
                         [checked]="permiso.seleccionado"
                         (change)="togglePermiso(permiso.id)">
                       <span class="checkmark"></span>

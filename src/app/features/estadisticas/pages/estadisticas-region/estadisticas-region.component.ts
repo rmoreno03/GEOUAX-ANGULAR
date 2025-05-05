@@ -124,7 +124,6 @@ export class EstadisticasRegionComponent implements OnInit {
     }
   ];
 
-  constructor() { }
 
   ngOnInit(): void {
     this.cargarDatosRegion();

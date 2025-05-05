@@ -94,7 +94,6 @@ export class ProgresoComponent implements OnInit {
     desnivelAcumulado: 12450
   };
 
-  constructor() { }
 
   ngOnInit(): void {
     this.cargarDatosProgreso();

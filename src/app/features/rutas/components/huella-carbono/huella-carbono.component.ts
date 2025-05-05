@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input} from '@angular/core';
 import { Ruta } from '../../../../models/ruta.model';
 import { RutasService } from '../../services/rutas.service';
 
@@ -8,20 +8,18 @@ import { RutasService } from '../../services/rutas.service';
   styleUrls: ['./huella-carbono.component.css'],
   standalone: false
 })
-export class HuellaCarbonoComponent implements OnInit {
+export class HuellaCarbonoComponent  {
   @Input() ruta!: Ruta;
-  @Input() mostrarActualizarBtn: boolean = true;
+  @Input() mostrarActualizarBtn = true;
 
-  calculando: boolean = false;
-  showDetails: boolean = false;
-  mostrarDialogoComparacion: boolean = false;
+  calculando = false;
+  showDetails = false;
+  mostrarDialogoComparacion = false;
 
   objectKeys = Object.keys;
 
   constructor(private rutasService: RutasService) {}
 
-  ngOnInit(): void {
-  }
 
   getEmissionClass(): string {
     if (!this.ruta?.carbonFootprint) return 'eco-neutral';

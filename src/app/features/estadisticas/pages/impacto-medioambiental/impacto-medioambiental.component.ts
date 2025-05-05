@@ -90,7 +90,6 @@ export class ImpactoMedioambientalComponent implements OnInit {
     }
   ];
 
-  constructor() { }
 
   ngOnInit(): void {
     this.cargarDatosImpacto();

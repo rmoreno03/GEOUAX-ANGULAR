@@ -59,7 +59,6 @@ export class ResumenGlobalComponent implements OnInit {
     { tipo: 'Web', porcentaje: 9 }
   ];
 
-  constructor() { }
 
   ngOnInit(): void {
     this.cargarDatosResumenGlobal();

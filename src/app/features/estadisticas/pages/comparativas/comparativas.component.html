@@ -1,10 +1,8 @@
+<!-- comparativas.component.html corregido y accesible -->
 <div class="comparativas-container">
   <!-- Cabecera con navegación -->
   <div class="page-header">
-    <h1>
-      <i class="fas fa-balance-scale"></i>
-      Comparativas
-    </h1>
+    <h1><i class="fas fa-balance-scale"></i> Comparativas</h1>
   </div>
 
   <!-- Spinner de carga -->
@@ -23,33 +21,36 @@
   <div *ngIf="!loading && !error" class="comparison-content">
     <!-- Selector de amigos para comparar -->
     <div class="friends-selector">
-      <h3 class="section-title">
-        <i class="fas fa-users"></i>
-        Selecciona amigos para comparar
-      </h3>
-
+      <h3 class="section-title"><i class="fas fa-users"></i> Selecciona amigos para comparar</h3>
       <div class="friends-list">
-        <div *ngFor="let amigo of listaAmigos"
-            class="friend-item"
-            [class.selected]="amigo.seleccionado"
-            (click)="toggleAmigoSeleccionado(amigo.id)">
+        <button
+          *ngFor="let amigo of listaAmigos"
+          type="button"
+          class="friend-item"
+          [class.selected]="amigo.seleccionado"
+          (click)="toggleAmigoSeleccionado(amigo.id)"
+          (keydown.enter)="toggleAmigoSeleccionado(amigo.id)"
+          (keydown.space)="toggleAmigoSeleccionado(amigo.id)"
+          tabindex="0">
+
           <div class="friend-avatar">
             <i class="fas fa-user-circle"></i>
           </div>
+
           <span class="friend-name">{{ amigo.nombre }}</span>
+
           <div class="selection-indicator">
             <i class="fas" [ngClass]="{'fa-check-circle': amigo.seleccionado, 'fa-circle': !amigo.seleccionado}"></i>
           </div>
-        </div>
+
+        </button>
       </div>
     </div>
 
     <!-- Estadísticas básicas del usuario -->
     <div class="user-stats-card">
       <div class="user-stats-header">
-        <div class="avatar-container">
-          <i class="fas fa-user-circle"></i>
-        </div>
+        <div class="avatar-container"><i class="fas fa-user-circle"></i></div>
         <div class="user-info">
           <h2>{{ datosUsuario.nombre }}</h2>
           <div class="rank-info">
@@ -61,39 +62,28 @@
 
       <div class="stats-summary">
         <div class="summary-item">
-          <div class="summary-icon">
-            <i class="fas fa-road"></i>
-          </div>
+          <div class="summary-icon"><i class="fas fa-road"></i></div>
           <div class="summary-data">
             <span class="summary-value">{{ datosUsuario.totalKilometros | number:'1.1-1' }} km</span>
             <span class="summary-label">Total recorrido</span>
           </div>
         </div>
-
         <div class="summary-item">
-          <div class="summary-icon">
-            <i class="fas fa-route"></i>
-          </div>
+          <div class="summary-icon"><i class="fas fa-route"></i></div>
           <div class="summary-data">
             <span class="summary-value">{{ datosUsuario.totalRutas }}</span>
             <span class="summary-label">Rutas</span>
           </div>
         </div>
-
         <div class="summary-item">
-          <div class="summary-icon">
-            <i class="fas fa-ruler"></i>
-          </div>
+          <div class="summary-icon"><i class="fas fa-ruler"></i></div>
           <div class="summary-data">
             <span class="summary-value">{{ datosUsuario.mediaKilometros | number:'1.1-1' }} km</span>
             <span class="summary-label">Media por ruta</span>
           </div>
         </div>
-
         <div class="summary-item">
-          <div class="summary-icon">
-            <i class="fas fa-map-marker-alt"></i>
-          </div>
+          <div class="summary-icon"><i class="fas fa-map-marker-alt"></i></div>
           <div class="summary-data">
             <span class="summary-value">{{ datosUsuario.totalPuntos }}</span>
             <span class="summary-label">Puntos registrados</span>
@@ -105,48 +95,31 @@
     <!-- Gráfico de comparativa -->
     <div class="comparison-chart-card">
       <div class="chart-header">
-        <h3 class="section-title">
-          <i class="fas fa-chart-line"></i>
-          Comparativa de Actividad
-        </h3>
-
+        <h3 class="section-title"><i class="fas fa-chart-line"></i> Comparativa de Actividad</h3>
         <div class="chart-filter-tabs">
-          <button
-            [class.active]="filtroActivo === 'mensual'"
-            (click)="cambiarFiltro('mensual')"
-            class="filter-tab">
+          <button class="filter-tab" [class.active]="filtroActivo === 'mensual'" (click)="cambiarFiltro('mensual')">
             Mensual
           </button>
-
-          <button
-            [class.active]="filtroActivo === 'actividad'"
-            (click)="cambiarFiltro('actividad')"
-            class="filter-tab">
+          <button class="filter-tab" [class.active]="filtroActivo === 'actividad'" (click)="cambiarFiltro('actividad')">
             Por Actividad
           </button>
         </div>
       </div>
 
       <div class="chart-container">
-        <!-- Aquí iría el gráfico real (Chart.js o similar) -->
         <div class="chart-placeholder">
           <div class="chart-mock">
-            <!-- Simulación visual del gráfico -->
             <div *ngFor="let dato of obtenerDatosFiltrados(); let i = index" class="chart-column">
               <div class="column-label">{{ filtroActivo === 'mensual' ? dato.mes : dato.tipo }}</div>
-
               <div class="bar-container">
-                <!-- Barra del usuario -->
                 <div class="bar usuario" [style.height.px]="dato.usuario * 0.5">
                   <span class="bar-value">{{ dato.usuario }}</span>
                 </div>
-
-                <!-- Barras de amigos seleccionados -->
                 <ng-container *ngFor="let amigo of listaAmigos; let j = index">
                   <div *ngIf="amigo.seleccionado"
                        class="bar amigo-{{ j+1 }}"
-                       [style.height.px]="dato['amigo' + (j+1)] * 0.5">
-                    <span class="bar-value">{{ dato['amigo' + (j+1)] }}</span>
+                       [style.height.px]="convertirAAltura(dato['amigo' + (j + 1)])">
+                    <span class="bar-value">{{ dato['amigo' + (j + 1)] }}</span>
                   </div>
                 </ng-container>
               </div>
@@ -158,7 +131,6 @@
               <span class="color-indicator"></span>
               <span>Tú</span>
             </div>
-
             <div *ngFor="let amigo of listaAmigos; let i = index">
               <div *ngIf="amigo.seleccionado" class="legend-item amigo-{{ i+1 }}">
                 <span class="color-indicator"></span>
@@ -172,11 +144,7 @@
 
     <!-- Ranking global -->
     <div class="ranking-card">
-      <h3 class="section-title">
-        <i class="fas fa-trophy"></i>
-        Ranking Global
-      </h3>
-
+      <h3 class="section-title"><i class="fas fa-trophy"></i> Ranking Global</h3>
       <div class="ranking-table-container">
         <table class="ranking-table">
           <thead>
@@ -195,9 +163,7 @@
               </td>
               <td class="user-cell">
                 <div class="user-info-compact">
-                  <div class="user-avatar-small">
-                    <i class="fas fa-user-circle"></i>
-                  </div>
+                  <div class="user-avatar-small"><i class="fas fa-user-circle"></i></div>
                   <span>{{ usuario.nombre }}</span>
                 </div>
               </td>

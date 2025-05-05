@@ -116,7 +116,7 @@ export class CrearPuntoComponent implements AfterViewInit {
 
           if (invalidImages.length > 0) {
             // diccionario de traducciones para mostrar etiquetas en español
-            const etiquetasTraducidas: { [key: string]: string | null } = {
+            const etiquetasTraducidas: Record<string, string | null> = {
               'gun': 'arma de fuego',
               'firearm': 'arma de fuego',
               'revolver': 'revólver',
@@ -203,7 +203,7 @@ export class CrearPuntoComponent implements AfterViewInit {
       try {
         await this.puntosService.crearPunto(this.punto as PuntoLocalizacion);
         this.mensajeService.setMensaje('Punto creado con éxito', 'exito');
-        this.router.navigate(['/puntos-localizacion']);
+        this.router.navigate(['/puntos']);
       } catch (error) {
         console.error('Error guardando punto:', error);
         this.mensajeTexto = 'No se pudo guardar el punto. Intenta de nuevo.';

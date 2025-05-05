@@ -38,9 +38,7 @@ export interface CarbonFootprintData {
     meatMeals: number;
   };
   recommendations: string[];   // recomendaciones personalizadas
-  potentialSavings?: {         // potencial de ahorro con otros medios
-    [key: string]: number;     // tipo de transporte -> kg CO2 ahorrados
-  }
+  potentialSavings?: Record<string, number>
 }
 
 export interface Ruta {

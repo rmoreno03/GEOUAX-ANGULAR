@@ -113,7 +113,7 @@ export class RutasService {
   }
 
   // NUEVO: Método para calcular/actualizar la huella de carbono de una ruta existente
-  async calcularHuellaCarbono(rutaId: string, tipoTransporte?: TipoRuta, pasajeros: number = 1): Promise<CarbonFootprintData | null> {
+  async calcularHuellaCarbono(rutaId: string, tipoTransporte?: TipoRuta, pasajeros = 1): Promise<CarbonFootprintData | null> {
     try {
       const rutaRef = doc(this.firestore, 'rutas', rutaId);
       const rutaSnap = await getDoc(rutaRef);
@@ -148,7 +148,7 @@ export class RutasService {
   }
 
   // NUEVO: Método para simular huella de carbono sin guardar en la base de datos
-  simularHuellaCarbono(distanciaKm: number, tipoTransporte: TipoRuta, pasajeros: number = 1): CarbonFootprintData {
+  simularHuellaCarbono(distanciaKm: number, tipoTransporte: TipoRuta, pasajeros = 1): CarbonFootprintData {
     return this.carbonService.calculateCarbonFootprint(distanciaKm, tipoTransporte, pasajeros);
   }
 

@@ -9,9 +9,7 @@ export interface CarbonFootprintData {
     meatMeals: number;
   };
   recommendations: string[];   // recomendaciones personalizadas
-  potentialSavings?: {         // potencial de ahorro con otros medios
-    [key: string]: number;     // tipo de transporte -> kg CO2 ahorrados
-  }
+  potentialSavings?: Record<string, number>
 }
 
 @Injectable({
@@ -40,8 +38,6 @@ export class CarbonFootprintService {
     'motorcycle': 'En motocicleta'
   };
 
-  constructor() { }
-
   /**
    * Calcula la huella de carbono de una ruta
    * @param distanceKm Distancia en kilómetros
@@ -49,7 +45,7 @@ export class CarbonFootprintService {
    * @param passengers Número de pasajeros (para cálculos de coche compartido)
    * @returns Datos detallados de huella de carbono
    */
-  calculateCarbonFootprint(distanceKm: number, transportType: string, passengers: number = 1): CarbonFootprintData {
+  calculateCarbonFootprint(distanceKm: number, transportType: string, passengers = 1): CarbonFootprintData {
     // Obtener el tipo de transporte normalizado
     let normalizedType = this.normalizeTransportType(transportType);
 
@@ -161,11 +157,11 @@ export class CarbonFootprintService {
   /**
    * Calcula el ahorro potencial comparado con otros medios de transporte
    */
-  private calculatePotentialSavings(transportType: string, distanceKm: number, passengers: number): {[key: string]: number} {
+  private calculatePotentialSavings(transportType: string, distanceKm: number, passengers: number): Record<string, number> {
     const currentEmission = this.emissionFactors[transportType as keyof typeof this.emissionFactors] * distanceKm /
       ((transportType === 'driving' || transportType === 'driving-electric') && passengers > 1 ? passengers : 1);
 
-    const savings: {[key: string]: number} = {};
+    const savings: Record<string, number> = {};
 
     // Tipos de transporte a comparar según la distancia
     let comparisonTypes: string[] = [];

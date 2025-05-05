@@ -4,13 +4,30 @@ import { FeaturesLayoutComponent } from './features/layout/pages/features-layout
 import { AuthGuard } from './auth/guards/auth.guard';
 import { NoAuthGuard } from './auth/guards/no-auth.guard';
 import { AuthLayoutComponent } from './features/layout/pages/auth-layout/auth-layout.component';
+import { LandingPageComponent } from './features/layout/components/landing-page/landing-page.component';
+import { LandingLayoutComponent } from './features/layout/pages/landing-layout/landing-layout.component';
 
 const routes: Routes = [
+  // Ruta para la landing page pública - sin restricciones de acceso
+  {
+    path: 'landing',
+    component: LandingLayoutComponent,
+    children: [
+      {
+        path: '',
+        component: LandingPageComponent
+      }
+    ]
+  },
+
+  // Ruta home principal - redirige a landing en lugar de auth/login
   {
     path: '',
-    redirectTo: 'auth/login',
+    redirectTo: 'landing',
     pathMatch: 'full',
   },
+
+  // Rutas para características protegidas
   {
     path: '',
     component: FeaturesLayoutComponent,
@@ -74,6 +91,8 @@ const routes: Routes = [
       }
     ]
   },
+
+  // Rutas de autenticación
   {
     path: 'auth',
     component: AuthLayoutComponent,
@@ -85,9 +104,11 @@ const routes: Routes = [
       }
     ]
   },
+
+  // Ruta para páginas no encontradas - ahora redirige a landing en lugar de auth/login
   {
     path: '**',
-    redirectTo: 'auth/login'
+    redirectTo: 'landing'
   }
 ];
 

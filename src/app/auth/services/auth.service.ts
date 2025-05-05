@@ -17,9 +17,19 @@ export class AuthService {
     authState(this.auth).subscribe(user => {
       const loggedIn = !!user;
       this.isLoggedInSubject.next(loggedIn);
-      console.log(loggedIn ? '✅ Usuario autenticado' : '⛔ Usuario no autenticado');
+
+      const rutaActual = this.router.url;
+      const esPublica = rutaActual.startsWith('/landing') || rutaActual.startsWith('/auth');
+
+      if (!loggedIn && !esPublica) {
+        console.warn('⛔ Usuario no autenticado, redirigiendo...');
+        this.router.navigate(['/auth/login']);
+      } else {
+        console.log(loggedIn ? '✅ Usuario autenticado' : '⛔ Usuario no autenticado (pero en ruta pública)');
+      }
     });
   }
+
 
   login(email: string, password: string): Promise<void> {
     return signInWithEmailAndPassword(this.auth, email, password)

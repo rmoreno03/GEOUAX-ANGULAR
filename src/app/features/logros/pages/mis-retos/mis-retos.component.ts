@@ -121,7 +121,6 @@ export class MisRetosComponent implements OnInit {
     porcentajeProximo: 85
   };
 
-  constructor() { }
 
   ngOnInit(): void {
     this.cargarRetos();

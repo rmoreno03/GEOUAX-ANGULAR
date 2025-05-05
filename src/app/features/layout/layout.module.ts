@@ -7,6 +7,9 @@ import { FooterComponent } from './components/footer/footer.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { FeaturesLayoutComponent } from './pages/features-layout/features-layout.component';
 import { InfoPanelComponent } from './components/footer/info-panel/info-panel.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { LandingLayoutComponent } from './pages/landing-layout/landing-layout.component';
+import { LandingRoutingModule } from './landing-routing.module';
 
 
 
@@ -17,6 +20,8 @@ import { InfoPanelComponent } from './components/footer/info-panel/info-panel.co
     TopBarComponent,
     FeaturesLayoutComponent,
     InfoPanelComponent,
+    LandingPageComponent,
+    LandingLayoutComponent,
 
   ],
   imports: [
@@ -24,6 +29,7 @@ import { InfoPanelComponent } from './components/footer/info-panel/info-panel.co
     ReactiveFormsModule,
     RouterModule,
     FormsModule,
+    LandingRoutingModule
 
 
   ],
@@ -32,7 +38,9 @@ import { InfoPanelComponent } from './components/footer/info-panel/info-panel.co
     FooterComponent,
     TopBarComponent,
     FeaturesLayoutComponent,
-    InfoPanelComponent
+    InfoPanelComponent,
+    LandingPageComponent,
+    LandingLayoutComponent,
   ]
 })
 export class LayoutModule { }

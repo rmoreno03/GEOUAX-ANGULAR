@@ -101,7 +101,6 @@ export class VerLogrosComponent implements OnInit {
     porcentajeProximo: 78
   };
 
-  constructor() { }
 
   ngOnInit(): void {
     this.cargarLogros();
