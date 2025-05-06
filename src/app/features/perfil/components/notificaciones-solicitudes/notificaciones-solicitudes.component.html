@@ -1,0 +1,36 @@
+<!-- Componente de notificaciones de solicitudes de amistad -->
+<div class="notificaciones-container" *ngIf="solicitudesPendientes.length > 0">
+  <div class="notif-header">
+    <h3>Solicitudes de amistad</h3>
+    <button class="btn-close" (click)="cerrarTodas()" title="Cerrar todas">×</button>
+  </div>
+
+  <ul class="solicitudes-lista">
+    <li *ngFor="let solicitud of solicitudesPendientes" class="solicitud-item" [class.no-leida]="!solicitud.notificado">
+      <div class="solicitud-avatar">
+        <img [src]="getAvatarUrl(solicitud.uidSolicitante)" alt="Foto de perfil" class="avatar" loading="lazy" />
+      </div>
+      <div class="solicitud-info">
+        <p class="solicitud-mensaje">
+          <strong>{{ getNombreUsuario(solicitud.uidSolicitante) }}</strong> quiere ser tu amigo
+        </p>
+        <p class="solicitud-fecha">{{ formatFecha(solicitud.fechaSolicitud) }}</p>
+      </div>
+      <div class="solicitud-acciones">
+        <button class="btn-sm btn-success" (click)="aceptarSolicitud(solicitud)" title="Aceptar">
+          <i class="fas fa-check"></i>
+        </button>
+        <button class="btn-sm btn-danger" (click)="rechazarSolicitud(solicitud)" title="Rechazar">
+          <i class="fas fa-times"></i>
+        </button>
+        <button class="btn-sm btn-outline" [routerLink]="['/perfil', solicitud.uidSolicitante]" title="Ver perfil">
+          <i class="fas fa-user"></i>
+        </button>
+      </div>
+    </li>
+  </ul>
+
+  <div class="ver-todas" *ngIf="solicitudesPendientes.length > 3">
+    <button class="btn-link" [routerLink]="['/solicitudes']">Ver todas ({{ totalSolicitudes }})</button>
+  </div>
+</div>

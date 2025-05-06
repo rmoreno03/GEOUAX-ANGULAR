@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface Usuario {
   // Propiedades básicas
   uid: string;
@@ -7,12 +9,12 @@ export interface Usuario {
   // Datos opcionales de perfil
   fotoUrl?: string;
   biografia?: string;
-  fechaRegistro: Date | any; // Firestore maneja fechas como objeto
+  fechaRegistro: Date | Timestamp; // Firestore maneja fechas como objeto
 
   // Control y permisos
   rol: 'admin' | 'usuario' | 'moderador';
   estaActivo?: boolean;
-  ultimaConexion?: Date | any;
+  ultimaConexion?: Date | Timestamp;
 
   // Relaciones sociales
   amigos?: string[]; // Array de UIDs de amigos

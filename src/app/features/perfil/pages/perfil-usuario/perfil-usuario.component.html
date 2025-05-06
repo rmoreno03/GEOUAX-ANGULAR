@@ -1,0 +1,164 @@
+<!-- Pantalla de carga -->
+<div class="loading-container" *ngIf="cargando">
+  <div class="spinner"></div>
+  <p>Cargando perfil...</p>
+</div>
+
+<!-- Error -->
+<div class="error-container" *ngIf="error" role="alert">
+  <div class="error-icon">⚠️</div>
+  <p>{{ mensajeError }}</p>
+  <button class="btn-secondary" (click)="volver()">Volver</button>
+</div>
+
+<!-- Perfil no encontrado -->
+<div class="error-container" *ngIf="!cargando && !usuario && !error" role="alert">
+  <div class="error-icon">⚠️</div>
+  <p>El perfil que buscas no existe o no tienes permisos para verlo.</p>
+  <button class="btn-secondary" (click)="volver()">Volver</button>
+</div>
+
+<!-- Contenido del perfil -->
+<div class="perfil-container" *ngIf="usuario && !cargando">
+  <div class="perfil-header">
+    <div class="perfil-avatar-container">
+      <img [src]="usuario.fotoUrl || 'perfilDefault.png'" alt="Foto de perfil" class="avatar" loading="lazy" />
+    </div>
+
+    <div class="perfil-info">
+      <h1>{{ usuario.nombre }}</h1>
+      <p class="email">{{ usuario.email }}</p>
+      <p class="fecha-registro">Miembro desde el {{ formatFecha(usuario.fechaRegistro) }}</p>
+
+      <!-- Estado de amistad -->
+      <div class="amistad-estado">
+        <ng-container *ngIf="esAmigo">
+          <span class="badge-amigo"><i class="fas fa-user-check"></i> Amigos</span>
+          <button class="btn-sm btn-danger" (click)="eliminarAmigo()">Eliminar amistad</button>
+        </ng-container>
+
+        <ng-container *ngIf="!esAmigo && !solicitudEnviada && !solicitudRecibida">
+          <button class="btn-primary" (click)="enviarSolicitudAmistad()">
+            <i class="fas fa-user-plus"></i> Agregar como amigo
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="solicitudEnviada">
+          <span class="badge-pendiente"><i class="fas fa-clock"></i> Solicitud enviada</span>
+          <button class="btn-sm btn-outline" (click)="cancelarSolicitud()">Cancelar solicitud</button>
+        </ng-container>
+
+        <ng-container *ngIf="solicitudRecibida">
+          <span class="badge-pendiente"><i class="fas fa-user-clock"></i> Solicitud recibida</span>
+          <div class="solicitud-acciones">
+            <button class="btn-sm btn-success" (click)="aceptarSolicitud()">Aceptar</button>
+            <button class="btn-sm btn-danger" (click)="rechazarSolicitud()">Rechazar</button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs de navegación -->
+  <div class="perfil-tabs">
+    <button
+      [ngClass]="{'active': tabActual === 'info'}"
+      (click)="cambiarTab('info')">
+      Información
+    </button>
+    <button
+      [ngClass]="{'active': tabActual === 'rutas'}"
+      (click)="cambiarTab('rutas')">
+      Rutas <span class="contador" *ngIf="rutasPublicas.length">{{ rutasPublicas.length }}</span>
+    </button>
+    <button
+      [ngClass]="{'active': tabActual === 'amigos'}"
+      (click)="cambiarTab('amigos')">
+      Amigos <span class="contador" *ngIf="usuario.amigos?.length">{{ usuario.amigos?.length }}</span>
+    </button>
+  </div>
+
+  <!-- Contenido de las tabs -->
+  <div class="tab-content">
+    <!-- Tab de información -->
+    <div *ngIf="tabActual === 'info'" class="tab-info">
+      <div class="info-seccion">
+        <h3>Biografía</h3>
+        <p *ngIf="usuario.biografia">{{ usuario.biografia }}</p>
+        <p *ngIf="!usuario.biografia" class="sin-datos">Este usuario no ha añadido una biografía.</p>
+      </div>
+    </div>
+
+    <!-- Tab de rutas -->
+    <div *ngIf="tabActual === 'rutas'" class="tab-rutas">
+      <div *ngIf="cargandoRutas" class="loading-text">
+        <div class="spinner small"></div>
+        <span>Cargando rutas...</span>
+      </div>
+
+      <div *ngIf="!cargandoRutas && rutasPublicas.length === 0" class="empty-state">
+        <i class="fas fa-route empty-icon"></i>
+        <h3>Este usuario no tiene rutas públicas</h3>
+      </div>
+
+      <ul class="rutas-grid" *ngIf="!cargandoRutas && rutasPublicas.length > 0">
+        <li *ngFor="let ruta of rutasPublicas" class="ruta-card">
+          <div class="ruta-preview" [ngStyle]="{'background-image': 'url(' + (ruta.imagenUrl || 'assets/img/default-route.jpg') + ')'}">
+            <span class="ruta-distancia">{{ ruta.distanciaKm | number:'1.1-1' }} km</span>
+          </div>
+          <div class="ruta-info">
+            <h3>{{ ruta.nombre }}</h3>
+            <p class="ruta-descripcion">{{ ruta.descripcion?.slice(0, 70) || '' }}{{ (ruta.descripcion?.length || 0) > 70 ? '...' : '' }}</p>
+            <div class="ruta-meta">
+              <span class="ruta-fecha">{{ formatFecha(ruta.fechaCreacion) }}</span>
+              <span class="ruta-visitas"><i class="fas fa-eye"></i> {{ ruta.visitas || 0 }}</span>
+            </div>
+            <div class="ruta-actions">
+              <button class="btn-sm" [routerLink]="['/rutas/detalle', ruta.id]">Ver detalle</button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tab de amigos -->
+    <div *ngIf="tabActual === 'amigos'" class="tab-amigos">
+      <div *ngIf="cargandoAmigos" class="loading-text">
+        <div class="spinner small"></div>
+        <span>Cargando amigos...</span>
+      </div>
+
+      <div *ngIf="!cargandoAmigos && (!usuario.amigos || usuario.amigos.length === 0)" class="empty-state">
+        <i class="fas fa-user-friends empty-icon"></i>
+        <h3>Este usuario no tiene amigos añadidos</h3>
+      </div>
+
+      <ul class="amigos-lista" *ngIf="!cargandoAmigos && amigosData.length > 0">
+        <li *ngFor="let amigo of amigosData" class="amigo-item">
+          <img [src]="amigo.fotoUrl || 'perfilDefault.png'" alt="Foto de {{ amigo.nombre }}" class="amigo-avatar" />
+          <div class="amigo-info">
+            <h3>{{ amigo.nombre }}</h3>
+            <p class="amigo-bio">{{ amigo.biografia?.slice(0, 50) || '' }}{{ (amigo.biografia?.length || 0) > 50 ? '...' : '' }}</p>
+          </div>
+          <div class="amigo-actions" *ngIf="esAmistadComun(amigo.uid)">
+            <button class="btn-sm" [routerLink]="['/perfil/ver', amigo.uid]">Ver perfil</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<app-popup-exito
+  [mostrar]="mostrarPopup"
+  [mensaje]="mensajePopup"
+  [tipo]="tipoPopup">
+</app-popup-exito>
+
+<app-confirm-dialog
+  [visible]="mostrarConfirmacion"
+  [mensaje]="mensajeConfirmacion"
+  (confirmar)="onConfirmar()"
+  (cancelar)="onCancelar()">
+</app-confirm-dialog>

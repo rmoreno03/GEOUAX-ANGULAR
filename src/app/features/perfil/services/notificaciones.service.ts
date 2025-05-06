@@ -19,14 +19,12 @@ export class NotificacionesService {
   // ID para las notificaciones
   private idContador = 0;
 
-  constructor() { }
-
   /**
    * Muestra una notificación de éxito
    * @param mensaje Texto a mostrar
    * @param duracion Duración en ms (por defecto 3000ms)
    */
-  mostrarExito(mensaje: string, duracion: number = 3000): void {
+  mostrarExito(mensaje: string, duracion = 3000): void {
     this.mostrar({
       tipo: 'exito',
       mensaje,
@@ -39,7 +37,7 @@ export class NotificacionesService {
    * @param mensaje Texto a mostrar
    * @param duracion Duración en ms (por defecto 5000ms)
    */
-  mostrarError(mensaje: string, duracion: number = 5000): void {
+  mostrarError(mensaje: string, duracion = 5000): void {
     this.mostrar({
       tipo: 'error',
       mensaje,
@@ -52,7 +50,7 @@ export class NotificacionesService {
    * @param mensaje Texto a mostrar
    * @param duracion Duración en ms (por defecto 4000ms)
    */
-  mostrarInfo(mensaje: string, duracion: number = 4000): void {
+  mostrarInfo(mensaje: string, duracion = 4000): void {
     this.mostrar({
       tipo: 'info',
       mensaje,
@@ -65,7 +63,7 @@ export class NotificacionesService {
    * @param mensaje Texto a mostrar
    * @param duracion Duración en ms (por defecto 4000ms)
    */
-  mostrarAdvertencia(mensaje: string, duracion: number = 4000): void {
+  mostrarAdvertencia(mensaje: string, duracion = 4000): void {
     this.mostrar({
       tipo: 'advertencia',
       mensaje,

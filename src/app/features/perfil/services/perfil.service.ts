@@ -6,9 +6,7 @@ import {
   setDoc,
   collection,
   query,
-  where,
   getDocs,
-  orderBy,
   limit
 } from '@angular/fire/firestore';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
@@ -99,55 +97,32 @@ export class PerfilService {
 
   // Búsqueda de usuarios por nombre o email
   async buscarUsuarios(termino: string): Promise<Usuario[]> {
-    if (!termino || termino.length < 3) {
-      return [];
-    }
+    if (!termino || termino.length < 2) return [];
 
     const terminoLower = termino.toLowerCase();
     const usuarios: Usuario[] = [];
 
     try {
-      // Búsqueda por nombre (que contenga el término)
-      const queryNombre = query(
-        collection(this.firestore, 'usuarios'),
-        where('nombreLowercase', '>=', terminoLower),
-        where('nombreLowercase', '<=', terminoLower + '\uf8ff'),
-        limit(20)
-      );
+      const queryRef = collection(this.firestore, 'usuarios');
+      const snapshot = await getDocs(query(queryRef, limit(50)));
 
-      const snapNombre = await getDocs(queryNombre);
+      snapshot.forEach(doc => {
+        const user = doc.data() as Usuario;
+        const nombreMatch = user.nombre?.toLowerCase().includes(terminoLower);
+        const emailMatch = user.email?.toLowerCase().includes(terminoLower);
 
-      snapNombre.forEach(doc => {
-        usuarios.push(doc.data() as Usuario);
+        if (nombreMatch || emailMatch) {
+          usuarios.push(user);
+        }
       });
 
-      // También buscar por email si no hay demasiados resultados
-      if (usuarios.length < 10 && termino.includes('@')) {
-        const queryEmail = query(
-          collection(this.firestore, 'usuarios'),
-          where('email', '>=', terminoLower),
-          where('email', '<=', terminoLower + '\uf8ff'),
-          limit(10)
-        );
-
-        const snapEmail = await getDocs(queryEmail);
-
-        snapEmail.forEach(doc => {
-          const usuario = doc.data() as Usuario;
-          // Evitar duplicados
-          if (!usuarios.some(u => u.uid === usuario.uid)) {
-            usuarios.push(usuario);
-          }
-        });
-      }
-
-      // Ordenar resultados por nombre
       return usuarios.sort((a, b) => a.nombre.localeCompare(b.nombre));
-    } catch (error) {
-      console.error('Error en búsqueda de usuarios:', error);
+    } catch (err) {
+      console.error('Error en búsqueda de usuarios:', err);
       return [];
     }
   }
+
 
   // Obtener varios perfiles por sus UIDs (útil para cargar amigos)
   async obtenerVariosPerfiles(uids: string[]): Promise<Usuario[]> {

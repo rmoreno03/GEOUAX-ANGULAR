@@ -1,0 +1,150 @@
+<!-- Contenedor principal -->
+<div class="container">
+  <div class="solicitudes-header">
+    <h1><i class="fas fa-user-friends"></i> Solicitudes de amistad</h1>
+    <p class="descripcion">Gestiona las solicitudes de amistad pendientes</p>
+  </div>
+
+  <!-- Tabs de navegación -->
+  <div class="solicitudes-tabs">
+    <button
+      [ngClass]="{'active': tabActual === 'recibidas'}"
+      (click)="cambiarTab('recibidas')">
+      Recibidas <span class="contador" *ngIf="solicitudesRecibidas.length">{{ solicitudesRecibidas.length }}</span>
+    </button>
+    <button
+      [ngClass]="{'active': tabActual === 'enviadas'}"
+      (click)="cambiarTab('enviadas')">
+      Enviadas <span class="contador" *ngIf="solicitudesEnviadas.length">{{ solicitudesEnviadas.length }}</span>
+    </button>
+  </div>
+
+  <!-- Pantalla de carga -->
+  <div class="loading-container" *ngIf="cargando">
+    <div class="spinner"></div>
+    <p>Cargando solicitudes...</p>
+  </div>
+
+  <!-- Contenido de la tab Recibidas -->
+  <div class="tab-content" *ngIf="tabActual === 'recibidas' && !cargando">
+    <!-- Mensaje de no hay solicitudes -->
+    <div class="empty-state" *ngIf="solicitudesRecibidas.length === 0">
+      <i class="fas fa-inbox empty-icon"></i>
+      <h3>No tienes solicitudes pendientes</h3>
+      <p>Cuando alguien quiera ser tu amigo, aparecerá aquí</p>
+      <button class="btn-primary" (click)="abrirBuscadorUsuarios()">Buscar usuarios</button>
+    </div>
+
+    <!-- Lista de solicitudes recibidas -->
+    <ul class="solicitudes-lista" *ngIf="solicitudesRecibidas.length > 0">
+      <li *ngFor="let solicitud of solicitudesRecibidas" class="solicitud-item">
+        <div class="solicitud-usuario">
+          <img [src]="getAvatarUrl(solicitud.uidSolicitante)" alt="Foto de perfil" class="usuario-avatar" loading="lazy" />
+          <div class="usuario-info">
+            <h3>{{ getNombreUsuario(solicitud.uidSolicitante) }}</h3>
+            <p class="bio">{{ getBioUsuario(solicitud.uidSolicitante) }}</p>
+            <p class="fecha">Solicitud enviada el {{ formatFecha(solicitud.fechaSolicitud) }}</p>
+          </div>
+        </div>
+
+        <div class="solicitud-acciones">
+          <button class="btn-primary" (click)="aceptarSolicitud(solicitud)">
+            <i class="fas fa-check"></i> Aceptar
+          </button>
+          <button class="btn-danger" (click)="rechazarSolicitud(solicitud)">
+            <i class="fas fa-times"></i> Rechazar
+          </button>
+          <button class="btn-outline" [routerLink]="['/perfil', solicitud.uidSolicitante]">
+            <i class="fas fa-user"></i> Ver perfil
+          </button>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Contenido de la tab Enviadas -->
+  <div class="tab-content" *ngIf="tabActual === 'enviadas' && !cargando">
+    <!-- Mensaje de no hay solicitudes -->
+    <div class="empty-state" *ngIf="solicitudesEnviadas.length === 0">
+      <i class="fas fa-paper-plane empty-icon"></i>
+      <h3>No has enviado solicitudes de amistad</h3>
+      <p>Busca usuarios y envíales solicitudes para conectar</p>
+      <button class="btn-primary" (click)="abrirBuscadorUsuarios()">Buscar usuarios</button>
+    </div>
+
+    <!-- Lista de solicitudes enviadas -->
+    <ul class="solicitudes-lista" *ngIf="solicitudesEnviadas.length > 0">
+      <li *ngFor="let solicitud of solicitudesEnviadas" class="solicitud-item">
+        <div class="solicitud-usuario">
+          <img [src]="getAvatarUrl(solicitud.uidReceptor)" alt="Foto de perfil" class="usuario-avatar" loading="lazy" />
+          <div class="usuario-info">
+            <h3>{{ getNombreUsuario(solicitud.uidReceptor) }}</h3>
+            <p class="bio">{{ getBioUsuario(solicitud.uidReceptor) }}</p>
+            <p class="fecha">Enviada el {{ formatFecha(solicitud.fechaSolicitud) }}</p>
+          </div>
+        </div>
+
+        <div class="solicitud-acciones">
+          <button class="btn-outline" [routerLink]="['/perfil', solicitud.uidReceptor]">
+            <i class="fas fa-user"></i> Ver perfil
+          </button>
+          <button class="btn-danger" (click)="cancelarSolicitud(solicitud)">
+            <i class="fas fa-ban"></i> Cancelar
+          </button>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Modal para buscar usuarios -->
+<div class="modal" *ngIf="mostrarModalBusqueda">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Buscar usuarios</h2>
+      <button class="btn-close" (click)="cerrarModalBusqueda()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Nombre o email"
+          [(ngModel)]="busquedaUsuarios"
+          (input)="buscarUsuarios()" />
+      </div>
+
+      <div *ngIf="cargandoUsuarios" class="loading-text">
+        <div class="spinner small"></div>
+        <span>Buscando usuarios...</span>
+      </div>
+
+      <ul class="usuarios-resultados">
+        <li *ngFor="let user of resultadosBusqueda" class="usuario-item" [class.es-amigo]="esAmigo(user.uid)" [class.tiene-solicitud]="tieneSolicitudPendiente(user.uid)">
+          <img [src]="user.fotoUrl || 'perfilDefault.png'" alt="Foto de {{ user.nombre }}" class="usuario-avatar" />
+          <div class="usuario-info">
+            <h3>{{ user.nombre }}</h3>
+            <p>{{ user.email }}</p>
+          </div>
+
+          <ng-container *ngIf="!esAmigo(user.uid) && !tieneSolicitudPendiente(user.uid)">
+            <button class="btn-sm" (click)="enviarSolicitudAmistad(user)">
+              <i class="fas fa-user-plus"></i> Añadir
+            </button>
+          </ng-container>
+
+          <span *ngIf="esAmigo(user.uid)" class="ya-amigos">
+            <i class="fas fa-user-check"></i> Ya son amigos
+          </span>
+
+          <span *ngIf="tieneSolicitudPendiente(user.uid)" class="solicitud-pendiente">
+            <i class="fas fa-clock"></i> Solicitud pendiente
+          </span>
+        </li>
+      </ul>
+
+      <div *ngIf="resultadosBusqueda.length === 0 && busquedaUsuarios.length > 0 && !cargandoUsuarios" class="no-resultados">
+        No se encontraron usuarios con ese criterio
+      </div>
+    </div>
+  </div>
+</div>

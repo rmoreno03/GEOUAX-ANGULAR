@@ -92,7 +92,7 @@ export class SubirArchivosService {
    * @param tamanoMaximoMB Tamaño máximo en MB
    * @returns Objeto con validez y mensaje de error
    */
-  validarImagen(archivo: File, tamanoMaximoMB: number = 2): { valido: boolean, mensaje?: string } {
+  validarImagen(archivo: File, tamanoMaximoMB = 2): { valido: boolean, mensaje?: string } {
     // Validar que sea una imagen
     if (!archivo.type.startsWith('image/')) {
       return {

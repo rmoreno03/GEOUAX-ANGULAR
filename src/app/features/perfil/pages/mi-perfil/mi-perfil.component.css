@@ -10,15 +10,20 @@ body {
   color: #212529;
   background-color: #f8f9fa;
   line-height: 1.6;
+  overflow-y: auto;
 }
 
 .perfil-container {
-  max-width: 960px;
+  max-width: 100%;
+  height: 100%;
   margin: 1.5rem auto;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
 }
 
 /* Pantalla de carga */
@@ -33,9 +38,9 @@ body {
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #e9ecef;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9ecef;
   border-top-color: #ff5722;
   border-radius: 50%;
   animation: spin 1s infinite linear;
@@ -202,6 +207,8 @@ body {
 .tab-content {
   min-height: 300px;
   padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 250px);
 }
 
 /* Formulario */
@@ -268,6 +275,7 @@ textarea:focus,
 .btn-secondary,
 .btn-danger,
 .btn-outline,
+.btn-success,
 .btn-sm {
   padding: 0.8rem 1.2rem;
   border-radius: 8px;
@@ -324,9 +332,23 @@ textarea:focus,
   box-shadow: 0 3px 8px rgba(211, 47, 47, 0.3);
 }
 
+.btn-success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #388e3c;
+  box-shadow: 0 3px 8px rgba(56, 142, 60, 0.3);
+}
+
 .btn-sm {
   padding: 0.4rem 0.8rem;
   font-size: 0.85rem;
+}
+
+.btn-sm:hover:not(:disabled) {
+  transform: translateY(-1px);
 }
 
 button:disabled {
@@ -484,10 +506,13 @@ button:disabled {
   border-bottom: 1px solid #e9ecef;
   transition: all 0.3s ease;
   border-radius: 8px;
+  margin-bottom: 0.8rem;
+  background-color: #f9f9f9;
 }
 
 .amigo-item:hover {
-  background-color: #f8f9fa;
+  background-color: #f0f7ff;
+  transform: translateX(5px);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
@@ -520,6 +545,45 @@ button:disabled {
 .amigo-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+/* Estados de amistad */
+.amistad-estado {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.badge-amigo, .badge-pendiente {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-amigo {
+  background-color: #4caf50;
+  color: white;
+}
+
+.badge-pendiente {
+  background-color: #fff8e1;
+  color: #ffa000;
+}
+
+.badge-amigo i, .badge-pendiente i {
+  margin-right: 0.4rem;
+}
+
+.solicitud-acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
 }
 
 /* Modal */
@@ -717,7 +781,243 @@ button:disabled {
   border-radius: 8px;
 }
 
-/* Responsive */
+/* Secciones de información */
+.info-seccion {
+  margin-bottom: 2rem;
+}
+
+.info-seccion h3 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.sin-datos {
+  color: #999;
+  font-style: italic;
+}
+
+/* Estilos específicos para la tab de solicitudes */
+.tab-solicitudes {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-solicitudes h3 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.solicitudes-bloque {
+  margin-bottom: 2rem;
+}
+
+.solicitudes-bloque h4 {
+  color: #555;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.solicitudes-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.solicitud-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  transition: all 0.3s ease;
+}
+
+.solicitud-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 87, 34, 0.2);
+}
+
+.solicitud-item .avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 1rem;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.solicitud-item .info {
+  flex: 1;
+}
+
+.solicitud-item .info p {
+  margin: 0;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.solicitud-item .info p strong {
+  color: #ff5722;
+  font-weight: 600;
+}
+
+.solicitud-item .info .fecha {
+  color: #999;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.solicitud-item .acciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.buscar-usuarios-btn {
+  margin-bottom: 1.5rem;
+}
+
+/* Estado vacío para la pestaña de solicitudes */
+.tab-solicitudes .empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.tab-solicitudes .empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #ff5722 0%, #f44336 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.tab-solicitudes .empty-state h3 {
+  margin: 0.5rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.tab-solicitudes .empty-state p {
+  color: #777;
+  margin-bottom: 1.5rem;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 992px) {
+  .solicitud-item {
+    padding: 0.8rem;
+  }
+
+  .solicitud-item .avatar {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .solicitud-item {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.2rem;
+  }
+
+  .solicitud-item .avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+    width: 60px;
+    height: 60px;
+  }
+
+  .solicitud-item .info {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .solicitud-item .acciones {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Responsive - Small Mobile */
+@media (max-width: 576px) {
+  .tab-solicitudes h3 {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .solicitudes-bloque h4 {
+    text-align: center;
+  }
+
+  .solicitud-item .acciones {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .solicitud-item .acciones button {
+    width: 100%;
+  }
+
+  .buscar-usuarios-btn {
+    display: flex;
+    justify-content: center;
+  }
+
+  .buscar-usuarios-btn button {
+    width: 100%;
+  }
+}
+
+/* Responsive - Tablets */
+@media (max-width: 992px) {
+  .perfil-container {
+    margin: 1rem;
+  }
+
+  .rutas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  .perfil-tabs {
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .perfil-tabs button {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .perfil-header {
+    padding: 1.5rem;
+  }
+
+  .avatar {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Responsive - Mobile */
 @media (max-width: 768px) {
   .perfil-header {
     flex-direction: column;
@@ -730,6 +1030,10 @@ button:disabled {
     margin-bottom: 1.5rem;
   }
 
+  .perfil-info h1 {
+    font-size: 1.5rem;
+  }
+
   .rutas-grid {
     grid-template-columns: 1fr;
   }
@@ -740,6 +1044,12 @@ button:disabled {
 
   .form-actions button {
     width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-height: 80vh;
   }
 
   .amigo-item {
@@ -751,24 +1061,123 @@ button:disabled {
     margin-top: 1rem;
     justify-content: flex-end;
   }
+
+  .amistad-estado {
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .tab-content {
+    padding: 1rem;
+  }
 }
 
+/* Responsive - Small Mobile */
 @media (max-width: 576px) {
+  .perfil-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   .perfil-tabs button {
-    padding: 0.8rem 1rem;
-    font-size: 0.9rem;
+    flex: 1;
+    min-width: 100px;
+    padding: 0.8rem 0.5rem;
+    font-size: 0.8rem;
   }
 
-  .modal-content {
-    width: 95%;
+  .amigo-item {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.2rem 0.8rem;
   }
 
-  .ruta-actions, .amigo-actions {
+  .amigo-avatar {
+    margin-right: 0;
+    margin-bottom: 0.8rem;
+  }
+
+  .amigo-info {
+    text-align: center;
+    margin-bottom: 0.8rem;
+  }
+
+  .amigo-actions, .ruta-actions {
     flex-direction: column;
     width: 100%;
+    align-items: stretch;
   }
 
-  .ruta-actions button, .amigo-actions button {
+  .amigo-actions button, .ruta-actions button {
     width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal-body, .modal-footer {
+    padding: 1rem;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .contador {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  /* Arreglos para problemas de scroll en biografía */
+  .tab-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  /* Asegurar que los botones siempre sean accesibles */
+  .form-actions {
+    position: sticky;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding-top: 0.5rem;
+    margin-top: 1rem;
+    z-index: 5;
+  }
+}
+
+/* Fix para Safari y iOS */
+@supports (-webkit-touch-callout: none) {
+  .perfil-tabs {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .usuarios-resultados {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  input, textarea, button {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 8px;
   }
 }

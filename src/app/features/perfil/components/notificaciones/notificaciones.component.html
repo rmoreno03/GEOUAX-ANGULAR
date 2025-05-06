@@ -1,0 +1,14 @@
+<div class="notificaciones-container">
+  <button
+    *ngFor="let notif of notificaciones"
+    [@fadeInOut]
+    class="notificacion"
+    [ngClass]="notif.tipo"
+    (click)="cerrarNotificacion(notif.id)">
+    <div class="notificacion-contenido">
+      <i class="notificacion-icono" [ngClass]="getIcono(notif.tipo)"></i>
+      <span class="notificacion-mensaje">{{ notif.mensaje }}</span>
+    </div>
+    <span class="notificacion-cerrar">&times;</span>
+  </button>
+</div>

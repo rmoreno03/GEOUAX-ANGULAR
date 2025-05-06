@@ -45,6 +45,11 @@
       (click)="cambiarTab('amigos')">
       Amigos <span class="contador" *ngIf="usuario.amigos?.length">{{ usuario.amigos?.length }}</span>
     </button>
+    <button
+      [ngClass]="{'active': tabActual === 'solicitudes'}"
+      (click)="cambiarTab('solicitudes')">
+      Solicitudes <span class="contador" *ngIf="solicitudesRecibidas.length">{{ solicitudesRecibidas.length }}</span>
+    </button>
   </div>
 
   <!-- Contenido de las tabs -->
@@ -109,7 +114,7 @@
         <i class="fas fa-route empty-icon"></i>
         <h3>Aún no tienes rutas públicas</h3>
         <p>Las rutas que compartas aparecerán aquí</p>
-        <button class="btn-primary" [routerLink]="['/rutas/nueva']">Crear ruta</button>
+        <button class="btn-primary" [routerLink]="['/rutas/crear']">Crear ruta</button>
       </div>
 
       <ul class="rutas-grid" *ngIf="!cargandoRutas && rutasPublicas.length > 0">
@@ -148,11 +153,14 @@
         <span>Cargando amigos...</span>
       </div>
 
+      <div class="buscar-usuarios-btn">
+        <button class="btn-primary" (click)="abrirBuscadorUsuarios()">Agregar amigos</button>
+      </div>
+
       <div *ngIf="!cargandoAmigos && (!usuario.amigos || usuario.amigos.length === 0)" class="empty-state">
         <i class="fas fa-user-friends empty-icon"></i>
         <h3>Aún no tienes amigos</h3>
         <p>Añade amigos para compartir tus rutas</p>
-        <button class="btn-primary" (click)="abrirBuscadorUsuarios()">Buscar usuarios</button>
       </div>
 
       <ul class="amigos-lista" *ngIf="!cargandoAmigos && amigosData.length > 0">
@@ -163,15 +171,61 @@
             <p class="amigo-bio">{{ amigo.biografia?.slice(0, 50) || '' }}{{ (amigo.biografia?.length || 0) > 50 ? '...' : '' }}</p>
           </div>
           <div class="amigo-actions">
-            <button class="btn-sm" [routerLink]="['/perfil', amigo.uid]">Ver perfil</button>
+            <button class="btn-sm" [routerLink]="['/perfil/ver', amigo.uid]">Ver perfil</button>
             <button class="btn-sm btn-danger" (click)="eliminarAmigo(amigo)">Eliminar</button>
           </div>
         </li>
       </ul>
     </div>
+    <!-- Tab de solicitudes -->
+    <div *ngIf="tabActual === 'solicitudes'" class="tab-solicitudes">
+      <h3>Solicitudes de amistad</h3>
+
+      <!-- Estado vacío -->
+      <div *ngIf="solicitudesRecibidas.length === 0 && solicitudesEnviadas.length === 0" class="empty-state">
+        <i class="fas fa-inbox empty-icon"></i>
+        <h3>No tienes solicitudes pendientes</h3>
+        <p>Puedes enviar solicitudes desde el buscador de usuarios</p>
+        <button class="btn-primary" (click)="abrirBuscadorUsuarios()">Buscar usuarios</button>
+      </div>
+
+      <!-- Solicitudes recibidas -->
+      <div *ngIf="solicitudesRecibidas.length > 0" class="solicitudes-bloque">
+        <h4>Solicitudes recibidas</h4>
+        <ul class="solicitudes-lista">
+          <li *ngFor="let solicitud of solicitudesRecibidas" class="solicitud-item">
+            <img [src]="getAvatarUrl(solicitud.uidSolicitante)" alt="Foto" class="avatar" />
+            <div class="info">
+              <p><strong>{{ getNombreUsuario(solicitud.uidSolicitante) }}</strong> quiere ser tu amigo</p>
+              <p class="fecha">{{ formatFecha(solicitud.fechaSolicitud) }}</p>
+            </div>
+            <div class="acciones">
+              <button class="btn-sm btn-success" (click)="aceptarSolicitud(solicitud)">Aceptar</button>
+              <button class="btn-sm btn-danger" (click)="rechazarSolicitud(solicitud)">Rechazar</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Solicitudes enviadas -->
+      <div *ngIf="solicitudesEnviadas.length > 0" class="solicitudes-bloque">
+        <h4>Solicitudes enviadas</h4>
+        <ul class="solicitudes-lista">
+          <li *ngFor="let solicitud of solicitudesEnviadas" class="solicitud-item">
+            <img [src]="getAvatarUrl(solicitud.uidReceptor)" alt="Foto" class="avatar" />
+            <div class="info">
+              <p>Solicitud enviada a <strong>{{ getNombreUsuario(solicitud.uidReceptor) }}</strong></p>
+              <p class="fecha">{{ formatFecha(solicitud.fechaSolicitud) }}</p>
+            </div>
+            <div class="acciones">
+              <button class="btn-sm btn-outline" (click)="cancelarSolicitud(solicitud)">Cancelar</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
-
 <!-- Modal para seleccionar foto -->
 <div class="modal" *ngIf="mostrarModalFoto">
   <div class="modal-content">
@@ -226,12 +280,20 @@
             <p>{{ user.email }}</p>
           </div>
           <button
-            *ngIf="!esAmigo(user.uid)"
+            *ngIf="!esAmigo(user.uid) && !tieneSolicitudPendiente(user.uid)"
             class="btn-sm"
-            (click)="agregarAmigo(user)">
-            Añadir
+            (click)="enviarSolicitudAmistad(user)">
+            Enviar solicitud
           </button>
-          <span *ngIf="esAmigo(user.uid)" class="ya-amigos">Ya son amigos</span>
+
+          <span *ngIf="tieneSolicitudPendiente(user.uid) && !esAmigo(user.uid)" class="ya-amigos">
+            Solicitud pendiente
+          </span>
+
+          <span *ngIf="esAmigo(user.uid)" class="ya-amigos">
+            Ya son amigos
+          </span>
+
         </li>
       </ul>
 
@@ -241,3 +303,19 @@
     </div>
   </div>
 </div>
+
+<app-popup-exito
+  [mostrar]="mostrarPopup"
+  [mensaje]="mensajePopup"
+  [tipo]="tipoPopup">
+</app-popup-exito>
+
+<app-confirm-dialog
+  [visible]="mostrarConfirmacion"
+  [mensaje]="mensajeConfirmacion"
+  (confirmar)="onConfirmar()"
+  (cancelar)="onCancelar()">
+</app-confirm-dialog>
+
+<app-notificaciones-solicitudes></app-notificaciones-solicitudes>
+
