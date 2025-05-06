@@ -1,0 +1,44 @@
+<div class="config-container">
+  <h2><i class="fas fa-sliders-h"></i> Configuración General</h2>
+
+  <div *ngIf="cargando" class="loader">
+    <i class="fas fa-spinner fa-spin"></i> Cargando configuración...
+  </div>
+
+  <div *ngIf="!cargando" class="formulario">
+    <label>
+      <span>Nombre de la App:</span>
+      <input type="text" [(ngModel)]="config.nombreApp" />
+    </label>
+
+    <label>
+      <span>Versión:</span>
+      <input type="text" [(ngModel)]="config.version" />
+    </label>
+
+    <label class="checkbox">
+      <input type="checkbox" [(ngModel)]="config.mantenimiento" />
+      Activar modo mantenimiento
+    </label>
+
+    <label *ngIf="config.mantenimiento">
+      <span>Mensaje de mantenimiento:</span>
+      <textarea [(ngModel)]="config.mensajeMantenimiento"></textarea>
+    </label>
+
+    <label class="checkbox">
+      <input type="checkbox" [(ngModel)]="config.mostrarBanner" />
+      Mostrar banner superior
+    </label>
+
+    <label *ngIf="config.mostrarBanner">
+      <span>Texto del banner:</span>
+      <input type="text" [(ngModel)]="config.textoBanner" />
+    </label>
+
+    <button (click)="guardarCambios()" [disabled]="guardando">
+      <i class="fas fa-save"></i>
+      {{ guardando ? 'Guardando...' : 'Guardar Cambios' }}
+    </button>
+  </div>
+</div>

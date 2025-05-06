@@ -1,0 +1,184 @@
+<div class="guias-container">
+  <header class="section-header">
+    <h1>Guías en PDF</h1>
+    <p class="subtitle">Descarga nuestras guías completas para consultar sin conexión o imprimir</p>
+  </header>
+
+  <div class="guias-search">
+    <div class="search-container">
+      <input
+        type="text"
+        placeholder="Buscar guía..."
+        [(ngModel)]="searchTerm"
+        (keyup)="filterGuias()"
+      >
+      <button class="search-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="guias-filter">
+    <div class="filter-label">Filtrar por:</div>
+    <div class="filter-options">
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'todas'"
+        (click)="filterByCategory('todas')">
+        Todas
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'basicas'"
+        (click)="filterByCategory('basicas')">
+        Básicas
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'rutas'"
+        (click)="filterByCategory('rutas')">
+        Rutas
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'avanzadas'"
+        (click)="filterByCategory('avanzadas')">
+        Avanzadas
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'manuales'"
+        (click)="filterByCategory('manuales')">
+        Manuales
+      </button>
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando guías...</p>
+  </div>
+
+  <!-- Mensaje si no hay guías -->
+  <div class="empty-state" *ngIf="filteredGuias.length === 0 && !loading">
+    <i class="fas fa-file-pdf empty-icon"></i>
+    <h3>No se encontraron guías</h3>
+    <p>Intenta con otra búsqueda o filtro</p>
+    <button class="btn-primary" (click)="resetFilters()">Ver todas las guías</button>
+  </div>
+
+  <!-- Listado de guías -->
+  <div class="guias-grid" *ngIf="filteredGuias.length > 0 && !loading">
+    <div class="guia-card" *ngFor="let guia of filteredGuias">
+      <div class="guia-preview" [style.background-color]="guia.colorFondo">
+        <div class="guia-icon">
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <span class="guia-category">{{ guia.categoria }}</span>
+        <span class="guia-pages">{{ guia.paginas }} páginas</span>
+      </div>
+      <div class="guia-info">
+        <h3>{{ guia.titulo }}</h3>
+        <p>{{ guia.descripcion }}</p>
+        <div class="guia-meta">
+          <span class="guia-date">
+            <i class="fas fa-calendar-alt"></i> {{ guia.fecha | date:'dd/MM/yyyy' }}
+          </span>
+          <span class="guia-size">
+            <i class="fas fa-weight"></i> {{ guia.tamanoMB }} MB
+          </span>
+        </div>
+        <div class="guia-actions">
+          <button class="btn-primary" (click)="descargarGuia(guia)">
+            <i class="fas fa-download"></i> Descargar
+          </button>
+          <button class="btn-outline" (click)="verPreview(guia)">
+            <i class="fas fa-eye"></i> Vista previa
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guías populares -->
+  <div class="popular-section" *ngIf="guiasPopulares.length > 0">
+    <h2>Guías más descargadas</h2>
+    <div class="popular-grid">
+      <div class="popular-item" *ngFor="let guia of guiasPopulares">
+        <div class="popular-icon" [style.background-color]="guia.colorFondo">
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <div class="popular-content">
+          <h4>{{ guia.titulo }}</h4>
+          <p>{{ guia.descripcion }}</p>
+          <button class="btn-sm" (click)="descargarGuia(guia)">
+            <i class="fas fa-download"></i> Descargar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de solicitud -->
+  <div class="request-section">
+    <div class="request-content">
+      <h2>¿No encuentras la guía que necesitas?</h2>
+      <p>Si necesitas información sobre algún tema específico, puedes solicitar una guía personalizada y la añadiremos a nuestra biblioteca.</p>
+
+      <div class="request-form" *ngIf="!solicitudEnviada">
+        <div class="form-group">
+          <input
+            type="text"
+            placeholder="Tema de la guía que necesitas"
+            [(ngModel)]="solicitudTema"
+          >
+        </div>
+        <button
+          class="btn-primary"
+          [disabled]="!solicitudTema.trim()"
+          (click)="solicitarGuia()"
+        >
+          Solicitar guía
+        </button>
+      </div>
+
+      <div class="success-message" *ngIf="solicitudEnviada">
+        <i class="fas fa-check-circle"></i>
+        <p>Tu solicitud ha sido enviada. Revisaremos tu petición y te notificaremos cuando la guía esté disponible.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de vista previa -->
+<div class="modal" *ngIf="guiaSeleccionada">
+  <div class="modal-content pdf-preview-modal">
+    <div class="modal-header">
+      <h2>{{ guiaSeleccionada.titulo }}</h2>
+      <button class="btn-close" (click)="cerrarModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="preview-container">
+        <div class="preview-loading" *ngIf="cargandoPreview">
+          <div class="spinner"></div>
+          <p>Cargando vista previa...</p>
+        </div>
+
+        <!-- Mostrar imágenes de las páginas de vista previa -->
+        <div class="preview-pages" *ngIf="!cargandoPreview">
+          <img
+            *ngFor="let pagina of guiaSeleccionada.paginasPreview; let i = index"
+            [src]="pagina"
+            [alt]="'Página ' + (i+1) + ' de ' + guiaSeleccionada.titulo"
+            class="preview-page"
+          >
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="preview-notice">Vista previa limitada. Descarga el PDF completo para ver todo el contenido.</p>
+      <div class="modal-actions">
+        <button class="btn-outline" (click)="cerrarModal()">Cerrar</button>
+        <button class="btn-primary" (click)="descargarGuia(guiaSeleccionada)">
+          <i class="fas fa-download"></i> Descargar PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

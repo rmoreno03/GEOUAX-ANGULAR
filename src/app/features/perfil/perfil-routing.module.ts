@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MiPerfilComponent } from './pages/mi-perfil/mi-perfil.component';
 import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario.component';
-import { SolicitudesAmistadComponent } from './components/solicitudes-amistad/solicitudes-amistad.component';
+import { SolicitudesAmistadComponent } from './pages/solicitudes-amistad/solicitudes-amistad.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'mi-perfil', pathMatch: 'full' },

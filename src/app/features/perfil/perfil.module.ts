@@ -6,7 +6,7 @@ import { MiPerfilComponent } from './pages/mi-perfil/mi-perfil.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario.component';
 import { NotificacionesSolicitudesComponent } from './components/notificaciones-solicitudes/notificaciones-solicitudes.component';
-import { SolicitudesAmistadComponent } from './components/solicitudes-amistad/solicitudes-amistad.component';
+import { SolicitudesAmistadComponent } from './pages/solicitudes-amistad/solicitudes-amistad.component';
 import { NotificacionesComponent } from './components/notificaciones/notificaciones.component';
 import { SharedModule } from '../../shared/shared.module';
 

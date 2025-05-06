@@ -1,0 +1,218 @@
+<div class="tutoriales-container">
+  <header class="section-header">
+    <h1>Tutoriales de GeoUAX</h1>
+    <p class="subtitle">Aprende a usar todas las funciones de la aplicación con nuestras guías paso a paso</p>
+  </header>
+
+  <div class="tutoriales-search">
+    <div class="search-container">
+      <input
+        type="text"
+        placeholder="Buscar tutorial..."
+        [(ngModel)]="searchTerm"
+        (keyup)="filterTutoriales()"
+      >
+      <button class="search-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="tutoriales-filter">
+    <div class="filter-label">Filtrar por:</div>
+    <div class="filter-options">
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'todos'"
+        (click)="filterByCategory('todos')">
+        Todos
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'basicos'"
+        (click)="filterByCategory('basicos')">
+        Básicos
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'rutas'"
+        (click)="filterByCategory('rutas')">
+        Rutas
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'perfil'"
+        (click)="filterByCategory('perfil')">
+        Perfil
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'social'"
+        (click)="filterByCategory('social')">
+        Social
+      </button>
+      <button class="filter-btn"
+        [class.active]="selectedCategory === 'avanzados'"
+        (click)="filterByCategory('avanzados')">
+        Avanzados
+      </button>
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando tutoriales...</p>
+  </div>
+
+  <!-- Mensaje si no hay tutoriales -->
+  <div class="empty-state" *ngIf="filteredTutoriales.length === 0 && !loading">
+    <i class="fas fa-search empty-icon"></i>
+    <h3>No se encontraron tutoriales</h3>
+    <p>Intenta con otra búsqueda o filtro</p>
+    <button class="btn-primary" (click)="resetFilters()">Ver todos los tutoriales</button>
+  </div>
+
+  <!-- Listado de tutoriales -->
+  <div class="tutoriales-grid" *ngIf="filteredTutoriales.length > 0 && !loading">
+    <div class="tutorial-card" *ngFor="let tutorial of filteredTutoriales">
+      <div class="tutorial-thumbnail" [style.background-image]="'url(' + tutorial.imagenUrl + ')'">
+        <span class="tutorial-category">{{ tutorial.categoria }}</span>
+        <span class="tutorial-duration">
+          <i class="fas fa-clock"></i> {{ tutorial.duracion }}
+        </span>
+      </div>
+      <div class="tutorial-info">
+        <h3>{{ tutorial.titulo }}</h3>
+        <p>{{ tutorial.descripcion }}</p>
+        <div class="tutorial-meta">
+          <span class="tutorial-level">
+            <i class="fas fa-layer-group"></i> {{ tutorial.nivel }}
+          </span>
+          <span class="tutorial-date">{{ tutorial.fecha | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <button class="btn-sm" (click)="verTutorial(tutorial.id)">
+          Ver tutorial <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination-container" *ngIf="filteredTutoriales.length > tutorialesPorPagina">
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === 1"
+      (click)="cambiarPagina(currentPage - 1)">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <span class="pagination-info">
+      Página {{ currentPage }} de {{ totalPages }}
+    </span>
+
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="cambiarPagina(currentPage + 1)">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Tutoriales populares -->
+  <div class="popular-tutoriales" *ngIf="filteredTutoriales.length > 0">
+    <h2>Tutoriales populares</h2>
+    <div class="popular-grid">
+      <div class="popular-item" *ngFor="let tutorial of popularTutoriales">
+        <div class="popular-thumbnail" [style.background-image]="'url(' + tutorial.imagenUrl + ')'"></div>
+        <div class="popular-info">
+          <h4>{{ tutorial.titulo }}</h4>
+          <p>{{ tutorial.descripcion | slice:0:70 }}{{ tutorial.descripcion.length > 70 ? '...' : '' }}</p>
+          <button class="btn-outline-sm" (click)="verTutorial(tutorial.id)">
+            Ver tutorial
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Newsletter -->
+  <div class="newsletter-container">
+    <div class="newsletter-content">
+      <h3>¿Quieres recibir nuevos tutoriales?</h3>
+      <p>Suscríbete a nuestra newsletter y recibe los nuevos tutoriales en tu correo</p>
+      <div class="newsletter-form">
+        <input type="email" placeholder="Tu email" [(ngModel)]="emailNewsletter">
+        <button class="btn-primary" (click)="suscribirNewsletter()" [disabled]="!emailNewsletter">Suscribirse</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de tutorial -->
+<div class="modal" *ngIf="tutorialSeleccionado">
+  <div class="modal-content tutorial-modal">
+    <div class="modal-header">
+      <h2>{{ tutorialSeleccionado.titulo }}</h2>
+      <button class="btn-close" (click)="cerrarModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="tutorial-header">
+        <img [src]="tutorialSeleccionado.imagenUrl" alt="{{ tutorialSeleccionado.titulo }}" class="tutorial-image">
+        <div class="tutorial-details">
+          <div class="tutorial-detail-item">
+            <i class="fas fa-layer-group"></i> Nivel: {{ tutorialSeleccionado.nivel }}
+          </div>
+          <div class="tutorial-detail-item">
+            <i class="fas fa-clock"></i> Duración: {{ tutorialSeleccionado.duracion }}
+          </div>
+          <div class="tutorial-detail-item">
+            <i class="fas fa-calendar"></i> Fecha: {{ tutorialSeleccionado.fecha | date:'dd/MM/yyyy' }}
+          </div>
+          <div class="tutorial-detail-item">
+            <i class="fas fa-tag"></i> Categoría: {{ tutorialSeleccionado.categoria }}
+          </div>
+        </div>
+      </div>
+
+      <div class="tutorial-content">
+        <div class="tutorial-description">
+          <h3>Descripción</h3>
+          <p>{{ tutorialSeleccionado.descripcion }}</p>
+        </div>
+
+        <div class="tutorial-steps">
+          <h3>Pasos a seguir</h3>
+          <div class="step-item" *ngFor="let paso of tutorialSeleccionado.pasos; let i = index">
+            <div class="step-number">{{ i + 1 }}</div>
+            <div class="step-content">
+              <h4>{{ paso.titulo }}</h4>
+              <p>{{ paso.descripcion }}</p>
+              <img *ngIf="paso.imagen" [src]="paso.imagen" alt="Paso {{ i + 1 }}" class="step-image">
+            </div>
+          </div>
+        </div>
+
+        <div class="tutorial-tips" *ngIf="tutorialSeleccionado.consejos && tutorialSeleccionado.consejos.length > 0">
+          <h3>Consejos útiles</h3>
+          <ul class="tips-list">
+            <li *ngFor="let consejo of tutorialSeleccionado.consejos">{{ consejo }}</li>
+          </ul>
+        </div>
+
+        <div class="tutorial-video" *ngIf="tutorialSeleccionado.videoUrl">
+          <h3>Video tutorial</h3>
+          <div class="video-container">
+            <iframe
+              [src]="sanitizeVideoUrl(tutorialSeleccionado.videoUrl)"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" (click)="cerrarModal()">Cerrar</button>
+      <button class="btn-primary" (click)="descargarPDF()">
+        <i class="fas fa-download"></i> Descargar PDF
+      </button>
+    </div>
+  </div>
+</div>

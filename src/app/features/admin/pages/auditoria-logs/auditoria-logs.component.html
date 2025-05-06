@@ -1,0 +1,25 @@
+<div class="logs-container">
+  <h2><i class="fas fa-clipboard-list"></i> Auditoría / Logs del sistema</h2>
+
+  <div *ngIf="cargando" class="loader">
+    <i class="fas fa-spinner fa-spin"></i> Cargando registros...
+  </div>
+
+  <div *ngIf="!cargando && logs.length === 0" class="vacio">
+    <p><i class="fas fa-check-circle"></i> No hay registros de auditoría disponibles.</p>
+  </div>
+
+  <div *ngIf="!cargando && logs.length > 0" class="lista-logs">
+    <div class="log-card" *ngFor="let log of logs">
+      <div class="detalle-log">
+        <p><strong>Usuario:</strong> {{ log.usuario }}</p>
+        <p><strong>Acción:</strong> {{ log.accion }}</p>
+        <p><strong>Fecha:</strong> {{ formatFecha(log.fecha) }}</p>
+        <p *ngIf="log.ip"><strong>IP:</strong> {{ log.ip }}</p>
+        <p><strong>Tipo:</strong>
+          <span class="tipo-log" [ngClass]="log.tipo">{{ log.tipo | titlecase }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

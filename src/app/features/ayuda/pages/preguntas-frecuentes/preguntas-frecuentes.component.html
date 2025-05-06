@@ -1,0 +1,140 @@
+<div class="faq-container">
+  <header class="section-header">
+    <h1>Preguntas Frecuentes</h1>
+    <p class="subtitle">Encuentra respuestas a las dudas más comunes sobre el uso de GeoUAX</p>
+  </header>
+
+  <div class="faq-search">
+    <div class="search-container">
+      <input
+        type="text"
+        placeholder="Buscar pregunta..."
+        [(ngModel)]="searchTerm"
+        (keyup)="filterPreguntas()"
+      >
+      <button class="search-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="faq-categories">
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'todas'"
+      (click)="filterByCategory('todas')">
+      Todas
+    </button>
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'cuenta'"
+      (click)="filterByCategory('cuenta')">
+      Cuenta
+    </button>
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'rutas'"
+      (click)="filterByCategory('rutas')">
+      Rutas
+    </button>
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'social'"
+      (click)="filterByCategory('social')">
+      Social
+    </button>
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'aplicacion'"
+      (click)="filterByCategory('aplicacion')">
+      Aplicación
+    </button>
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'privacidad'"
+      (click)="filterByCategory('privacidad')">
+      Privacidad
+    </button>
+  </div>
+
+  <!-- Estado de carga -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando preguntas frecuentes...</p>
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="filteredPreguntas.length === 0 && !loading">
+    <i class="fas fa-search empty-icon"></i>
+    <h3>No se encontraron preguntas</h3>
+    <p>Intenta con otra búsqueda o categoría</p>
+    <button class="btn-primary" (click)="resetFilters()">Ver todas las preguntas</button>
+  </div>
+
+  <!-- Lista de preguntas -->
+  <div class="faq-list" *ngIf="filteredPreguntas.length > 0 && !loading">
+    <div class="faq-item" *ngFor="let pregunta of filteredPreguntas; let i = index" [class.active]="pregunta.expanded">
+      <div class="faq-question" (click)="togglePregunta(i)">
+        <div class="question-text">
+          <span class="question-category">{{ pregunta.categoria }}</span>
+          <h3>{{ pregunta.pregunta }}</h3>
+        </div>
+        <div class="question-icon">
+          <i class="fas" [class.fa-chevron-down]="!pregunta.expanded" [class.fa-chevron-up]="pregunta.expanded"></i>
+        </div>
+      </div>
+      <div class="faq-answer" [class.expanded]="pregunta.expanded">
+        <div class="answer-content">
+          <p [innerHTML]="pregunta.respuesta"></p>
+
+          <div class="answer-links" *ngIf="pregunta.links && pregunta.links.length > 0">
+            <p>Enlaces relacionados:</p>
+            <ul>
+              <li *ngFor="let link of pregunta.links">
+                <a [routerLink]="link.url" *ngIf="link.interno">{{ link.texto }}</a>
+                <a [href]="link.url" target="_blank" rel="noopener noreferrer" *ngIf="!link.interno">{{ link.texto }} <i class="fas fa-external-link-alt"></i></a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="answer-footer">
+            <div class="util-buttons">
+              <span>¿Te ha resultado útil esta respuesta?</span>
+              <div class="button-group">
+                <button class="util-btn" (click)="marcarUtil(pregunta, true)" [class.active]="pregunta.util === true">
+                  <i class="fas fa-thumbs-up"></i> Sí
+                </button>
+                <button class="util-btn" (click)="marcarUtil(pregunta, false)" [class.active]="pregunta.util === false">
+                  <i class="fas fa-thumbs-down"></i> No
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de contacto -->
+  <div class="contact-section">
+    <h2>¿No has encontrado lo que buscabas?</h2>
+    <p>Ponte en contacto con nosotros y te responderemos lo antes posible</p>
+    <button class="btn-primary" [routerLink]="['/ayuda/contacto']">Contactar con soporte</button>
+  </div>
+
+  <!-- Preguntas populares -->
+  <div class="popular-section">
+    <h2>Preguntas más consultadas</h2>
+    <div class="popular-grid">
+      <div class="popular-item" *ngFor="let pregunta of preguntasPopulares">
+        <div class="popular-icon">
+          <i class="fas fa-question-circle"></i>
+        </div>
+        <div class="popular-content">
+          <h4>{{ pregunta.pregunta }}</h4>
+          <button class="btn-link" (click)="irAPregunta(pregunta.id)">Ver respuesta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

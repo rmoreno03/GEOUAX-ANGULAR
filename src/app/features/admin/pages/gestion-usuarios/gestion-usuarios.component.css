@@ -1,0 +1,179 @@
+.gestion-container {
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+  max-width: 100%;
+}
+
+.gestion-container h2 {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.buscador {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.loader, .vacio {
+  color: #555;
+  font-size: 1rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.tabla-usuarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.usuario-card {
+  background: #fff;
+  border-radius: 1.2rem;
+  padding: 1.5rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  transition: transform 0.2s ease;
+}
+
+.usuario-card:hover {
+  transform: translateY(-3px);
+}
+
+.avatar {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #f7941d;
+}
+
+.info h4 {
+  margin: 0 0 0.3rem;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.info p {
+  margin: 0.3rem 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.campo {
+  margin-top: 0.7rem;
+  font-size: 0.9rem;
+}
+
+.info select {
+  margin-left: 0.5rem;
+  padding: 0.3rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.info button {
+  margin-left: 0.6rem;
+  padding: 0.3rem 0.8rem;
+  border: none;
+  background-color: #f7941d;
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.info button:hover {
+  background-color: #d71920;
+}
+
+.stats {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.activo {
+  color: green;
+  font-weight: 600;
+}
+
+.inactivo {
+  color: #d71920;
+  font-weight: 600;
+}
+
+.paginacion {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.paginacion button {
+  background-color: #f7941d;
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.paginacion button.activa {
+  background-color: #d71920;
+}
+
+.paginacion button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .usuario-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .info {
+    width: 100%;
+  }
+
+  .info select {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  .info button {
+    margin: 0.5rem auto;
+    display: block;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .buscador {
+    font-size: 0.95rem;
+  }
+}

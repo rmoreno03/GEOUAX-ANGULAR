@@ -68,7 +68,7 @@ export class TopBarComponent {
           { label: 'Importar GPX/KML', icon: 'fas fa-file-import', action: () => alert('Funcionalidad de importación próximamente') }
         ];
 
-      } else if (url.includes('usuarios')) {
+      } else if (url.includes('/usuarios')) {
         this.title = 'Usuarios';
         this.menuOptions = [
           { label: 'Nuevo Usuario', icon: 'fas fa-user-plus', action: () => this.router.navigate(['/usuarios/nuevo-usuario']) },
@@ -80,7 +80,7 @@ export class TopBarComponent {
       } else if (url.includes('admin')) {
         this.title = 'Panel de Administración';
         this.menuOptions = [
-          { label: 'Gestión de Usuarios', icon: 'fas fa-users-cog', action: () => this.router.navigate(['/admin/usuarios']) },
+          { label: 'Gestión de Usuarios', icon: 'fas fa-users-cog', action: () => this.router.navigate(['/admin/gestion-usuarios']) },
           { label: 'Permisos y Roles', icon: 'fas fa-key', action: () => this.router.navigate(['/admin/roles']) },
           { label: 'Contenido Reportado', icon: 'fas fa-flag', action: () => this.router.navigate(['/admin/reportes']) },
           { label: 'Auditoría / Logs', icon: 'fas fa-clipboard-list', action: () => this.router.navigate(['/admin/logs']) },

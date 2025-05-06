@@ -1,0 +1,73 @@
+.logs-container {
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.logs-container h2 {
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.loader, .vacio {
+  text-align: center;
+  font-size: 1rem;
+  color: #666;
+}
+
+.lista-logs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.log-card {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.log-card:hover {
+  transform: translateY(-2px);
+}
+
+.detalle-log p {
+  margin: 0.4rem 0;
+  font-size: 0.95rem;
+}
+
+.tipo-log {
+  padding: 0.2rem 0.7rem;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.tipo-log.info {
+  background-color: #3498db;
+}
+
+.tipo-log.warn {
+  background-color: #f39c12;
+}
+
+.tipo-log.error {
+  background-color: #d71920;
+}
+
+@media (max-width: 600px) {
+  .log-card {
+    padding: 1rem;
+  }
+
+  .detalle-log p {
+    font-size: 0.9rem;
+  }
+}

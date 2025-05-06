@@ -1,0 +1,136 @@
+<div class="ayuda-container">
+  <header class="ayuda-header">
+    <h1>Centro de Ayuda</h1>
+    <p class="subtitle">Bienvenido al centro de ayuda de GeoUAX. Encuentra todo lo que necesitas para sacar el máximo provecho a nuestra aplicación.</p>
+  </header>
+
+  <div class="cards-container">
+    <div class="info-card" [routerLink]="['/ayuda/tutoriales']">
+      <div class="card-icon">
+        <i class="fas fa-book-open"></i>
+      </div>
+      <div class="card-content">
+        <h3>Tutoriales</h3>
+        <p>Guías paso a paso para aprender a usar todas las funciones de la aplicación.</p>
+      </div>
+    </div>
+
+    <div class="info-card" [routerLink]="['/ayuda/preguntas-frecuentes']">
+      <div class="card-icon">
+        <i class="fas fa-question-circle"></i>
+      </div>
+      <div class="card-content">
+        <h3>Preguntas Frecuentes</h3>
+        <p>Respuestas a las dudas más comunes sobre el funcionamiento de GeoUAX.</p>
+      </div>
+    </div>
+
+    <div class="info-card" [routerLink]="['/ayuda/contacto']">
+      <div class="card-icon">
+        <i class="fas fa-envelope"></i>
+      </div>
+      <div class="card-content">
+        <h3>Contacto</h3>
+        <p>¿No encuentras lo que buscas? Ponte en contacto con nuestro equipo de soporte.</p>
+      </div>
+    </div>
+
+    <div class="info-card" [routerLink]="['/ayuda/guias-pdf']">
+      <div class="card-icon">
+        <i class="fas fa-file-pdf"></i>
+      </div>
+      <div class="card-content">
+        <h3>Guías en PDF</h3>
+        <p>Descarga nuestras guías completas para consultar sin conexión.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="getting-started">
+    <h2>Primeros pasos</h2>
+    <p>Si es la primera vez que usas GeoUAX, te recomendamos comenzar por aquí:</p>
+
+    <div class="steps-container">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Configura tu perfil</h4>
+          <p>Personaliza tu perfil para que otros usuarios conozcan tus intereses y logros.</p>
+          <a [routerLink]="['/perfil']" class="step-link">Ir al perfil <i class="fas fa-user-cog"></i></a>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Crea puntos de interés</h4>
+          <p>Agrega ubicaciones relevantes y compártelas con la comunidad.</p>
+          <a [routerLink]="['/puntos/crear']" class="step-link">Crear punto <i class="fas fa-map-marker-alt"></i></a>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Crea rutas personalizadas</h4>
+          <p>Combina varios puntos para formar una ruta con propósito.</p>
+          <a [routerLink]="['/rutas/crear']" class="step-link">Crear ruta <i class="fas fa-route"></i></a>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>Explora rutas públicas</h4>
+          <p>Descubre rutas creadas por otros usuarios y úsalas como inspiración.</p>
+          <a [routerLink]="['/rutas/publicas']" class="step-link">Ver rutas <i class="fas fa-compass"></i></a>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h4>Consulta tu huella de carbono</h4>
+          <p>Evalúa el impacto ambiental de tus rutas y contribuye a un mundo más verde.</p>
+          <a [routerLink]="['/huella-carbono']" class="step-link">Ver huella <i class="fas fa-leaf"></i></a>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h4>Comparte con la comunidad</h4>
+          <p>Publica tus rutas favoritas y conecta con otros exploradores de GeoUAX.</p>
+          <a [routerLink]="['/perfil/mis-rutas']" class="step-link">Mis rutas <i class="fas fa-share-alt"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="help-search">
+    <h2>¿Necesitas ayuda con algo específico?</h2>
+    <div class="search-container">
+      <input
+        type="text"
+        placeholder="Buscar en la ayuda..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="searchHelp()"
+      >
+      <button (click)="searchHelp()" class="search-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+  </section>
+
+  <div class="popular-topics">
+    <h3>Temas populares</h3>
+    <div class="topics-container">
+      <a class="topic-tag" (click)="setSearchTerm('crear ruta')">Crear ruta</a>
+      <a class="topic-tag" (click)="setSearchTerm('editar perfil')">Editar perfil</a>
+      <a class="topic-tag" (click)="setSearchTerm('compartir')">Compartir</a>
+      <a class="topic-tag" (click)="setSearchTerm('privacidad')">Privacidad</a>
+      <a class="topic-tag" (click)="setSearchTerm('amigos')">Amigos</a>
+      <a class="topic-tag" (click)="setSearchTerm('notificaciones')">Notificaciones</a>
+    </div>
+  </div>
+</div>

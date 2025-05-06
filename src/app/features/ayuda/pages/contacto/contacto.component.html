@@ -1,0 +1,253 @@
+<div class="contacto-container">
+  <header class="section-header">
+    <h1>Contacto con Soporte</h1>
+    <p class="subtitle">Si tienes alguna duda o problema con la aplicación, ponte en contacto con nosotros y te responderemos lo antes posible</p>
+  </header>
+
+  <div class="contacto-content">
+    <div class="contacto-info">
+      <div class="info-card">
+        <div class="card-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="card-content">
+          <h3>Horario de atención</h3>
+          <p>Lunes a viernes: 9:00 - 18:00</p>
+          <p>Sábados: 10:00 - 14:00</p>
+          <p>Domingos y festivos: Cerrado</p>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-icon">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div class="card-content">
+          <h3>Email de soporte</h3>
+          <p>soportegeouax.com</p>
+          <p class="text-sm">Tiempo de respuesta estimado: 24-48h</p>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-icon">
+          <i class="fas fa-comments"></i>
+        </div>
+        <div class="card-content">
+          <h3>Chat en vivo</h3>
+          <p>Disponible en horario de atención</p>
+          <button class="btn-outline" (click)="iniciarChat()">
+            <i class="fas fa-comment-dots"></i> Iniciar chat
+          </button>
+        </div>
+      </div>
+
+      <div class="faq-promo">
+        <h3>¿Tienes una pregunta frecuente?</h3>
+        <p>Consulta nuestra sección de preguntas frecuentes, donde podrás encontrar respuestas a las dudas más comunes</p>
+        <button class="btn-link" [routerLink]="['/ayuda/preguntas-frecuentes']">
+          Ver preguntas frecuentes <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="contacto-form-container">
+      <div class="form-header">
+        <h2>Formulario de contacto</h2>
+        <p>Rellena el formulario y te responderemos lo antes posible</p>
+      </div>
+
+      <!-- Estado de carga -->
+      <div class="loading-container" *ngIf="enviando">
+        <div class="spinner"></div>
+        <p>Enviando mensaje...</p>
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div class="success-message" *ngIf="mensajeEnviado">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="success-content">
+          <h3>¡Mensaje enviado correctamente!</h3>
+          <p>Gracias por contactar con nosotros. Te responderemos lo antes posible al email proporcionado.</p>
+          <button class="btn-primary" (click)="resetForm()">Enviar otro mensaje</button>
+        </div>
+      </div>
+
+      <!-- Formulario de contacto -->
+      <form class="contacto-form" [formGroup]="contactForm" (ngSubmit)="enviarMensaje()" *ngIf="!enviando && !mensajeEnviado">
+        <div class="form-group">
+          <label for="nombre">Nombre completo *</label>
+          <input
+            type="text"
+            id="nombre"
+            formControlName="nombre"
+            placeholder="Tu nombre y apellidos"
+          >
+          <div class="error-message" *ngIf="nombreInvalido">
+            El nombre es obligatorio (mínimo 2 caracteres)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="Tu dirección de email"
+          >
+          <div class="error-message" *ngIf="emailInvalido">
+            Por favor, introduce un email válido
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="asunto">Asunto *</label>
+          <input
+            type="text"
+            id="asunto"
+            formControlName="asunto"
+            placeholder="Motivo de tu consulta"
+          >
+          <div class="error-message" *ngIf="asuntoInvalido">
+            El asunto es obligatorio (mínimo 5 caracteres)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="categoria">Categoría *</label>
+          <select id="categoria" formControlName="categoria">
+            <option value="" selected disabled>Selecciona una categoría</option>
+            <option value="cuenta">Problemas con la cuenta</option>
+            <option value="rutas">Problemas con rutas</option>
+            <option value="social">Funciones sociales</option>
+            <option value="app">Problemas con la aplicación</option>
+            <option value="sugerencia">Sugerencia</option>
+            <option value="otro">Otro</option>
+          </select>
+          <div class="error-message" *ngIf="categoriaInvalida">
+            Por favor, selecciona una categoría
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="mensaje">Mensaje *</label>
+          <textarea
+            id="mensaje"
+            formControlName="mensaje"
+            rows="5"
+            placeholder="Describe tu problema o consulta con detalle"
+          ></textarea>
+          <div class="hint-text">
+            {{ 500 - (contactForm.get('mensaje')?.value?.length || 0) }} caracteres restantes
+          </div>
+          <div class="error-message" *ngIf="mensajeInvalido">
+            El mensaje es obligatorio (mínimo 20 caracteres)
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <div class="checkbox-container">
+            <input
+              type="checkbox"
+              id="privacidad"
+              formControlName="privacidad"
+            >
+            <label for="privacidad" class="checkbox-label">
+              He leído y acepto la <a href="/legal/privacidad" target="_blank">política de privacidad</a> *
+            </label>
+          </div>
+          <div class="error-message" *ngIf="privacidadInvalida">
+            Debes aceptar la política de privacidad
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <div class="checkbox-container">
+            <input
+              type="checkbox"
+              id="newsletter"
+              formControlName="newsletter"
+            >
+            <label for="newsletter" class="checkbox-label">
+              Deseo recibir noticias y actualizaciones de GeoUAX
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="contactForm.invalid"
+          >
+            Enviar mensaje
+          </button>
+          <button
+            type="button"
+            class="btn-outline"
+            (click)="resetForm()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="faq-section">
+    <h2>Preguntas frecuentes sobre soporte</h2>
+    <div class="faq-list">
+      <div class="faq-item" *ngFor="let pregunta of preguntasSoporte; let i = index" [class.active]="pregunta.expanded">
+        <div class="faq-question" (click)="togglePregunta(i)">
+          <h3>{{ pregunta.pregunta }}</h3>
+          <div class="question-icon">
+            <i class="fas" [class.fa-chevron-down]="!pregunta.expanded" [class.fa-chevron-up]="pregunta.expanded"></i>
+          </div>
+        </div>
+        <div class="faq-answer" [class.expanded]="pregunta.expanded">
+          <p [innerHTML]="pregunta.respuesta"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal del chat en vivo -->
+<div class="modal" *ngIf="chatAbierto">
+  <div class="modal-content chat-modal">
+    <div class="modal-header">
+      <h2><i class="fas fa-comments"></i> Chat de soporte</h2>
+      <button class="btn-close" (click)="cerrarChat()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="chat-container">
+        <div class="chat-messages" #chatMessages>
+          <div class="message system-message">
+            <p>Bienvenido al chat de soporte de GeoUAX. ¿En qué podemos ayudarte?</p>
+            <span class="message-time">{{ obtenerHoraActual() }}</span>
+          </div>
+
+          <div class="message" *ngFor="let msg of mensajesChat" [class.user-message]="msg.esUsuario" [class.agent-message]="!msg.esUsuario">
+            <p>{{ msg.contenido }}</p>
+            <span class="message-time">{{ msg.hora }}</span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <input
+            type="text"
+            placeholder="Escribe tu mensaje..."
+            [(ngModel)]="mensajeChat"
+            (keyup.enter)="enviarMensajeChat()"
+          >
+          <button class="btn-send" [disabled]="!mensajeChat.trim()" (click)="enviarMensajeChat()">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

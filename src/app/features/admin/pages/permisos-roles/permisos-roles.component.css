@@ -1,0 +1,201 @@
+.roles-container {
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  max-width: 100%;
+}
+
+.header h2 {
+  font-size: 2rem;
+  margin-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.subtitulo {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.tabla-wrapper {
+  overflow-x: auto;
+}
+
+.tabla {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  min-width: 600px;
+  overflow: hidden;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.fila:last-child {
+  border-bottom: none;
+}
+
+.fila-header {
+  background: linear-gradient(to right, #f7941d, #d71920);
+  color: white;
+  font-weight: bold;
+}
+
+.celda {
+  flex: 1;
+  text-align: center;
+  padding: 1rem;
+  min-width: 120px;
+  font-size: 0.95rem;
+}
+
+.celda.permiso {
+  flex: 2;
+  text-align: left;
+  padding-left: 1.5rem;
+}
+
+.clave {
+  font-size: 0.8rem;
+  color: #aaa;
+  display: block;
+  margin-top: 0.3rem;
+}
+
+.checkbox-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+
+.checkbox-wrapper input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 24px;
+  width: 24px;
+  background-color: #eee;
+  border-radius: 5px;
+  border: 2px solid #ccc;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.checkbox-wrapper input:checked ~ .checkmark {
+  background-color: #f7941d;
+  border-color: #f7941d;
+}
+
+.checkmark:after {
+  content: '';
+  position: absolute;
+  display: none;
+}
+
+.checkbox-wrapper input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.checkbox-wrapper .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.acciones {
+  background-color: #f9f9f9;
+}
+
+.btn-guardar {
+  background-color: #f7941d;
+  color: white;
+  font-weight: bold;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-guardar:hover {
+  background-color: #d71920;
+}
+
+.loader {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 1rem;
+  color: #555;
+}
+
+@media (max-width: 768px) {
+  .tabla {
+    min-width: unset;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .fila {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.8rem 1rem;
+  }
+
+  .fila-header {
+    display: none; /* ocultamos encabezado en móvil */
+  }
+
+  .celda {
+    width: 100%;
+    text-align: left;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .celda.permiso {
+    padding-left: 0;
+    font-weight: bold;
+  }
+
+  .checkbox-wrapper {
+    margin-top: 0.5rem;
+  }
+
+  .acciones {
+    background: none;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-guardar {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .roles-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .subtitulo {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+}

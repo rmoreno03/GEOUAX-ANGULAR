@@ -1,0 +1,85 @@
+.reportes-container {
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.reportes-container h2 {
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.loader, .vacio {
+  text-align: center;
+  font-size: 1rem;
+  color: #666;
+}
+
+.lista-reportes {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.reporte-card {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.reporte-info p {
+  margin: 0.4rem 0;
+  font-size: 0.95rem;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.acciones button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #f7941d;
+  color: white;
+  transition: background 0.3s ease;
+}
+
+.acciones .btn-rojo {
+  background-color: #d71920;
+}
+
+.acciones .btn-verde {
+  background-color: #28a745;
+}
+
+.acciones button:hover {
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .reporte-card {
+    flex-direction: column;
+  }
+
+  .acciones {
+    justify-content: center;
+  }
+
+  .acciones button {
+    width: 100%;
+  }
+}

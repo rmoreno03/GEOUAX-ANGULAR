@@ -1,0 +1,48 @@
+<div class="roles-container">
+  <div class="header">
+    <h2><i class="fas fa-key"></i> Gestión de Permisos por Rol</h2>
+    <p class="subtitulo">Activa o desactiva las acciones que cada rol puede realizar en GeoUAX</p>
+  </div>
+
+  <div *ngIf="!cargando" class="tabla-wrapper">
+    <div class="tabla">
+      <div class="fila fila-header">
+        <div class="celda permiso">Permiso</div>
+        <div class="celda" *ngFor="let rol of roles">{{ rol | titlecase }}</div>
+      </div>
+
+      <div class="fila cuerpo" *ngFor="let permiso of permisos">
+        <div class="celda permiso">
+          <strong>{{ permiso.nombre }}</strong>
+        </div>
+        <div class="celda" *ngFor="let rol of roles">
+          <label class="checkbox-wrapper">
+            <input type="checkbox"
+                   [checked]="tienePermiso(rol, permiso.clave)"
+                   (change)="togglePermisoLocal(rol, permiso.clave)">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="fila acciones" *ngFor="let rol of roles">
+        <div class="celda permiso">
+          <span>Guardar cambios para <strong>{{ rol }}</strong></span>
+        </div>
+        <div class="celda" colspan="3">
+          <button class="btn-guardar"
+                  *ngIf="cambiosPendientes[rol]"
+                  (click)="guardarCambios(rol)">
+            <i class="fas fa-save"></i> Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="cargando" class="loader">
+    <i class="fas fa-spinner fa-spin"></i> Cargando permisos desde Firebase...
+  </div>
+
+  <app-popup-exito [mostrar]="mostrarExito" [mensaje]="mensajeExito" tipo="exito"></app-popup-exito>
+</div>

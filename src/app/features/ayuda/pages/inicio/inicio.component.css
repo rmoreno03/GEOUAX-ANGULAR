@@ -1,0 +1,329 @@
+/* Estilos para el componente de Inicio de Ayuda */
+.ayuda-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.ayuda-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.ayuda-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Tarjetas de información */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.info-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border: 1px solid #eee;
+  height: 100%;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  border-color: #ff5722;
+}
+
+.card-icon {
+  font-size: 2rem;
+  color: #ff5722;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 70px;
+  width: 70px;
+  background: rgba(255, 87, 34, 0.1);
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-content h3 {
+  color: #333;
+  margin-bottom: 0.8rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.card-content p {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Sección de primeros pasos */
+.getting-started {
+  background-color: #f9f9f9;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 3rem;
+}
+
+.getting-started h2 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.getting-started p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.step {
+  display: flex;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 1.2rem;
+  border: 1px solid #eee;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #ff5722 0%, #f44336 100%);
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h4 {
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.step-content p {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+}
+
+.step-link {
+  display: inline-flex;
+  align-items: center;
+  color: #ff5722;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.step-link i {
+  margin-left: 0.3rem;
+  transition: transform 0.2s;
+}
+
+.step-link:hover {
+  color: #e64a19;
+}
+
+.step-link:hover i {
+  transform: translateX(3px);
+}
+
+/* Búsqueda de ayuda */
+.help-search {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.help-search h2 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.search-container {
+  display: flex;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-container input {
+  flex: 1;
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  transition: all 0.3s;
+}
+
+.search-container input:focus {
+  outline: none;
+  border-color: #ff5722;
+  box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.1);
+}
+
+.search-btn {
+  background: linear-gradient(135deg, #ff5722 0%, #f44336 100%);
+  color: white;
+  border: none;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.search-btn:hover {
+  background: linear-gradient(135deg, #e64a19 0%, #d32f2f 100%);
+}
+
+/* Temas populares */
+.popular-topics {
+  margin-bottom: 2rem;
+}
+
+.popular-topics h3 {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.topics-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.topic-tag {
+  background-color: #f0f0f0;
+  color: #555;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.topic-tag:hover {
+  background-color: rgba(255, 87, 34, 0.1);
+  color: #ff5722;
+}
+
+/* Estilos responsive */
+@media (max-width: 768px) {
+  .ayuda-header h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .step {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .step-number {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .ayuda-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .ayuda-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .card-icon {
+    height: 60px;
+    width: 60px;
+    font-size: 1.5rem;
+  }
+
+  .search-container {
+    flex-direction: column;
+  }
+
+  .search-container input {
+    border-right: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+  }
+
+  .search-btn {
+    border-radius: 8px;
+    padding: 0.8rem;
+  }
+
+  .topics-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .topic-tag {
+    width: 100%;
+    text-align: center;
+  }
+}

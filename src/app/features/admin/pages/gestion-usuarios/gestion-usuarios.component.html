@@ -1,0 +1,61 @@
+<div class="gestion-container">
+  <h2><i class="fas fa-users-cog"></i> Gestión de Usuarios</h2>
+
+  <input type="text" [(ngModel)]="searchTerm" (input)="filtrar()"
+         placeholder="Buscar por nombre, email o rol" class="buscador" />
+
+  <div *ngIf="cargando" class="loader">
+    <i class="fas fa-spinner fa-spin"></i> Cargando usuarios...
+  </div>
+
+  <div *ngIf="!cargando && paginados.length === 0" class="vacio">
+    <p><i class="fas fa-user-times"></i> No se encontraron usuarios.</p>
+  </div>
+
+  <div class="tabla-usuarios" *ngIf="!cargando && paginados.length > 0">
+    <div class="usuario-card" *ngFor="let user of paginados">
+
+      <!-- Imagen con fallback -->
+      <img [src]="user.fotoUrl ? user.fotoUrl : 'perfilDefault.png'" class="avatar" />
+
+      <div class="info">
+        <h4>{{ user.nombre || 'Usuario sin nombre' }}</h4>
+        <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+        <p><i class="fas fa-calendar-alt"></i> Registrado: {{ formatFecha(user.fechaRegistro) }}</p>
+
+        <div class="campo">
+          <i class="fas fa-user-tag"></i> Rol:
+          <select [value]="user.rol" (change)="cambiarRol(user, getValorEvento($event))">
+            <option value="usuario">Usuario</option>
+            <option value="moderador">Moderador</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <i class="fas fa-toggle-on"></i> Estado:
+          <span [class.activo]="user.estaActivo" [class.inactivo]="!user.estaActivo">
+            {{ user.estaActivo ? 'Activo' : 'Inactivo' }}
+          </span>
+          <button (click)="toggleEstado(user)">Cambiar</button>
+        </div>
+
+        <div class="stats">
+          <p><i class="fas fa-route"></i> Rutas: {{ user.totalRutas || 0 }}</p>
+          <p><i class="fas fa-map"></i> Públicas: {{ user.rutasPublicas || 0 }}</p>
+          <p><i class="fas fa-shoe-prints"></i> Km: {{ user.kmRecorridos || 0 }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="paginacion" *ngIf="totalPages > 1">
+    <button (click)="cambiarPagina(currentPage - 1)" [disabled]="currentPage === 1">Anterior</button>
+    <button *ngFor="let p of [].constructor(totalPages); let i = index"
+            [class.activa]="currentPage === i + 1"
+            (click)="cambiarPagina(i + 1)">
+      {{ i + 1 }}
+    </button>
+    <button (click)="cambiarPagina(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente</button>
+  </div>
+</div>

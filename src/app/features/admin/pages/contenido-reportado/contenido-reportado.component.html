@@ -1,0 +1,29 @@
+<div class="reportes-container">
+  <h2><i class="fas fa-flag"></i> Contenido Reportado</h2>
+
+  <div *ngIf="cargando" class="loader">
+    <i class="fas fa-spinner fa-spin"></i> Cargando reportes...
+  </div>
+
+  <div *ngIf="!cargando && reportes.length === 0" class="vacio">
+    <p><i class="fas fa-check-circle"></i> No hay reportes pendientes.</p>
+  </div>
+
+  <div *ngIf="!cargando && reportes.length > 0" class="lista-reportes">
+    <div class="reporte-card" *ngFor="let r of reportes">
+      <div class="reporte-info">
+        <p><strong>Tipo:</strong> {{ r.tipo }}</p>
+        <p><strong>Contenido ID:</strong> {{ r.contenidoId }}</p>
+        <p><strong>Reportado por:</strong> {{ r.usuarioReportante }}</p>
+        <p><strong>Reportado a:</strong> {{ r.usuarioReportado }}</p>
+        <p><strong>Motivo:</strong> {{ r.motivo }}</p>
+        <p><strong>Fecha:</strong> {{ formatFecha(r.fecha) }}</p>
+      </div>
+      <div class="acciones">
+        <button (click)="verContenido(r)">Ver</button>
+        <button class="btn-rojo" (click)="eliminarContenido(r)">Eliminar</button>
+        <button class="btn-verde" (click)="resolverReporte(r)">Resolver</button>
+      </div>
+    </div>
+  </div>
+</div>
