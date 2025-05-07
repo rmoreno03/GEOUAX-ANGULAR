@@ -1,29 +1,320 @@
+<!-- HTML Mejorado -->
 <div class="reportes-container">
-  <h2><i class="fas fa-flag"></i> Contenido Reportado</h2>
+  <header class="section-header">
+    <h2><i class="fas fa-flag-checkered"></i> Contenido Reportado</h2>
+    <p class="subtitle">Panel de gestión de reportes de usuarios</p>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-value">{{ reportes.length }}</span>
+      <span class="stat-label">Reportes totales</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ reportesHoy }}</span>
+      <span class="stat-label">Reportes hoy</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ reportesPendientes }}</span>
+      <span class="stat-label">Pendientes</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ reportesResueltos }}</span>
+      <span class="stat-label">Resueltos</span>
+    </div>
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div class="filtros-container">
+    <div class="input-search">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Buscar en reportes..." [(ngModel)]="busqueda">
+    </div>
+    <div class="filtros-botones">
+      <button class="btn-filter" [class.active]="filtroActual === 'todos'" (click)="setFiltro('todos')">
+        <i class="fas fa-list-ul"></i> Todos
+      </button>
+      <button class="btn-filter" [class.active]="filtroActual === 'contacto'" (click)="setFiltro('contacto')">
+        <i class="fas fa-envelope"></i> Contacto
+      </button>
+      <button class="btn-filter" [class.active]="filtroActual === 'ruta'" (click)="setFiltro('ruta')">
+        <i class="fas fa-route"></i> Rutas
+      </button>
+      <button class="btn-filter" [class.active]="filtroActual === 'comentario'" (click)="setFiltro('comentario')">
+        <i class="fas fa-comment-alt"></i> Comentarios
+      </button>
+    </div>
+  </div>
 
   <div *ngIf="cargando" class="loader">
-    <i class="fas fa-spinner fa-spin"></i> Cargando reportes...
+    <div class="spinner-container">
+      <div class="spinner"></div>
+    </div>
+    <p>Cargando reportes...</p>
   </div>
 
   <div *ngIf="!cargando && reportes.length === 0" class="vacio">
-    <p><i class="fas fa-check-circle"></i> No hay reportes pendientes.</p>
+    <div class="empty-icon">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <p>No hay reportes pendientes que coincidan con tu búsqueda.</p>
+    <button class="btn-outline" (click)="recargarReportes()">
+      <i class="fas fa-redo"></i> Recargar datos
+    </button>
   </div>
 
   <div *ngIf="!cargando && reportes.length > 0" class="lista-reportes">
-    <div class="reporte-card" *ngFor="let r of reportes">
+    <div class="reporte-card" *ngFor="let r of reportesFiltrados" [class.destacado]="r.prioridad === 'alta'">
+      <div class="reporte-badge" *ngIf="r.prioridad === 'alta'">
+        <i class="fas fa-exclamation-triangle"></i> Prioritario
+      </div>
+
+      <div class="reporte-header">
+        <div class="reporte-tipo" [ngClass]="r.tipo">
+          <i class="fas"
+            [ngClass]="{
+              'fa-envelope': r.tipo === 'contacto',
+              'fa-route': r.tipo === 'ruta',
+              'fa-comment-alt': r.tipo === 'comentario',
+              'fa-user': r.tipo === 'usuario'
+            }"></i>
+          {{ r.tipo | titlecase }}
+        </div>
+        <div class="reporte-fecha">
+          <i class="fas fa-calendar-alt"></i> {{ formatFecha(r.fechaEnvio) }}
+        </div>
+      </div>
+
       <div class="reporte-info">
-        <p><strong>Tipo:</strong> {{ r.tipo }}</p>
-        <p><strong>Contenido ID:</strong> {{ r.contenidoId }}</p>
-        <p><strong>Reportado por:</strong> {{ r.usuarioReportante }}</p>
-        <p><strong>Reportado a:</strong> {{ r.usuarioReportado }}</p>
-        <p><strong>Motivo:</strong> {{ r.motivo }}</p>
-        <p><strong>Fecha:</strong> {{ formatFecha(r.fecha) }}</p>
+        <ng-container [ngSwitch]="r.tipo">
+          <ng-container *ngSwitchCase="'contacto'">
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label"><i class="fas fa-user"></i> Nombre:</span>
+                <span class="info-value">{{ r.nombre }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label"><i class="fas fa-envelope"></i> Email:</span>
+                <span class="info-value">{{ r.email }}</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label"><i class="fas fa-tag"></i> Asunto:</span>
+                <span class="info-value">{{ r.asunto }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label"><i class="fas fa-folder"></i> Categoría:</span>
+                <span class="info-value categoria-badge" [ngClass]="r.categoria">{{ r.categoria }}</span>
+              </div>
+            </div>
+            <div class="mensaje-preview">
+              <span class="info-label"><i class="fas fa-comment-dots"></i> Mensaje:</span>
+              <p class="mensaje-text">{{ ((r.mensaje ?? '').length > 120) ? ((r.mensaje ?? '') | slice:0:120) + '...' : (r.mensaje ?? '') }}</p>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchDefault>
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label"><i class="fas fa-hashtag"></i> Contenido ID:</span>
+                <span class="info-value">{{ r.contenidoId }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label"><i class="fas fa-flag"></i> Reportado por:</span>
+                <span class="info-value">{{ r.usuarioReportante }}</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label"><i class="fas fa-user-times"></i> Reportado a:</span>
+                <span class="info-value">{{ r.usuarioReportado }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label"><i class="fas fa-exclamation-circle"></i> Motivo:</span>
+                <span class="info-value motivo-badge" [ngClass]="r.motivo">{{ r.motivo }}</span>
+              </div>
+            </div>
+            <div class="mensaje-preview">
+              <span class="info-label"><i class="fas fa-comment-dots"></i> Detalles:</span>
+              <p class="mensaje-text">{{ ((r.detalles ?? '').length > 120) ? (r.detalles | slice:0:120) + '...' : (r.detalles || 'No se proporcionaron detalles adicionales.') }}</p>
+            </div>
+          </ng-container>
+        </ng-container>
       </div>
-      <div class="acciones">
-        <button (click)="verContenido(r)">Ver</button>
-        <button class="btn-rojo" (click)="eliminarContenido(r)">Eliminar</button>
-        <button class="btn-verde" (click)="resolverReporte(r)">Resolver</button>
+
+      <div class="reporte-acciones">
+        <button class="btn-accion btn-ver" (click)="verContenido(r)">
+          <i class="fas fa-eye"></i>
+          <span>Ver detalles</span>
+        </button>
+
+        <div class="botones-grupo">
+          <button class="btn-accion btn-rojo" (click)="eliminarContenido(r)">
+            <i class="fas fa-trash-alt"></i>
+            <span>Eliminar</span>
+          </button>
+          <button class="btn-accion btn-verde" (click)="resolverReporte(r)">
+            <i class="fas fa-check-circle"></i>
+            <span>Resolver</span>
+          </button>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Mejorado -->
+<div class="modal-overlay" *ngIf="reporteActivo">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fas" [ngClass]="{
+          'fa-envelope': reporteActivo.tipo === 'contacto',
+          'fa-route': reporteActivo.tipo === 'ruta',
+          'fa-comment-alt': reporteActivo.tipo === 'comentario',
+          'fa-user': reporteActivo.tipo === 'usuario'
+        }"></i>
+        <h3>Detalle del Reporte: {{ reporteActivo.tipo | titlecase }}</h3>
+      </div>
+      <button class="btn-cerrar" (click)="cerrarModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-info">
+        <ng-container [ngSwitch]="reporteActivo.tipo">
+          <ng-container *ngSwitchCase="'contacto'">
+            <div class="info-grupo">
+              <h4><i class="fas fa-user"></i> Información de contacto</h4>
+              <div class="info-item">
+                <span class="info-label">Nombre:</span>
+                <span class="info-valor">{{ reporteActivo.nombre }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-valor">{{ reporteActivo.email }}</span>
+              </div>
+            </div>
+
+            <div class="info-grupo">
+              <h4><i class="fas fa-info-circle"></i> Detalles del mensaje</h4>
+              <div class="info-item">
+                <span class="info-label">Asunto:</span>
+                <span class="info-valor">{{ reporteActivo.asunto }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Categoría:</span>
+                <span class="info-valor categoria-badge-lg" [ngClass]="reporteActivo.categoria">
+                  {{ reporteActivo.categoria }}
+                </span>
+              </div>
+              <div class="info-mensaje">
+                <span class="info-label">Mensaje:</span>
+                <div class="mensaje-completo">{{ reporteActivo.mensaje }}</div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchDefault>
+            <div class="info-grupo">
+              <h4><i class="fas fa-flag"></i> Información del reporte</h4>
+              <div class="info-item">
+                <span class="info-label">Contenido ID:</span>
+                <span class="info-valor">{{ reporteActivo.contenidoId }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Tipo de contenido:</span>
+                <span class="info-valor">{{ reporteActivo.tipo }}</span>
+              </div>
+            </div>
+
+            <div class="info-grupo">
+              <h4><i class="fas fa-users"></i> Usuarios involucrados</h4>
+              <div class="info-item">
+                <span class="info-label">Reportado por:</span>
+                <span class="info-valor">{{ reporteActivo.usuarioReportante }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Reportado a:</span>
+                <span class="info-valor">{{ reporteActivo.usuarioReportado }}</span>
+              </div>
+            </div>
+
+            <div class="info-grupo">
+              <h4><i class="fas fa-exclamation-circle"></i> Motivo del reporte</h4>
+              <div class="info-item">
+                <span class="info-label">Motivo:</span>
+                <span class="info-valor motivo-badge-lg" [ngClass]="reporteActivo.motivo">
+                  {{ reporteActivo.motivo }}
+                </span>
+              </div>
+              <div class="info-mensaje">
+                <span class="info-label">Detalles adicionales:</span>
+                <div class="mensaje-completo">{{ reporteActivo.detalles || 'No se proporcionaron detalles adicionales.' }}</div>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <div class="info-grupo">
+          <h4><i class="fas fa-clock"></i> Información temporal</h4>
+          <div class="info-item">
+            <span class="info-label">Fecha de envío:</span>
+            <span class="info-valor">{{ formatFecha(reporteActivo.fechaEnvio) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-preview" *ngIf="reporteActivo.tipo !== 'contacto'">
+        <h4><i class="fas fa-eye"></i> Vista previa del contenido</h4>
+
+        <div class="preview-container" [ngSwitch]="reporteActivo.tipo">
+          <div *ngSwitchCase="'ruta'" class="preview-ruta">
+            <i class="fas fa-map-marked-alt preview-icon"></i>
+            <p class="preview-placeholder">Vista previa de la ruta</p>
+            <button class="btn-outline btn-sm">
+              <i class="fas fa-external-link-alt"></i> Ver ruta completa
+            </button>
+          </div>
+
+          <div *ngSwitchCase="'comentario'" class="preview-comentario">
+            <div class="comentario-header">
+              <div class="comentario-usuario">
+                <i class="fas fa-user-circle"></i>
+                <span>{{ reporteActivo.usuarioReportado }}</span>
+              </div>
+              <div class="comentario-fecha">{{ formatFecha(reporteActivo.fechaContenido) }}</div>
+            </div>
+            <div class="comentario-contenido">
+              {{ reporteActivo.contenido || 'Contenido del comentario no disponible' }}
+            </div>
+          </div>
+
+          <div *ngSwitchDefault class="preview-generico">
+            <i class="fas fa-file-alt preview-icon"></i>
+            <p class="preview-placeholder">Vista previa no disponible para este tipo de contenido</p>
+            <button class="btn-outline btn-sm">
+              <i class="fas fa-external-link-alt"></i> Ver contenido original
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="modal-acciones">
+        <button class="btn-accion btn-rojo" (click)="eliminarContenido(reporteActivo)">
+          <i class="fas fa-trash-alt"></i> Eliminar contenido
+        </button>
+        <button class="btn-accion btn-verde" (click)="resolverReporte(reporteActivo)">
+          <i class="fas fa-check-circle"></i> Marcar como resuelto
+        </button>
+      </div>
+      <button class="btn-outline" (click)="cerrarModal()">
+        <i class="fas fa-times"></i> Cerrar
+      </button>
     </div>
   </div>
 </div>

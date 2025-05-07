@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { Guia, SolicitudGuia, EstadoSolicitud } from '../../../models/guia.model';
 
 @Injectable({

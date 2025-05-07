@@ -7,46 +7,50 @@
 
   <!-- Navegación -->
   <nav class="menu">
-    <a routerLink="/puntos" [attr.title]="collapsed ? 'Puntos' : null" [routerLinkActive]="'active'">
+    <a routerLink="/puntos" [attr.title]="collapsed ? 'Puntos' : null" routerLinkActive="active">
       <i class="fas fa-map-marker-alt"></i>
       <span *ngIf="!collapsed">Puntos</span>
     </a>
 
-    <a routerLink="/rutas" [attr.title]="collapsed ? 'Rutas' : null" [routerLinkActive]="'active'">
+    <a routerLink="/rutas" [attr.title]="collapsed ? 'Rutas' : null" routerLinkActive="active">
       <i class="fas fa-route"></i>
       <span *ngIf="!collapsed">Rutas</span>
     </a>
 
-    <a routerLink="/estadisticas" [attr.title]="collapsed ? 'Estadísticas' : null" [routerLinkActive]="'active'">
+    <a routerLink="/estadisticas" [attr.title]="collapsed ? 'Estadísticas' : null" routerLinkActive="active">
       <i class="fas fa-chart-bar"></i>
       <span *ngIf="!collapsed">Estadísticas</span>
     </a>
 
-    <a routerLink="/logros" [attr.title]="collapsed ? 'Logros' : null" [routerLinkActive]="'active'">
+    <a routerLink="/logros" [attr.title]="collapsed ? 'Logros' : null" routerLinkActive="active">
       <i class="fas fa-trophy"></i>
       <span *ngIf="!collapsed">Logros</span>
     </a>
 
-    <a routerLink="/usuarios" [attr.title]="collapsed ? 'Usuarios' : null" [routerLinkActive]="'active'">
-      <i class="fas fa-users"></i>
-      <span *ngIf="!collapsed">Usuarios</span>
-    </a>
+    <!-- Solo visible para admin -->
+    <ng-container *ngIf="esAdmin">
+      <a routerLink="/usuarios" [attr.title]="collapsed ? 'Usuarios' : null" routerLinkActive="active">
+        <i class="fas fa-users"></i>
+        <span *ngIf="!collapsed">Usuarios</span>
+      </a>
 
-    <a routerLink="/configuracion" [attr.title]="collapsed ? 'Configuración' : null" [routerLinkActive]="'active'">
+      <a routerLink="/admin" [attr.title]="collapsed ? 'Administración' : null" routerLinkActive="active">
+        <i class="fas fa-user-shield"></i>
+        <span *ngIf="!collapsed">Administración</span>
+      </a>
+    </ng-container>
+
+    <a routerLink="/configuracion" [attr.title]="collapsed ? 'Configuración' : null" routerLinkActive="active">
       <i class="fas fa-cog"></i>
       <span *ngIf="!collapsed">Configuración</span>
     </a>
 
-    <a routerLink="/admin" [attr.title]="collapsed ? 'Administración' : null" [routerLinkActive]="'active'">
-      <i class="fas fa-user-shield"></i>
-      <span *ngIf="!collapsed">Administración</span>
-    </a>
-
-    <a routerLink="/ayuda" [attr.title]="collapsed ? 'Ayuda / Manual' : null" [routerLinkActive]="'active'">
+    <a routerLink="/ayuda" [attr.title]="collapsed ? 'Ayuda / Manual' : null" routerLinkActive="active">
       <i class="fas fa-question-circle"></i>
       <span *ngIf="!collapsed">Ayuda</span>
     </a>
-    <a routerLink="/perfil" [attr.title]="collapsed ? 'Perfil' : null" [routerLinkActive]="'active'">
+
+    <a routerLink="/perfil" [attr.title]="collapsed ? 'Perfil' : null" routerLinkActive="active">
       <i class="fas fa-user"></i>
       <span *ngIf="!collapsed">Perfil</span>
     </a>

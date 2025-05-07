@@ -10,20 +10,20 @@ import { Guia } from '../../../../models/guia.model';
 })
 export class GuiasPdfComponent implements OnInit {
   // Variables para búsqueda y filtrado
-  searchTerm: string = '';
-  selectedCategory: string = 'todas';
+  searchTerm = '';
+  selectedCategory = 'todas';
   guias: Guia[] = [];
   filteredGuias: Guia[] = [];
   guiasPopulares: Guia[] = [];
 
   // Variables de estado
-  loading: boolean = true;
-  cargandoPreview: boolean = false;
+  loading = true;
+  cargandoPreview = false;
   guiaSeleccionada: Guia | null = null;
 
   // Variable para solicitud de guía
-  solicitudTema: string = '';
-  solicitudEnviada: boolean = false;
+  solicitudTema = '';
+  solicitudEnviada = false;
 
   constructor(private guiasService: GuiasService) { }
 

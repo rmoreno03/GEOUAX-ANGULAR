@@ -25,12 +25,12 @@ export class ContactoComponent implements OnInit {
   contactForm!: FormGroup;
 
   // Variables de estado del formulario
-  enviando: boolean = false;
-  mensajeEnviado: boolean = false;
+  enviando = false;
+  mensajeEnviado = false;
 
   // Variables para chat
-  chatAbierto: boolean = false;
-  mensajeChat: string = '';
+  chatAbierto = false;
+  mensajeChat = '';
   mensajesChat: MensajeChat[] = [];
 
   // Referencia al elemento de mensajes para scroll automático
@@ -176,32 +176,31 @@ export class ContactoComponent implements OnInit {
   }
 
   // Variable para controlar si se ha enviado el formulario (para validaciones)
-  private formularioEnviado: boolean = false;
+  private formularioEnviado = false;
 
   /**
    * Envía el mensaje de contacto
    */
-  enviarMensaje(): void {
+  async enviarMensaje(): Promise<void> {
     this.formularioEnviado = true;
 
-    if (this.contactForm.invalid) {
-      return;
-    }
+    if (this.contactForm.invalid) return;
 
     this.enviando = true;
 
-    this.contactoService.enviarMensaje(this.contactForm.value).subscribe(
-      () => {
-        this.enviando = false;
-        this.mensajeEnviado = true;
-      },
-      (error) => {
-        console.error('Error al enviar mensaje:', error);
-        this.enviando = false;
-        // Aquí se podría mostrar un mensaje de error
-      }
-    );
+    try {
+      await this.contactoService.enviarMensaje(this.contactForm.value);
+      this.enviando = false;
+      this.mensajeEnviado = true;
+    } catch (error) {
+      console.error('Error al enviar mensaje:', error);
+      this.enviando = false;
+    }
   }
+
+
+
+
 
   /**
    * Reinicia el formulario a su estado inicial

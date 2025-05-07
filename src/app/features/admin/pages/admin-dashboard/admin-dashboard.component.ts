@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
 export class AdminDashboardComponent implements OnInit {
   firestore: Firestore = inject(Firestore);
   usuarios$: Observable<Usuario[]>;
-  cargando: boolean = true;
+  cargando = true;
 
   constructor() {
     const usuariosRef = collection(this.firestore, 'usuarios');

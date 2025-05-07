@@ -10,14 +10,14 @@ import { PreguntaFrecuente } from '../../../../models/pregunta-frecuente.model';
 })
 export class PreguntasFrecuentesComponent implements OnInit {
   // Variables para búsqueda y filtrado
-  searchTerm: string = '';
-  selectedCategory: string = 'todas';
+  searchTerm = '';
+  selectedCategory = 'todas';
   preguntas: PreguntaFrecuente[] = [];
   filteredPreguntas: PreguntaFrecuente[] = [];
   preguntasPopulares: PreguntaFrecuente[] = [];
 
   // Variables de estado
-  loading: boolean = true;
+  loading = true;
 
   constructor(private preguntasService: PreguntasFrecuentesService) { }
 

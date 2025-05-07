@@ -17,6 +17,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 import { HttpClientModule } from '@angular/common/http';
+import { CoreModule } from './core/core.module';
 
 
 
@@ -41,6 +42,7 @@ export const storage = getStorage(app);
     LayoutModule,
     SharedModule,
     HttpClientModule,
+    CoreModule
   ],
   providers: [
     provideAnimationsAsync(),

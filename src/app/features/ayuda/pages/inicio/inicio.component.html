@@ -1,11 +1,13 @@
 <div class="ayuda-container">
   <header class="ayuda-header">
     <h1>Centro de Ayuda</h1>
-    <p class="subtitle">Bienvenido al centro de ayuda de GeoUAX. Encuentra todo lo que necesitas para sacar el máximo provecho a nuestra aplicación.</p>
+    <p class="subtitle">
+      Bienvenido al centro de ayuda de GeoUAX. Encuentra todo lo que necesitas para sacar el máximo provecho a nuestra aplicación.
+    </p>
   </header>
 
   <div class="cards-container">
-    <div class="info-card" [routerLink]="['/ayuda/tutoriales']">
+    <div class="info-card" [routerLink]="['/ayuda/tutoriales']" tabindex="0">
       <div class="card-icon">
         <i class="fas fa-book-open"></i>
       </div>
@@ -15,7 +17,7 @@
       </div>
     </div>
 
-    <div class="info-card" [routerLink]="['/ayuda/preguntas-frecuentes']">
+    <div class="info-card" [routerLink]="['/ayuda/faq']" tabindex="0">
       <div class="card-icon">
         <i class="fas fa-question-circle"></i>
       </div>
@@ -25,7 +27,7 @@
       </div>
     </div>
 
-    <div class="info-card" [routerLink]="['/ayuda/contacto']">
+    <div class="info-card" [routerLink]="['/ayuda/contacto']" tabindex="0">
       <div class="card-icon">
         <i class="fas fa-envelope"></i>
       </div>
@@ -35,7 +37,7 @@
       </div>
     </div>
 
-    <div class="info-card" [routerLink]="['/ayuda/guias-pdf']">
+    <div class="info-card" [routerLink]="['/ayuda/guias']" tabindex="0">
       <div class="card-icon">
         <i class="fas fa-file-pdf"></i>
       </div>
@@ -51,59 +53,18 @@
     <p>Si es la primera vez que usas GeoUAX, te recomendamos comenzar por aquí:</p>
 
     <div class="steps-container">
-      <div class="step">
-        <div class="step-number">1</div>
-        <div class="step-content">
-          <h4>Configura tu perfil</h4>
-          <p>Personaliza tu perfil para que otros usuarios conozcan tus intereses y logros.</p>
-          <a [routerLink]="['/perfil']" class="step-link">Ir al perfil <i class="fas fa-user-cog"></i></a>
+      <ng-container *ngFor="let paso of pasos">
+        <div class="step">
+          <div class="step-number">{{ paso.numero }}</div>
+          <div class="step-content">
+            <h4>{{ paso.titulo }}</h4>
+            <p>{{ paso.descripcion }}</p>
+            <a [routerLink]="[paso.ruta]" class="step-link">
+              {{ paso.boton }} <i class="fas" [ngClass]="paso.icono"></i>
+            </a>
+          </div>
         </div>
-      </div>
-
-      <div class="step">
-        <div class="step-number">2</div>
-        <div class="step-content">
-          <h4>Crea puntos de interés</h4>
-          <p>Agrega ubicaciones relevantes y compártelas con la comunidad.</p>
-          <a [routerLink]="['/puntos/crear']" class="step-link">Crear punto <i class="fas fa-map-marker-alt"></i></a>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-number">3</div>
-        <div class="step-content">
-          <h4>Crea rutas personalizadas</h4>
-          <p>Combina varios puntos para formar una ruta con propósito.</p>
-          <a [routerLink]="['/rutas/crear']" class="step-link">Crear ruta <i class="fas fa-route"></i></a>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-number">4</div>
-        <div class="step-content">
-          <h4>Explora rutas públicas</h4>
-          <p>Descubre rutas creadas por otros usuarios y úsalas como inspiración.</p>
-          <a [routerLink]="['/rutas/publicas']" class="step-link">Ver rutas <i class="fas fa-compass"></i></a>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-number">5</div>
-        <div class="step-content">
-          <h4>Consulta tu huella de carbono</h4>
-          <p>Evalúa el impacto ambiental de tus rutas y contribuye a un mundo más verde.</p>
-          <a [routerLink]="['/huella-carbono']" class="step-link">Ver huella <i class="fas fa-leaf"></i></a>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-number">6</div>
-        <div class="step-content">
-          <h4>Comparte con la comunidad</h4>
-          <p>Publica tus rutas favoritas y conecta con otros exploradores de GeoUAX.</p>
-          <a [routerLink]="['/perfil/mis-rutas']" class="step-link">Mis rutas <i class="fas fa-share-alt"></i></a>
-        </div>
-      </div>
+      </ng-container>
     </div>
   </section>
 
@@ -115,7 +76,7 @@
         placeholder="Buscar en la ayuda..."
         [(ngModel)]="searchTerm"
         (keyup.enter)="searchHelp()"
-      >
+      />
       <button (click)="searchHelp()" class="search-btn">
         <i class="fas fa-search"></i>
       </button>
@@ -125,12 +86,13 @@
   <div class="popular-topics">
     <h3>Temas populares</h3>
     <div class="topics-container">
-      <a class="topic-tag" (click)="setSearchTerm('crear ruta')">Crear ruta</a>
-      <a class="topic-tag" (click)="setSearchTerm('editar perfil')">Editar perfil</a>
-      <a class="topic-tag" (click)="setSearchTerm('compartir')">Compartir</a>
-      <a class="topic-tag" (click)="setSearchTerm('privacidad')">Privacidad</a>
-      <a class="topic-tag" (click)="setSearchTerm('amigos')">Amigos</a>
-      <a class="topic-tag" (click)="setSearchTerm('notificaciones')">Notificaciones</a>
+      <button
+        *ngFor="let topic of temas"
+        class="topic-tag"
+        (click)="setSearchTerm(topic)"
+      >
+        {{ topic }}
+      </button>
     </div>
   </div>
 </div>
