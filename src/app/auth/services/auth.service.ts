@@ -53,22 +53,8 @@ export interface UserProfile {
   phoneNumber?: string;
   createdAt: any; // Timestamp de Firestore
   lastLogin: any; // Timestamp de Firestore
-  verificationCode?: string;
-  verificationCodeExpires?: any; // Timestamp de Firestore
-  verificationAttempts?: number;
   roles?: string[];
   accountStatus: 'active' | 'suspended' | 'pending_verification';
-}
-
-// Modelo para el historial de intentos de verificación
-export interface VerificationAttempt {
-  userId: string;
-  email: string;
-  timestamp: any; // Timestamp
-  success: boolean;
-  code: string;
-  ipAddress?: string;
-  deviceInfo?: string;
 }
 
 // Modelo para el historial de inicios de sesión
@@ -106,7 +92,6 @@ export class AuthService {
   // Configuración de seguridad
   private maxFailedAttempts = 5;
   private lockoutDuration = 15 * 60 * 1000; // 15 minutos en milisegundos
-  private maxVerificationAttempts = 5; // Máximo número de intentos de verificación antes de generar nuevo código
   private failedLoginAttempts: { [email: string]: { count: number, timestamp: number } } = {};
 
   constructor(private router: Router) {
@@ -165,19 +150,19 @@ export class AuthService {
       const result = await signInWithEmailAndPassword(this.auth, email, password);
       this.isLoggedInSubject.next(true);
 
+      // Registrar inicio de sesión exitoso
+      await this.logLoginAttempt(result.user.uid, true, 'email');
+
       // Actualizar fecha de último login en Firestore
       await this.updateUserLastLogin(result.user.uid);
 
-      // Registrar inicio de sesión exitoso
-      await this.logLoginAttempt(result.user.uid, true, 'email');
+      // Resetear contador de intentos fallidos
+      this.resetFailedAttempts(email);
 
       // Si el email no está verificado, redirigir a la página de verificación
       if (!result.user.emailVerified) {
         this.router.navigate(['/auth/verify-email']);
       }
-
-      // Resetear contador de intentos fallidos
-      this.resetFailedAttempts(email);
 
       return result;
     } catch (error) {
@@ -211,19 +196,11 @@ export class AuthService {
         await updateProfile(userCredential.user, { displayName });
       }
 
-      // Generar código de verificación de 6 dígitos
-      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-      // Crear un timestamp de Firestore para la fecha de expiración (24 horas)
-      const expiryDate = new Date();
-      expiryDate.setHours(expiryDate.getHours() + 24);
-      const verificationCodeExpires = Timestamp.fromDate(expiryDate);
-
-      // Crear el perfil en Firestore con el código de verificación
+      // Crear el perfil en Firestore
       await this.createUserProfile(
         userCredential.user,
         displayName,
-        verificationCode,
-        verificationCodeExpires
+        userCredential.user.emailVerified
       );
 
       // Enviar email de verificación
@@ -261,16 +238,10 @@ export class AuthService {
       // Si es la primera vez que el usuario se registra con Google
       if (additionalInfo?.isNewUser) {
         // Los usuarios de Google ya tienen el email verificado
-        await this.createUserProfile(result.user, result.user.displayName ?? undefined, undefined, undefined, true);
+        await this.createUserProfile(result.user, result.user.displayName ?? undefined, true);
       } else {
         // Actualizar fecha de último login
-        const userRef = doc(this.firestore, `users/${result.user.uid}`);
-        await updateDoc(userRef, {
-          lastLogin: serverTimestamp(),
-          // Actualizar otros campos si es necesario
-          photoURL: result.user.photoURL,
-          displayName: result.user.displayName
-        });
+        await this.updateUserLastLogin(result.user.uid);
       }
 
       // Registrar inicio de sesión exitoso
@@ -333,100 +304,53 @@ export class AuthService {
   }
 
   /**
-   * Verifica el código enviado por email
-   * @param code Código de verificación de 6 dígitos
+   * Verifica un código de acción
+   * @param oobCode Código de acción recibido por correo
    */
-  async verifyEmailCode(code: string): Promise<boolean> {
-    const user = this.auth.currentUser;
-    if (!user) {
-      throw new Error('No hay usuario autenticado');
-    }
-
+  async checkActionCode(oobCode: string): Promise<any> {
     try {
-      // Obtener el perfil del usuario desde Firestore
-      const userRef = doc(this.firestore, `users/${user.uid}`);
-      const userDoc = await getDoc(userRef);
-
-      if (!userDoc.exists()) {
-        throw new Error('Usuario no encontrado en la base de datos');
-      }
-
-      const userProfile = userDoc.data() as UserProfile;
-
-      // Registrar este intento de verificación para auditoría
-      await this.logVerificationAttempt(user.uid, user.email || '', code, false);
-
-      // Verificar si el código es válido
-      if (!userProfile.verificationCode) {
-        throw new Error('No hay un código de verificación activo');
-      }
-
-      if (userProfile.verificationCode !== code) {
-        // Incrementar contador de intentos fallidos
-        const attempts = (userProfile.verificationAttempts || 0) + 1;
-        await updateDoc(userRef, { verificationAttempts: attempts });
-
-        // Si supera el máximo de intentos, generar un nuevo código
-        if (attempts >= this.maxVerificationAttempts) {
-          await this.regenerateVerificationCode(user);
-          throw new Error('Demasiados intentos fallidos. Se ha generado un nuevo código de verificación.');
-        }
-
-        throw new Error('El código de verificación es incorrecto');
-      }
-
-      // Verificar si el código ha expirado
-      if (userProfile.verificationCodeExpires &&
-          userProfile.verificationCodeExpires.toDate &&
-          userProfile.verificationCodeExpires.toDate() < new Date()) {
-        // Generar un nuevo código y enviarlo
-        await this.regenerateVerificationCode(user);
-        throw new Error('El código de verificación ha expirado. Se ha enviado un nuevo código.');
-      }
-
-      // Actualizar el estado de verificación en Firestore
-      await updateDoc(userRef, {
-        emailVerified: true,
-        verificationCode: null,
-        verificationCodeExpires: null,
-        verificationAttempts: 0,
-        accountStatus: 'active',
-        updatedAt: serverTimestamp()
-      });
-
-      // Registrar verificación exitosa
-      await this.logVerificationAttempt(user.uid, user.email || '', code, true);
-
-      // Actualizar el perfil en el Subject
-      const updatedProfile: UserProfile = { ...userProfile, emailVerified: true, accountStatus: 'active' as 'active' };
-      this.userProfileSubject.next(updatedProfile);
-
-      // El email está ahora verificado
-      // Forzar una recarga del usuario para actualizar su token
-      await user.reload();
-      this.userSubject.next(user);
-
-      return true;
+      return await checkActionCode(this.auth, oobCode);
     } catch (error) {
-      console.error('❌ Error al verificar el código:', error);
+      console.error('❌ Error al verificar código de acción:', error);
       throw this.handleAuthError(error);
     }
   }
 
   /**
-   * Regenera y envía un nuevo código de verificación
+   * Aplica un código de acción
+   * @param oobCode Código de acción recibido por correo
    */
-  async resendVerificationCode(): Promise<void> {
-    const user = this.auth.currentUser;
-    if (!user) {
-      throw new Error('No hay usuario autenticado');
-    }
-
+  async applyActionCode(oobCode: string): Promise<void> {
     try {
-      await this.regenerateVerificationCode(user);
-      console.log('✅ Nuevo código de verificación enviado a:', user.email);
+      await applyActionCode(this.auth, oobCode);
+
+      // Recargar el usuario para actualizar su estado de verificación
+      const user = this.auth.currentUser;
+      if (user) {
+        await user.reload();
+        // Actualizar el subject
+        this.userSubject.next(user);
+
+        // Actualizar también el perfil en Firestore
+        const userRef = doc(this.firestore, `users/${user.uid}`);
+        await updateDoc(userRef, {
+          emailVerified: true,
+          accountStatus: 'active',
+          updatedAt: serverTimestamp()
+        });
+
+        // Actualizar el userProfile
+        const currentProfile = this.userProfileSubject.value;
+        if (currentProfile) {
+          this.userProfileSubject.next({
+            ...currentProfile,
+            emailVerified: true,
+            accountStatus: 'active'
+          });
+        }
+      }
     } catch (error) {
-      console.error('❌ Error al reenviar el código de verificación:', error);
+      console.error('❌ Error al aplicar código de acción:', error);
       throw this.handleAuthError(error);
     }
   }
@@ -453,7 +377,6 @@ export class AuthService {
   getCurrentUserNow(): User | null {
     return this.auth.currentUser;
   }
-
 
   /**
    * Confirma el restablecimiento de contraseña con el código recibido
@@ -545,20 +468,11 @@ export class AuthService {
       // Actualizar el email
       await updateEmail(user, newEmail);
 
-      // Generar nuevo código de verificación
-      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiryDate = new Date();
-      expiryDate.setHours(expiryDate.getHours() + 24);
-      const verificationCodeExpires = Timestamp.fromDate(expiryDate);
-
       // Actualizar el email y estado de verificación en Firestore
       const userRef = doc(this.firestore, `users/${user.uid}`);
       await updateDoc(userRef, {
         email: newEmail,
         emailVerified: false,
-        verificationCode,
-        verificationCodeExpires,
-        verificationAttempts: 0,
         accountStatus: 'pending_verification',
         updatedAt: serverTimestamp()
       });
@@ -661,8 +575,6 @@ export class AuthService {
   private async createUserProfile(
     user: User,
     displayName?: string,
-    verificationCode?: string,
-    verificationCodeExpires?: any,
     emailVerified: boolean = false
   ): Promise<void> {
     const userProfile: UserProfile = {
@@ -675,15 +587,8 @@ export class AuthService {
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
       accountStatus: emailVerified ? 'active' : 'pending_verification',
-      roles: ['user'], // Rol predeterminado
-      verificationAttempts: 0
+      roles: ['user'] // Rol predeterminado
     };
-
-    // Si hay código de verificación, añadirlo
-    if (verificationCode && verificationCodeExpires) {
-      userProfile.verificationCode = verificationCode;
-      userProfile.verificationCodeExpires = verificationCodeExpires;
-    }
 
     try {
       const userRef = doc(this.firestore, `users/${user.uid}`);
@@ -699,40 +604,42 @@ export class AuthService {
 
   /**
    * Actualiza la fecha del último inicio de sesión
+   * Si el documento no existe, crea un perfil básico
    */
   private async updateUserLastLogin(userId: string): Promise<void> {
     try {
       const userRef = doc(this.firestore, `users/${userId}`);
-      await updateDoc(userRef, {
-        lastLogin: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+
+      // Verificar si el documento existe
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        // El documento existe, actualizar la fecha de último login
+        await updateDoc(userRef, {
+          lastLogin: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+
+        console.log('✅ Fecha de último inicio de sesión actualizada');
+      } else {
+        // El documento no existe, crearlo con información básica
+        const user = this.auth.currentUser;
+
+        if (user) {
+          // Crear un perfil básico para el usuario
+          await this.createUserProfile(
+            user,
+            user.displayName || undefined,
+            user.emailVerified
+          );
+        } else {
+          console.warn('⚠️ No se pudo crear el perfil de usuario - usuario no disponible');
+        }
+      }
     } catch (error) {
       console.error('❌ Error al actualizar fecha de último inicio de sesión:', error);
+      // No lanzar el error para evitar que interrumpa el flujo de autenticación
     }
-  }
-
-  /**
-   * Regenera y envía un nuevo código de verificación
-   */
-  private async regenerateVerificationCode(user: User): Promise<void> {
-    // Generar nuevo código de verificación
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 24);
-    const verificationCodeExpires = Timestamp.fromDate(expiryDate);
-
-    // Actualizar en Firestore
-    const userRef = doc(this.firestore, `users/${user.uid}`);
-    await updateDoc(userRef, {
-      verificationCode,
-      verificationCodeExpires,
-      verificationAttempts: 0,
-      updatedAt: serverTimestamp()
-    });
-
-    // Enviar nuevo email de verificación
-    await this.sendVerificationEmail(user);
   }
 
   /**
@@ -752,7 +659,7 @@ export class AuthService {
             // Si no existe el perfil pero sí el usuario, crearlo
             const user = this.auth.currentUser;
             if (user) {
-              this.createUserProfile(user);
+              this.createUserProfile(user, undefined, user.emailVerified);
             }
           }
         },
@@ -793,34 +700,30 @@ export class AuthService {
       const loginAttemptsRef = collection(this.firestore, 'loginAttempts');
       await addDoc(loginAttemptsRef, attempt);
     } catch (error) {
+      // Registramos el error pero no lo propagamos para evitar bloquear el flujo principal
       console.error('❌ Error al registrar intento de inicio de sesión:', error);
     }
   }
 
   /**
-   * Registra un intento de verificación de email
+   * Obtiene el perfil del usuario actual directamente (no como observable)
+   * @returns El perfil del usuario o null si no existe
    */
-  private async logVerificationAttempt(
-    userId: string,
-    email: string,
-    code: string,
-    success: boolean
-  ): Promise<void> {
-    try {
-      const attempt: VerificationAttempt = {
-        userId,
-        email,
-        timestamp: serverTimestamp(),
-        success,
-        code,
-        deviceInfo: navigator.userAgent
-      };
+  async getUserProfileSnapshot(): Promise<UserProfile | null> {
+    const userId = this.getUserId();
+    if (!userId) return null;
 
-      // Guardar en Firestore
-      const verificationAttemptsRef = collection(this.firestore, 'verificationAttempts');
-      await addDoc(verificationAttemptsRef, attempt);
+    try {
+      const userRef = doc(this.firestore, `users/${userId}`);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        return userDoc.data() as UserProfile;
+      }
+      return null;
     } catch (error) {
-      console.error('❌ Error al registrar intento de verificación:', error);
+      console.error('❌ Error al obtener perfil de usuario:', error);
+      return null;
     }
   }
 
@@ -941,15 +844,6 @@ export class AuthService {
           break;
         case 'auth/invalid-credential':
           errorMessage = 'Credenciales inválidas. Por favor, verifica tus datos e inténtalo de nuevo.';
-          break;
-        case 'auth/invalid-verification-code':
-          errorMessage = 'El código de verificación es incorrecto.';
-          break;
-        case 'auth/invalid-verification-id':
-          errorMessage = 'ID de verificación inválido.';
-          break;
-        case 'auth/missing-verification-code':
-          errorMessage = 'Falta el código de verificación.';
           break;
         case 'auth/captcha-check-failed':
           errorMessage = 'La verificación captcha ha fallado. Por favor, inténtalo de nuevo.';

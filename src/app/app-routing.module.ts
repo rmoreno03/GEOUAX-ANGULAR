@@ -7,6 +7,7 @@ import { AuthLayoutComponent } from './features/layout/pages/auth-layout/auth-la
 import { LandingPageComponent } from './features/layout/components/landing-page/landing-page.component';
 import { LandingLayoutComponent } from './features/layout/pages/landing-layout/landing-layout.component';
 import { AdminGuard } from './core/guards/admin.guard';
+import { EmailVerifiedGuard } from './auth/guards/email-verified.guard';
 
 const routes: Routes = [
   {
@@ -24,7 +25,7 @@ const routes: Routes = [
   {
     path: '',
     component: FeaturesLayoutComponent,
-    canActivate: [AuthGuard],
+    canActivate: [EmailVerifiedGuard], // Cambiamos AuthGuard por EmailVerifiedGuard para asegurar email verificado
     children: [
       {
         path: 'puntos',
@@ -74,9 +75,12 @@ const routes: Routes = [
   {
     path: 'auth',
     component: AuthLayoutComponent,
-    canActivateChild: [NoAuthGuard],
     children: [
-      { path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) }
+      {
+        path: '',
+        loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
+        // Eliminamos NoAuthGuard aquí para permitir acceso a la ruta de verificación de email
+      }
     ]
   },
   {

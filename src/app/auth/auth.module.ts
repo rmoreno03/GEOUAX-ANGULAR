@@ -7,6 +7,9 @@ import { RegisterComponent } from './pages/register/register.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
+import { VerifyEmailSuccessComponent } from './components/verify-email-success/verify-email-success.component';
+import { ChangePasswordComponent } from './components/change-password/change-password.component';
 
 
 
@@ -15,6 +18,9 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
     LoginComponent,
     RegisterComponent,
     ResetPasswordComponent,
+    VerifyEmailComponent,
+    VerifyEmailSuccessComponent,
+    ChangePasswordComponent,
   ],
   imports: [
     CommonModule,

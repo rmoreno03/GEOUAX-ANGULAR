@@ -1,0 +1,62 @@
+<div class="auth-container">
+  <h2>Verificar tu correo electrónico</h2>
+
+  <div class="verification-info" *ngIf="user$ | async as user">
+    <div class="user-info">
+      <div class="avatar-container" *ngIf="user.photoURL">
+        <img [src]="user.photoURL" alt="Avatar de usuario" class="user-avatar">
+      </div>
+      <div class="user-details">
+        <h3>{{ user.displayName || 'Usuario' }}</h3>
+        <p class="user-email">{{ user.email }}</p>
+      </div>
+    </div>
+
+    <div class="verification-message">
+      <i class="fas fa-envelope-open-text"></i>
+      <p>Hemos enviado un enlace de verificación a tu correo electrónico.</p>
+      <p>Por favor, revisa tu bandeja de entrada y haz clic en el enlace para verificar tu cuenta.</p>
+
+      <!-- Botones de ayuda -->
+      <div class="help-options">
+        <button type="button" class="btn-help" (click)="showEmailHelpInfo()">
+          <i class="fas fa-search"></i> ¿Dónde está mi enlace?
+        </button>
+        <button type="button" class="btn-help" (click)="showSupportOptions()">
+          <i class="fas fa-headset"></i> Contactar soporte
+        </button>
+      </div>
+    </div>
+
+    <div class="verification-options">
+      <p>¿No has recibido el enlace de verificación?</p>
+
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="sendVerificationLink()"
+        [disabled]="isSending"
+      >
+        <span *ngIf="!isSending">Reenviar enlace de verificación</span>
+        <span *ngIf="isSending" class="spinner"><i class="fas fa-spinner fa-spin"></i></span>
+      </button>
+    </div>
+
+    <!-- Mensajes de error y éxito con mejor formato -->
+    <div *ngIf="errorMessage" class="error-container">
+      <i class="fas fa-exclamation-circle"></i>
+      <p [innerHTML]="errorMessage"></p>
+    </div>
+
+    <div *ngIf="successMessage" class="success-container">
+      <i class="fas fa-info-circle"></i>
+      <p [innerHTML]="successMessage"></p>
+    </div>
+
+    <div class="logout-option">
+      <button type="button" class="btn-text" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+      </button>
+    </div>
+  </div>
+</div>

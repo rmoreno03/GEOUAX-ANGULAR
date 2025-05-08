@@ -16,6 +16,7 @@ export class AuthGuard implements CanActivate {
       map(user => {
         const loggedIn = !!user;
         if (!loggedIn) {
+          console.warn('⛔ Usuario no autenticado, redirigiendo a login');
           this.router.navigate(['/auth/login']);
         }
         return loggedIn;
