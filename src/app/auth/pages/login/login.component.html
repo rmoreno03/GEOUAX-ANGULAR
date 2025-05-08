@@ -1,48 +1,112 @@
 <div class="auth-container">
-  <h2>Iniciar sesión</h2>
+  <!-- Formulario de login -->
+  <div *ngIf="!showResetForm">
+    <h2>Iniciar sesión</h2>
 
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Email -->
+      <label for="email">Email</label>
+      <div class="input-wrapper">
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          placeholder="ejemplo@correo.com"
+        />
+      </div>
+      <div class="input-error" *ngIf="email?.touched && email?.errors?.['required']">
+        El email es obligatorio.
+      </div>
+      <div class="input-error" *ngIf="email?.touched && email?.errors?.['email']">
+        El formato no es válido.
+      </div>
 
-    <label for="email">Email</label>
-    <div class="password-wrapper">
-      <input
-        type="email"
-        id="email"
-        formControlName="email"
-        placeholder="ejemplo@correo.com"
-      />
-    </div>
-    <div class="input-error" *ngIf="email?.touched && email?.errors?.['required']">
-      El email es obligatorio.
-    </div>
-    <div class="input-error" *ngIf="email?.touched && email?.errors?.['email']">
-      El formato no es válido.
-    </div>
+      <!-- Contraseña -->
+      <label for="password">Contraseña</label>
+      <div class="password-wrapper">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          id="password"
+          formControlName="password"
+          placeholder="••••••••"
+        />
+        <button type="button" class="toggle-password" (click)="togglePassword()">
+          <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+        </button>
+      </div>
+      <div class="input-error">
+        <span *ngIf="password.invalid && (password.dirty || password.touched)">
+          <span *ngIf="password.errors?.['required']">La contraseña es obligatoria.</span>
+        </span>
+      </div>
 
+      <!-- Botón de envío -->
+      <button type="submit" [disabled]="loginForm.invalid || isLoading" class="btn-primary">
+        <span *ngIf="!isLoading">Entrar</span>
+        <span *ngIf="isLoading" class="spinner"><i class="fas fa-spinner fa-spin"></i></span>
+      </button>
+    </form>
 
-    <!-- Contraseña -->
-    <label for="password">Contraseña</label>
-    <div class="password-wrapper">
-      <input
-        [type]="showPassword ? 'text' : 'password'"
-        id="password"
-        formControlName="password"
-        placeholder="••••••••"
-      />
-      <button type="button" class="toggle-password" (click)="togglePassword()">
-        <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+    <!-- Botón de recuperación de contraseña -->
+    <div class="reset-password">
+      <button type="button" class="btn-link" (click)="toggleResetForm()">
+        ¿Olvidaste tu contraseña?
       </button>
     </div>
-    <div class="input-error">
-      <span *ngIf="password.invalid && (password.dirty || password.touched)">
-        <span *ngIf="password.errors?.['required']">La contraseña es obligatoria.</span>
-      </span>
+
+    <!-- Separador -->
+    <div class="divider">
+      <span>o</span>
     </div>
 
-    <!-- Botón de envío -->
-    <button type="submit" [disabled]="loginForm.invalid">Entrar</button>
-  </form>
+    <!-- Inicio de sesión con Google -->
+    <button type="button" class="btn-google" (click)="loginWithGoogle()">
+      <i class="fab fa-google"></i> Continuar con Google
+    </button>
 
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
-  <p>¿No tienes cuenta? <a routerLink="/auth/register">Regístrate aquí</a></p>
+    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+    <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
+    <p>¿No tienes cuenta? <a routerLink="/auth/register">Regístrate aquí</a></p>
+  </div>
+
+  <!-- Formulario de recuperación de contraseña -->
+  <div *ngIf="showResetForm">
+    <h2>Recuperar contraseña</h2>
+
+    <p class="reset-instructions">
+      Introduce tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.
+    </p>
+
+    <form [formGroup]="resetForm" (ngSubmit)="onResetPassword()">
+      <label for="resetEmail">Email</label>
+      <div class="input-wrapper">
+        <input
+          type="email"
+          id="resetEmail"
+          formControlName="email"
+          placeholder="ejemplo@correo.com"
+        />
+      </div>
+      <div class="input-error" *ngIf="resetEmail?.touched && resetEmail?.errors?.['required']">
+        El email es obligatorio.
+      </div>
+      <div class="input-error" *ngIf="resetEmail?.touched && resetEmail?.errors?.['email']">
+        El formato no es válido.
+      </div>
+
+      <button type="submit" [disabled]="resetForm.invalid || isLoading" class="btn-primary">
+        <span *ngIf="!isLoading">Enviar instrucciones</span>
+        <span *ngIf="isLoading" class="spinner"><i class="fas fa-spinner fa-spin"></i></span>
+      </button>
+    </form>
+
+    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+    <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
+
+    <div class="back-link">
+      <button type="button" class="btn-link" (click)="toggleResetForm()">
+        <i class="fas fa-arrow-left"></i> Volver al inicio de sesión
+      </button>
+    </div>
+  </div>
 </div>

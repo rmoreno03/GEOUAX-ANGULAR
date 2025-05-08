@@ -1,11 +1,24 @@
 <div class="auth-container">
-  <h2>Registrarse</h2>
+  <h2>Crear cuenta</h2>
 
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <!-- Nombre -->
+    <label for="displayName">Nombre</label>
+    <div class="input-wrapper">
+      <input
+        type="text"
+        id="displayName"
+        formControlName="displayName"
+        placeholder="Tu nombre"
+      />
+    </div>
+    <div class="input-error" *ngIf="displayName?.touched && displayName?.errors?.['required']">
+      El nombre es obligatorio.
+    </div>
 
     <!-- Email -->
     <label for="email">Email</label>
-    <div class="password-wrapper">
+    <div class="input-wrapper">
       <input
         type="email"
         id="email"
@@ -58,8 +71,23 @@
     </div>
 
     <!-- Botón Enviar -->
-    <button type="submit">Crear cuenta</button>
+    <button type="submit" [disabled]="registerForm.invalid || isLoading" class="btn-primary">
+      <span *ngIf="!isLoading">Crear cuenta</span>
+      <span *ngIf="isLoading" class="spinner"><i class="fas fa-spinner fa-spin"></i></span>
+    </button>
   </form>
+
+  <!-- Separador -->
+  <div class="divider">
+    <span>o</span>
+  </div>
+
+  <!-- Registro con Google -->
+  <button type="button" class="btn-google" (click)="registerWithGoogle()">
+    <i class="fab fa-google"></i> Registrarse con Google
+  </button>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
 
   <p>
     ¿Ya tienes cuenta?

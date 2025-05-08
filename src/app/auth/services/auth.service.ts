@@ -1,72 +1,973 @@
 import { inject, Injectable, Injector } from '@angular/core';
-import { Auth, authState } from '@angular/fire/auth';
+import {
+  Auth,
+  authState,
+  GoogleAuthProvider,
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+  ActionCodeSettings,
+  UserCredential,
+  sendEmailVerification,
+  applyActionCode,
+  checkActionCode,
+  verifyPasswordResetCode,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
+  EmailAuthProvider,
+  updateEmail,
+  reauthenticateWithCredential,
+  updatePassword
+} from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
+  signInWithPopup,
+  updateProfile,
+  User,
+  getAdditionalUserInfo
 } from 'firebase/auth';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import {
+  Firestore,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  collection,
+  addDoc,
+  serverTimestamp,
+  Timestamp,
+  onSnapshot
+} from '@angular/fire/firestore';
+
+// Interfaz para el perfil de usuario en Firestore
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName?: string;
+  photoURL?: string;
+  emailVerified: boolean;
+  phoneNumber?: string;
+  createdAt: any; // Timestamp de Firestore
+  lastLogin: any; // Timestamp de Firestore
+  verificationCode?: string;
+  verificationCodeExpires?: any; // Timestamp de Firestore
+  verificationAttempts?: number;
+  roles?: string[];
+  accountStatus: 'active' | 'suspended' | 'pending_verification';
+}
+
+// Modelo para el historial de intentos de verificación
+export interface VerificationAttempt {
+  userId: string;
+  email: string;
+  timestamp: any; // Timestamp
+  success: boolean;
+  code: string;
+  ipAddress?: string;
+  deviceInfo?: string;
+}
+
+// Modelo para el historial de inicios de sesión
+export interface LoginAttempt {
+  userId: string;
+  timestamp: any; // Timestamp
+  success: boolean;
+  ipAddress?: string;
+  deviceInfo?: string;
+  browser?: string;
+  method: 'email' | 'google' | 'phone' | 'other';
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private injector = inject(Injector);
   private auth = inject(Auth);
+  private firestore = inject(Firestore);
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
+  private userSubject = new BehaviorSubject<User | null>(null);
+  private userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
+
+  // Configuración para redirección después de acciones de correo
+  private actionCodeSettings: ActionCodeSettings = {
+    url: window.location.origin + '/auth/verify-email-success',
+    handleCodeInApp: true
+  };
+
+  // Configuración para redirección después de recuperación de contraseña
+  private passwordResetSettings: ActionCodeSettings = {
+    url: window.location.origin + '/auth/reset-password-confirm',
+    handleCodeInApp: true
+  };
+
+  // Configuración de seguridad
+  private maxFailedAttempts = 5;
+  private lockoutDuration = 15 * 60 * 1000; // 15 minutos en milisegundos
+  private maxVerificationAttempts = 5; // Máximo número de intentos de verificación antes de generar nuevo código
+  private failedLoginAttempts: { [email: string]: { count: number, timestamp: number } } = {};
 
   constructor(private router: Router) {
-    // Ejecutar authState dentro del contexto de inyección
-    authState(this.auth).subscribe(user => {
-      const loggedIn = !!user;
-      this.isLoggedInSubject.next(loggedIn);
+    // Observar cambios en el estado de autenticación
+    authState(this.auth).pipe(
+      tap(user => {
+        this.userSubject.next(user);
+        const loggedIn = !!user;
+        this.isLoggedInSubject.next(loggedIn);
 
+        if (user) {
+          this.updateUserLastLogin(user.uid);
+          this.fetchUserProfile(user.uid);
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Error observando el estado de autenticación:', error);
+        return of(null);
+      })
+    ).subscribe(user => {
       const rutaActual = this.router.url;
-      const esPublica = rutaActual.startsWith('/landing') || rutaActual.startsWith('/auth');
+      const esPublica = rutaActual.startsWith('/landing') ||
+                        rutaActual.startsWith('/auth') ||
+                        rutaActual.includes('verify-email') ||
+                        rutaActual.includes('email-verified');
 
-      if (!loggedIn && !esPublica) {
+      if (user) {
+        console.log('✅ Usuario autenticado:', user?.email);
+
+        // Si el usuario no ha verificado su email y la ruta no es pública
+        if (!user?.emailVerified && !esPublica && !rutaActual.includes('verify-email')) {
+          console.warn('⚠️ Email no verificado, redirigiendo...');
+          this.router.navigate(['/auth/verify-email']);
+        }
+      } else if (!esPublica) {
         console.warn('⛔ Usuario no autenticado, redirigiendo...');
         this.router.navigate(['/auth/login']);
       } else {
-        console.log(loggedIn ? '✅ Usuario autenticado' : '⛔ Usuario no autenticado (pero en ruta pública)');
+        console.log('⛔ Usuario no autenticado (pero en ruta pública)');
       }
     });
   }
 
-  login(email: string, password: string): Promise<void> {
-    return signInWithEmailAndPassword(this.auth, email, password)
-      .then(() => this.isLoggedInSubject.next(true))
-      .catch(error => {
-        console.error('❌ Error al iniciar sesión:', error);
-        throw error;
-      });
+  // MÉTODOS DE INICIO DE SESIÓN Y REGISTRO
+
+  /**
+   * Inicia sesión con email y contraseña
+   */
+  async login(email: string, password: string): Promise<UserCredential> {
+    try {
+      // Verificar si la cuenta está bloqueada por intentos fallidos
+      if (this.isAccountLocked(email)) {
+        throw new Error('Cuenta temporalmente bloqueada por intentos fallidos. Inténtalo de nuevo más tarde o restablece tu contraseña.');
+      }
+
+      const result = await signInWithEmailAndPassword(this.auth, email, password);
+      this.isLoggedInSubject.next(true);
+
+      // Actualizar fecha de último login en Firestore
+      await this.updateUserLastLogin(result.user.uid);
+
+      // Registrar inicio de sesión exitoso
+      await this.logLoginAttempt(result.user.uid, true, 'email');
+
+      // Si el email no está verificado, redirigir a la página de verificación
+      if (!result.user.emailVerified) {
+        this.router.navigate(['/auth/verify-email']);
+      }
+
+      // Resetear contador de intentos fallidos
+      this.resetFailedAttempts(email);
+
+      return result;
+    } catch (error) {
+      // Incrementar contador de intentos fallidos
+      this.incrementFailedAttempts(email);
+
+      // Registrar intento fallido
+      await this.logLoginAttempt('unknown', false, 'email');
+
+      console.error('❌ Error al iniciar sesión:', error);
+      throw this.handleAuthError(error);
+    }
   }
 
-  register(email: string, password: string): Promise<void> {
-    return createUserWithEmailAndPassword(this.auth, email, password)
-      .then(() => this.isLoggedInSubject.next(true))
-      .catch(error => {
-        console.error('❌ Error al registrar usuario:', error);
-        throw error;
-      });
+  /**
+   * Registra un nuevo usuario con email y contraseña
+   */
+  async register(email: string, password: string, displayName?: string): Promise<UserCredential> {
+    try {
+      // Verificar si el email ya existe
+      const methods = await fetchSignInMethodsForEmail(this.auth, email);
+      if (methods && methods.length > 0) {
+        throw new Error('Este correo electrónico ya está registrado. Por favor, utiliza otro o recupera tu contraseña.');
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+      this.isLoggedInSubject.next(true);
+
+      // Si se proporciona un nombre, actualizar el perfil
+      if (displayName && userCredential.user) {
+        await updateProfile(userCredential.user, { displayName });
+      }
+
+      // Generar código de verificación de 6 dígitos
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      // Crear un timestamp de Firestore para la fecha de expiración (24 horas)
+      const expiryDate = new Date();
+      expiryDate.setHours(expiryDate.getHours() + 24);
+      const verificationCodeExpires = Timestamp.fromDate(expiryDate);
+
+      // Crear el perfil en Firestore con el código de verificación
+      await this.createUserProfile(
+        userCredential.user,
+        displayName,
+        verificationCode,
+        verificationCodeExpires
+      );
+
+      // Enviar email de verificación
+      await this.sendVerificationEmail(userCredential.user);
+
+      // Registrar la creación de cuenta
+      await this.logLoginAttempt(userCredential.user.uid, true, 'email');
+
+      // Redirigir a la página de verificación
+      this.router.navigate(['/auth/verify-email']);
+
+      return userCredential;
+    } catch (error) {
+      console.error('❌ Error al registrar usuario:', error);
+      throw this.handleAuthError(error);
+    }
   }
 
-  logout(): Promise<void> {
-    return signOut(this.auth)
-      .then(() => {
-        this.isLoggedInSubject.next(false);
-        this.router.navigate(['/landing']);
-      })
-      .catch(error => {
-        console.error('❌ Error al cerrar sesión:', error);
-        throw error;
-      });
+  /**
+   * Inicia sesión con Google
+   */
+  async loginWithGoogle(): Promise<UserCredential> {
+    try {
+      const provider = new GoogleAuthProvider();
+      // Añadir scopes adicionales para obtener más información del usuario
+      provider.addScope('profile');
+      provider.addScope('email');
+
+      const result = await signInWithPopup(this.auth, provider);
+      this.isLoggedInSubject.next(true);
+
+      // Obtener información adicional del usuario
+      const additionalInfo = getAdditionalUserInfo(result);
+
+      // Si es la primera vez que el usuario se registra con Google
+      if (additionalInfo?.isNewUser) {
+        // Los usuarios de Google ya tienen el email verificado
+        await this.createUserProfile(result.user, result.user.displayName ?? undefined, undefined, undefined, true);
+      } else {
+        // Actualizar fecha de último login
+        const userRef = doc(this.firestore, `users/${result.user.uid}`);
+        await updateDoc(userRef, {
+          lastLogin: serverTimestamp(),
+          // Actualizar otros campos si es necesario
+          photoURL: result.user.photoURL,
+          displayName: result.user.displayName
+        });
+      }
+
+      // Registrar inicio de sesión exitoso
+      await this.logLoginAttempt(result.user.uid, true, 'google');
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error al iniciar sesión con Google:', error);
+
+      // Registrar intento fallido
+      await this.logLoginAttempt('unknown', false, 'google');
+
+      throw this.handleAuthError(error);
+    }
   }
+
+  /**
+   * Cierra la sesión del usuario actual
+   */
+  async logout(): Promise<void> {
+    try {
+      // Registrar evento de cierre de sesión
+      const userId = this.getUserId();
+      if (userId) {
+        await this.logLoginAttempt(userId, true, 'other');
+      }
+
+      await signOut(this.auth);
+      this.isLoggedInSubject.next(false);
+      this.userSubject.next(null);
+      this.userProfileSubject.next(null);
+      this.router.navigate(['/landing']);
+    } catch (error) {
+      console.error('❌ Error al cerrar sesión:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  // MÉTODOS DE VERIFICACIÓN DE EMAIL
+
+  /**
+   * Envía un correo de verificación al usuario actual
+   */
+  async sendVerificationEmail(user?: User): Promise<void> {
+    try {
+      const currentUser = user || this.auth.currentUser;
+
+      if (!currentUser) {
+        throw new Error('No hay usuario autenticado');
+      }
+
+      // Enviar email usando Firebase Auth
+      await sendEmailVerification(currentUser, this.actionCodeSettings);
+
+      console.log('✅ Correo de verificación enviado a:', currentUser.email);
+    } catch (error) {
+      console.error('❌ Error al enviar correo de verificación:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Verifica el código enviado por email
+   * @param code Código de verificación de 6 dígitos
+   */
+  async verifyEmailCode(code: string): Promise<boolean> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('No hay usuario autenticado');
+    }
+
+    try {
+      // Obtener el perfil del usuario desde Firestore
+      const userRef = doc(this.firestore, `users/${user.uid}`);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        throw new Error('Usuario no encontrado en la base de datos');
+      }
+
+      const userProfile = userDoc.data() as UserProfile;
+
+      // Registrar este intento de verificación para auditoría
+      await this.logVerificationAttempt(user.uid, user.email || '', code, false);
+
+      // Verificar si el código es válido
+      if (!userProfile.verificationCode) {
+        throw new Error('No hay un código de verificación activo');
+      }
+
+      if (userProfile.verificationCode !== code) {
+        // Incrementar contador de intentos fallidos
+        const attempts = (userProfile.verificationAttempts || 0) + 1;
+        await updateDoc(userRef, { verificationAttempts: attempts });
+
+        // Si supera el máximo de intentos, generar un nuevo código
+        if (attempts >= this.maxVerificationAttempts) {
+          await this.regenerateVerificationCode(user);
+          throw new Error('Demasiados intentos fallidos. Se ha generado un nuevo código de verificación.');
+        }
+
+        throw new Error('El código de verificación es incorrecto');
+      }
+
+      // Verificar si el código ha expirado
+      if (userProfile.verificationCodeExpires &&
+          userProfile.verificationCodeExpires.toDate &&
+          userProfile.verificationCodeExpires.toDate() < new Date()) {
+        // Generar un nuevo código y enviarlo
+        await this.regenerateVerificationCode(user);
+        throw new Error('El código de verificación ha expirado. Se ha enviado un nuevo código.');
+      }
+
+      // Actualizar el estado de verificación en Firestore
+      await updateDoc(userRef, {
+        emailVerified: true,
+        verificationCode: null,
+        verificationCodeExpires: null,
+        verificationAttempts: 0,
+        accountStatus: 'active',
+        updatedAt: serverTimestamp()
+      });
+
+      // Registrar verificación exitosa
+      await this.logVerificationAttempt(user.uid, user.email || '', code, true);
+
+      // Actualizar el perfil en el Subject
+      const updatedProfile: UserProfile = { ...userProfile, emailVerified: true, accountStatus: 'active' as 'active' };
+      this.userProfileSubject.next(updatedProfile);
+
+      // El email está ahora verificado
+      // Forzar una recarga del usuario para actualizar su token
+      await user.reload();
+      this.userSubject.next(user);
+
+      return true;
+    } catch (error) {
+      console.error('❌ Error al verificar el código:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Regenera y envía un nuevo código de verificación
+   */
+  async resendVerificationCode(): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('No hay usuario autenticado');
+    }
+
+    try {
+      await this.regenerateVerificationCode(user);
+      console.log('✅ Nuevo código de verificación enviado a:', user.email);
+    } catch (error) {
+      console.error('❌ Error al reenviar el código de verificación:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  // MÉTODOS DE RESTABLECIMIENTO DE CONTRASEÑA
+
+  /**
+   * Envía un correo de restablecimiento de contraseña
+   * @param email Correo electrónico del usuario
+   */
+  async resetPassword(email: string): Promise<void> {
+    try {
+      await sendPasswordResetEmail(this.auth, email, this.passwordResetSettings);
+      console.log('✅ Correo de restablecimiento enviado a:', email);
+
+      // Resetear contador de intentos fallidos si existe
+      this.resetFailedAttempts(email);
+    } catch (error) {
+      console.error('❌ Error al enviar correo de restablecimiento:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  getCurrentUserNow(): User | null {
+    return this.auth.currentUser;
+  }
+
+
+  /**
+   * Confirma el restablecimiento de contraseña con el código recibido
+   * @param oobCode Código de verificación recibido por correo
+   * @param newPassword Nueva contraseña
+   */
+  async confirmResetPassword(oobCode: string, newPassword: string): Promise<void> {
+    try {
+      // Verificar primero el código para asegurarse de que es válido
+      const email = await verifyPasswordResetCode(this.auth, oobCode);
+
+      if (!email) {
+        throw new Error('El código de verificación no es válido');
+      }
+
+      await confirmPasswordReset(this.auth, oobCode, newPassword);
+      console.log('✅ Contraseña restablecida correctamente');
+
+      // Resetear contador de intentos fallidos
+      this.resetFailedAttempts(email);
+    } catch (error) {
+      console.error('❌ Error al restablecer contraseña:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  // MÉTODOS DE GESTIÓN DE PERFIL
+
+  /**
+   * Actualiza el perfil del usuario
+   * @param updates Objeto con los campos a actualizar (displayName, photoURL)
+   */
+  async updateUserProfile(updates: { displayName?: string, photoURL?: string }): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('No hay usuario autenticado');
+    }
+
+    try {
+      // Actualizar perfil en Firebase Auth
+      await updateProfile(user, updates);
+
+      // Actualizar perfil en Firestore
+      const userRef = doc(this.firestore, `users/${user.uid}`);
+      await updateDoc(userRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      });
+
+      // Actualizar el subject
+      this.userSubject.next(user);
+
+      // Actualizar el perfil extendido en el subject
+      const currentProfile = this.userProfileSubject.value;
+      if (currentProfile) {
+        this.userProfileSubject.next({
+          ...currentProfile,
+          ...updates
+        });
+      }
+
+      console.log('✅ Perfil actualizado correctamente');
+    } catch (error) {
+      console.error('❌ Error al actualizar perfil:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Actualiza el email del usuario
+   * @param newEmail Nuevo correo electrónico
+   * @param password Contraseña actual para reautenticar
+   */
+  async updateUserEmail(newEmail: string, password: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('No hay usuario autenticado');
+    }
+
+    if (!user.email) {
+      throw new Error('El usuario no tiene un correo electrónico asociado');
+    }
+
+    try {
+      // Re-autenticar al usuario
+      const credential = EmailAuthProvider.credential(user.email, password);
+      await reauthenticateWithCredential(user, credential);
+
+      // Actualizar el email
+      await updateEmail(user, newEmail);
+
+      // Generar nuevo código de verificación
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiryDate = new Date();
+      expiryDate.setHours(expiryDate.getHours() + 24);
+      const verificationCodeExpires = Timestamp.fromDate(expiryDate);
+
+      // Actualizar el email y estado de verificación en Firestore
+      const userRef = doc(this.firestore, `users/${user.uid}`);
+      await updateDoc(userRef, {
+        email: newEmail,
+        emailVerified: false,
+        verificationCode,
+        verificationCodeExpires,
+        verificationAttempts: 0,
+        accountStatus: 'pending_verification',
+        updatedAt: serverTimestamp()
+      });
+
+      // Enviar correo de verificación para el nuevo email
+      await this.sendVerificationEmail();
+
+      // Actualizar el perfil en el subject
+      const currentProfile = this.userProfileSubject.value;
+      if (currentProfile) {
+        this.userProfileSubject.next({
+          ...currentProfile,
+          email: newEmail,
+          emailVerified: false,
+          accountStatus: 'pending_verification'
+        });
+      }
+
+      // Mostrar mensaje y redirigir a verificación
+      console.log('✅ Email actualizado correctamente. Se requiere verificación.');
+      this.router.navigate(['/auth/verify-email']);
+    } catch (error) {
+      console.error('❌ Error al actualizar email:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  /**
+   * Actualiza la contraseña del usuario
+   * @param currentPassword Contraseña actual
+   * @param newPassword Nueva contraseña
+   */
+  async updateUserPassword(currentPassword: string, newPassword: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('No hay usuario autenticado');
+    }
+
+    if (!user.email) {
+      throw new Error('El usuario no tiene un correo electrónico asociado');
+    }
+
+    try {
+      // Re-autenticar al usuario
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      // Actualizar la contraseña
+      await updatePassword(user, newPassword);
+
+      // Registrar el cambio de contraseña en Firestore
+      const userRef = doc(this.firestore, `users/${user.uid}`);
+      await updateDoc(userRef, {
+        passwordUpdatedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      console.log('✅ Contraseña actualizada correctamente');
+    } catch (error) {
+      console.error('❌ Error al actualizar contraseña:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  // MÉTODOS DE ESTADO DE AUTENTICACIÓN
 
   isAuthenticated(): boolean {
     return this.isLoggedInSubject.value;
   }
 
-  getAuthStatus() {
+  getAuthStatus(): Observable<boolean> {
     return this.isLoggedInSubject.asObservable();
+  }
+
+  getCurrentUser(): Observable<User | null> {
+    return this.userSubject.asObservable();
+  }
+
+  getUserProfile(): Observable<UserProfile | null> {
+    return this.userProfileSubject.asObservable();
+  }
+
+  getUserId(): string | null {
+    return this.auth.currentUser?.uid || null;
+  }
+
+  getUserEmail(): string | null {
+    return this.auth.currentUser?.email || null;
+  }
+
+  isEmailVerified(): boolean {
+    return this.auth.currentUser?.emailVerified || false;
+  }
+
+  // MÉTODOS PRIVADOS Y AUXILIARES
+
+  /**
+   * Crea el perfil de usuario en Firestore
+   */
+  private async createUserProfile(
+    user: User,
+    displayName?: string,
+    verificationCode?: string,
+    verificationCodeExpires?: any,
+    emailVerified: boolean = false
+  ): Promise<void> {
+    const userProfile: UserProfile = {
+      uid: user.uid,
+      email: user.email || '',
+      displayName: displayName || user.displayName || '',
+      photoURL: user.photoURL || '',
+      emailVerified: emailVerified || user.emailVerified,
+      phoneNumber: user.phoneNumber || '',
+      createdAt: serverTimestamp(),
+      lastLogin: serverTimestamp(),
+      accountStatus: emailVerified ? 'active' : 'pending_verification',
+      roles: ['user'], // Rol predeterminado
+      verificationAttempts: 0
+    };
+
+    // Si hay código de verificación, añadirlo
+    if (verificationCode && verificationCodeExpires) {
+      userProfile.verificationCode = verificationCode;
+      userProfile.verificationCodeExpires = verificationCodeExpires;
+    }
+
+    try {
+      const userRef = doc(this.firestore, `users/${user.uid}`);
+      await setDoc(userRef, userProfile);
+
+      this.userProfileSubject.next(userProfile);
+      console.log('✅ Perfil de usuario creado correctamente');
+    } catch (error) {
+      console.error('❌ Error al crear perfil de usuario:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualiza la fecha del último inicio de sesión
+   */
+  private async updateUserLastLogin(userId: string): Promise<void> {
+    try {
+      const userRef = doc(this.firestore, `users/${userId}`);
+      await updateDoc(userRef, {
+        lastLogin: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error('❌ Error al actualizar fecha de último inicio de sesión:', error);
+    }
+  }
+
+  /**
+   * Regenera y envía un nuevo código de verificación
+   */
+  private async regenerateVerificationCode(user: User): Promise<void> {
+    // Generar nuevo código de verificación
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() + 24);
+    const verificationCodeExpires = Timestamp.fromDate(expiryDate);
+
+    // Actualizar en Firestore
+    const userRef = doc(this.firestore, `users/${user.uid}`);
+    await updateDoc(userRef, {
+      verificationCode,
+      verificationCodeExpires,
+      verificationAttempts: 0,
+      updatedAt: serverTimestamp()
+    });
+
+    // Enviar nuevo email de verificación
+    await this.sendVerificationEmail(user);
+  }
+
+  /**
+   * Obtiene el perfil del usuario desde Firestore
+   */
+  private async fetchUserProfile(userId: string): Promise<void> {
+    try {
+      const userRef = doc(this.firestore, `users/${userId}`);
+
+      // Usar onSnapshot para obtener actualizaciones en tiempo real
+      const unsubscribe = onSnapshot(userRef,
+        (doc) => {
+          if (doc.exists()) {
+            const profile = doc.data() as UserProfile;
+            this.userProfileSubject.next(profile);
+          } else {
+            // Si no existe el perfil pero sí el usuario, crearlo
+            const user = this.auth.currentUser;
+            if (user) {
+              this.createUserProfile(user);
+            }
+          }
+        },
+        (error) => {
+          console.error('❌ Error al observar perfil de usuario:', error);
+        }
+      );
+
+      // Para limpiar el observable cuando sea necesario, guardar unsubscribe en una variable o añadirlo a un array
+    } catch (error) {
+      console.error('❌ Error al obtener perfil de usuario:', error);
+    }
+  }
+
+  /**
+   * Registra un intento de inicio de sesión
+   */
+  private async logLoginAttempt(
+    userId: string,
+    success: boolean,
+    method: 'email' | 'google' | 'phone' | 'other'
+  ): Promise<void> {
+    try {
+      // Información del dispositivo y navegador
+      const deviceInfo = navigator.userAgent;
+      const browser = this.getBrowserInfo();
+
+      const attempt: LoginAttempt = {
+        userId,
+        timestamp: serverTimestamp(),
+        success,
+        deviceInfo,
+        browser,
+        method
+      };
+
+      // Guardar en Firestore
+      const loginAttemptsRef = collection(this.firestore, 'loginAttempts');
+      await addDoc(loginAttemptsRef, attempt);
+    } catch (error) {
+      console.error('❌ Error al registrar intento de inicio de sesión:', error);
+    }
+  }
+
+  /**
+   * Registra un intento de verificación de email
+   */
+  private async logVerificationAttempt(
+    userId: string,
+    email: string,
+    code: string,
+    success: boolean
+  ): Promise<void> {
+    try {
+      const attempt: VerificationAttempt = {
+        userId,
+        email,
+        timestamp: serverTimestamp(),
+        success,
+        code,
+        deviceInfo: navigator.userAgent
+      };
+
+      // Guardar en Firestore
+      const verificationAttemptsRef = collection(this.firestore, 'verificationAttempts');
+      await addDoc(verificationAttemptsRef, attempt);
+    } catch (error) {
+      console.error('❌ Error al registrar intento de verificación:', error);
+    }
+  }
+
+  /**
+   * Obtiene información del navegador
+   */
+  private getBrowserInfo(): string {
+    const userAgent = navigator.userAgent;
+    let browser = 'Desconocido';
+
+    if (userAgent.match(/chrome|chromium|crios/i)) {
+      browser = "Chrome";
+    } else if (userAgent.match(/firefox|fxios/i)) {
+      browser = "Firefox";
+    } else if (userAgent.match(/safari/i)) {
+      browser = "Safari";
+    } else if (userAgent.match(/opr\//i)) {
+      browser = "Opera";
+    } else if (userAgent.match(/edg/i)) {
+      browser = "Edge";
+    }
+
+    return browser;
+  }
+
+  // GESTIÓN DE INTENTOS FALLIDOS DE INICIO DE SESIÓN
+
+  private incrementFailedAttempts(email: string): void {
+    const now = Date.now();
+
+    if (!this.failedLoginAttempts[email]) {
+      this.failedLoginAttempts[email] = { count: 1, timestamp: now };
+    } else {
+      // Reiniciar contador si ha pasado el tiempo de bloqueo
+      if (now - this.failedLoginAttempts[email].timestamp > this.lockoutDuration) {
+        this.failedLoginAttempts[email] = { count: 1, timestamp: now };
+      } else {
+        this.failedLoginAttempts[email].count += 1;
+        this.failedLoginAttempts[email].timestamp = now;
+      }
+    }
+
+    console.warn(`⚠️ Intento fallido para ${email}: ${this.failedLoginAttempts[email].count}/${this.maxFailedAttempts}`);
+  }
+
+  private resetFailedAttempts(email: string): void {
+    if (this.failedLoginAttempts[email]) {
+      delete this.failedLoginAttempts[email];
+    }
+  }
+
+  private isAccountLocked(email: string): boolean {
+    const now = Date.now();
+    const attempts = this.failedLoginAttempts[email];
+
+    if (!attempts) return false;
+
+    // Si ha pasado el tiempo de bloqueo, reiniciar contador
+    if (now - attempts.timestamp > this.lockoutDuration) {
+      this.resetFailedAttempts(email);
+      return false;
+    }
+
+    // Bloquear si se supera el máximo de intentos
+    return attempts.count >= this.maxFailedAttempts;
+  }
+
+  // MANEJO DE ERRORES DE AUTENTICACIÓN
+
+  private handleAuthError(error: any): Error {
+    let errorMessage = 'Se produjo un error desconocido';
+
+    // Si el error es ya una instancia de Error, devolverlo directamente
+    if (error instanceof Error && !error.hasOwnProperty('code')) {
+      return error;
+    }
+
+    if (error.code) {
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'Este correo electrónico ya está registrado';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'El formato del correo electrónico no es válido';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'Esta cuenta ha sido deshabilitada';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No existe una cuenta con este correo electrónico';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Contraseña incorrecta';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Demasiados intentos fallidos. Inténtalo más tarde o restablece tu contraseña.';
+          break;
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'El proceso de autenticación fue cancelado';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Esta operación no está permitida';
+          break;
+        case 'auth/requires-recent-login':
+          errorMessage = 'Esta operación requiere una autenticación reciente. Por favor, inicia sesión nuevamente.';
+          break;
+        case 'auth/expired-action-code':
+          errorMessage = 'El código de acción ha expirado. Por favor, solicita uno nuevo.';
+          break;
+        case 'auth/invalid-action-code':
+          errorMessage = 'El código de acción no es válido. Puede haber sido usado o haber expirado.';
+          break;
+        case 'auth/account-exists-with-different-credential':
+          errorMessage = 'Ya existe una cuenta con este correo electrónico pero con otro método de inicio de sesión.';
+          break;
+        case 'auth/invalid-credential':
+          errorMessage = 'Credenciales inválidas. Por favor, verifica tus datos e inténtalo de nuevo.';
+          break;
+        case 'auth/invalid-verification-code':
+          errorMessage = 'El código de verificación es incorrecto.';
+          break;
+        case 'auth/invalid-verification-id':
+          errorMessage = 'ID de verificación inválido.';
+          break;
+        case 'auth/missing-verification-code':
+          errorMessage = 'Falta el código de verificación.';
+          break;
+        case 'auth/captcha-check-failed':
+          errorMessage = 'La verificación captcha ha fallado. Por favor, inténtalo de nuevo.';
+          break;
+        case 'auth/missing-phone-number':
+          errorMessage = 'Falta el número de teléfono.';
+          break;
+        case 'auth/invalid-phone-number':
+          errorMessage = 'El formato del número de teléfono no es válido.';
+          break;
+        case 'auth/quota-exceeded':
+          errorMessage = 'Se ha superado la cuota de solicitudes. Inténtalo más tarde.';
+          break;
+        default:
+          errorMessage = error.message || 'Error de autenticación. Por favor, inténtalo de nuevo más tarde.';
+      }
+    }
+
+    return new Error(errorMessage);
   }
 }

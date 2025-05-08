@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
@@ -10,8 +10,10 @@ import { Router } from '@angular/router';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  registerForm;
+  registerForm: FormGroup;
   errorMessage = '';
+  isLoading = false;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -20,6 +22,7 @@ export class RegisterComponent {
   ) {
     this.registerForm = this.fb.group(
       {
+        displayName: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(6)]],
         confirmPassword: ['', Validators.required],
@@ -28,9 +31,6 @@ export class RegisterComponent {
     );
   }
 
-  showPassword = false;
-
-
   passwordMatchValidator(form: AbstractControl) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
@@ -38,6 +38,10 @@ export class RegisterComponent {
       return { passwordMismatch: true };
     }
     return null;
+  }
+
+  get displayName() {
+    return this.registerForm.get('displayName');
   }
 
   get email() {
@@ -56,17 +60,34 @@ export class RegisterComponent {
     this.showPassword = !this.showPassword;
   }
 
-  onSubmit() {
-    const { email, password } = this.registerForm.value;
-
+  async onSubmit() {
     if (!this.registerForm.valid) return;
 
-    this.auth.register(email!, password!)
-      .then(() => this.router.navigate(['/auth/login']))
-      .catch(err => {
-        this.errorMessage = 'Error al registrar: ' + err.message;
-        console.error(err);
-      });
+    const { email, password, displayName } = this.registerForm.value;
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    try {
+      await this.auth.register(email!, password!, displayName);
+      this.router.navigate(['/puntos']);
+    } catch (err: any) {
+      this.errorMessage = err.message;
+    } finally {
+      this.isLoading = false;
+    }
   }
 
+  async registerWithGoogle() {
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    try {
+      await this.auth.loginWithGoogle();
+      this.router.navigate(['/puntos']);
+    } catch (err: any) {
+      this.errorMessage = err.message;
+    } finally {
+      this.isLoading = false;
+    }
+  }
 }
