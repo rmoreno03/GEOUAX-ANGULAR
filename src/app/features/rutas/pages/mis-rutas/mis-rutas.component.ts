@@ -6,6 +6,8 @@ import mbxDirections from '@mapbox/mapbox-sdk/services/directions';
 import { Ruta } from '../../../../models/ruta.model';
 import { MessageService } from '../../../../core/services/message.service';
 import { Timestamp } from 'firebase/firestore';
+import { ProgresoRuta } from '../../../../models/progreso-ruta.model';
+import { ProgresoRutaService } from '../../../ruta-seguimiento/services/progreso-ruta.service';
 
 @Component({
   standalone: false,
@@ -20,13 +22,16 @@ export class MisRutasComponent implements OnInit {
   tipoMensaje: 'exito' | 'eliminado' | 'warning' = 'exito';
   rutaSeleccionadaId: string | null = null;
   mostrarConfirmacion = false;
+  progresosRutas: { [rutaId: string]: ProgresoRuta } = {};
+  cargandoProgresos: boolean = false;
 
 
   directionsClient = mbxDirections({ accessToken: environment.mapbox_key });
 
   constructor(
     private rutasService: RutasService,
-    private mensajeService: MessageService
+    private mensajeService: MessageService,
+    private progresoRutaService: ProgresoRutaService
   ) {}
 
   async ngOnInit() {
@@ -38,10 +43,18 @@ export class MisRutasComponent implements OnInit {
       setTimeout(() => this.mostrarMensaje = false, 3500);
     }
 
-    const uid = this.rutasService['getUserId']();
+    const uid = this.rutasService.getUserId();
     if (uid) {
+      this.cargandoProgresos = true;
+
+      // Cargar rutas
       this.rutas = await this.rutasService.cargarRutasPorUsuario(uid);
+
+      // Cargar progresos de ruta
+      await this.cargarProgresosRuta();
+
       this.inicializarMapas();
+      this.cargandoProgresos = false;
     } else {
       console.error('No se ha encontrado el UID del usuario.');
     }
@@ -187,6 +200,67 @@ export class MisRutasComponent implements OnInit {
       default:
         return '#000000';
     }
+  }
+
+  async cargarProgresosRuta(): Promise<void> {
+    try {
+      // Obtener rutas en progreso
+      const rutasEnProgreso = await this.progresoRutaService.obtenerRutasEnProgreso();
+
+      // Obtener rutas completadas
+      const rutasCompletadas = await this.progresoRutaService.obtenerRutasCompletadas();
+
+      // Combinar ambos arrays
+      const todosProgresos = [...rutasEnProgreso, ...rutasCompletadas];
+
+      // Indexar por rutaId para acceso rápido
+      this.progresosRutas = {};
+      todosProgresos.forEach(progreso => {
+        this.progresosRutas[progreso.rutaId] = progreso;
+      });
+    } catch (error) {
+      console.error('Error al cargar progresos de rutas:', error);
+    }
+  }
+
+  // Añadir método para verificar el estado de una ruta
+  getEstadoRuta(rutaId: string): 'no-iniciada' | 'en-progreso' | 'completada' {
+    if (!this.progresosRutas[rutaId]) {
+      return 'no-iniciada';
+    }
+
+    return this.progresosRutas[rutaId].completado ? 'completada' : 'en-progreso';
+  }
+
+  // Añadir método para obtener el progreso de una ruta
+  getProgresoRuta(rutaId: string): number {
+    if (!this.progresosRutas[rutaId]) {
+      return 0;
+    }
+
+    const progreso = this.progresosRutas[rutaId];
+    const totalPuntos = Object.keys(progreso.puntosCompletados).length;
+
+    if (totalPuntos === 0) return 0;
+
+    let completados = 0;
+    for (const id in progreso.puntosCompletados) {
+      if (progreso.puntosCompletados[id]) {
+        completados++;
+      }
+    }
+
+    return Math.round((completados / totalPuntos) * 100);
+  }
+
+  // Añadir método para calcular la fecha de último progreso
+  getUltimaActividad(rutaId: string): string {
+    if (!this.progresosRutas[rutaId] || !this.progresosRutas[rutaId].fechaUltimaActividad) {
+      return 'Nunca';
+    }
+
+    const fecha = this.progresosRutas[rutaId].fechaUltimaActividad?.toDate();
+    return this.formatFecha(fecha);
   }
 
 

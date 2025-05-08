@@ -1,0 +1,848 @@
+/* Estilos globales mejorados */
+.container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+.seguimiento-ruta-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: calc(100vh - 120px);
+  min-height: 700px;
+}
+
+/* Diseño responsive mejorado */
+@media (min-width: 992px) {
+  .seguimiento-ruta-wrapper {
+    flex-direction: row;
+  }
+
+  .info-ruta {
+    flex: 1;
+    max-width: 380px;
+    height: 100%;
+  }
+
+  .mapa-container {
+    flex: 2.5;
+    height: 100%;
+  }
+}
+
+/* Estilos para el panel de información */
+.info-ruta {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-ruta::-webkit-scrollbar {
+  width: 6px;
+}
+
+.info-ruta::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.info-ruta::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 10px;
+}
+
+.info-ruta::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+
+.info-ruta h2 {
+  color: #333;
+  margin-top: 0;
+  border-bottom: 3px solid #f7941d;
+  padding-bottom: 0.7rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.info-seccion {
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  background-color: #f9f9f9;
+  padding: 1.25rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.info-seccion:hover {
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  gap: 0.7rem;
+}
+
+.info-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.info-header i {
+  font-size: 1.3rem;
+  color: #f7941d;
+}
+
+.tipo-icon {
+  font-size: 1.2rem;
+  color: #f7941d;
+}
+
+/* Datos de la ruta */
+.datos-ruta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.dato {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.dato i {
+  font-size: 1.1rem;
+  color: #f7941d;
+  width: 22px;
+  text-align: center;
+}
+
+.dato-contenido {
+  display: flex;
+  flex-direction: column;
+}
+
+.etiqueta {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 0.1rem;
+}
+
+.valor {
+  font-weight: 600;
+  color: #333;
+  font-size: 1.05rem;
+}
+
+/* Estilos para la sección de progreso */
+.progreso-seccion {
+  background-color: #f5f8ff;
+  border: 1px solid #e0e9ff;
+}
+
+.barra-progreso {
+  height: 12px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 0.7rem;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progreso-relleno {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.texto-progreso {
+  text-align: center;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 1.2rem;
+  font-size: 1.1rem;
+}
+
+.estado-seguimiento {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+
+.estado-activo, .estado-inactivo {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: 24px;
+  font-size: 0.95rem;
+  gap: 0.6rem;
+  font-weight: 600;
+}
+
+.estado-activo {
+  background-color: #e1f5fe;
+  color: #0288d1;
+  box-shadow: 0 2px 4px rgba(2, 136, 209, 0.2);
+}
+
+.estado-inactivo {
+  background-color: #fafafa;
+  color: #9e9e9e;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-distancia {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 0.85rem 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.2rem;
+  gap: 0.85rem;
+  border: 1px solid #f0f0f0;
+}
+
+.info-distancia i {
+  color: #f7941d;
+  font-size: 1.3rem;
+}
+
+.botones-seguimiento {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* Estilos para la lista de puntos */
+.puntos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.puntos-lista::-webkit-scrollbar {
+  width: 6px;
+}
+
+.puntos-lista::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.puntos-lista::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 10px;
+}
+
+.puntos-lista::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+
+.punto-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.9rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  gap: 0.9rem;
+  border-left: 5px solid #ddd;
+}
+
+.punto-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.punto-item.completado {
+  border-left: 5px solid #4CAF50;
+}
+
+.punto-item.activo {
+  border-left: 5px solid #f7941d;
+  background-color: #fff9f0;
+}
+
+.punto-estado {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.punto-numero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #f7941d;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.check-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.punto-info {
+  flex: 1;
+}
+
+.punto-info h4 {
+  margin: 0 0 0.3rem 0;
+  font-size: 1.05rem;
+  color: #333;
+}
+
+.punto-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.punto-meta {
+  display: flex;
+  align-items: center;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.completado-text {
+  color: #4CAF50;
+  font-weight: 700;
+}
+
+/* Estilos para el mapa - MEJORADO */
+.mapa-container {
+  position: relative;
+  height: 100%;
+  min-height: 600px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  border: 1px solid #eee;
+}
+
+#map-seguimiento {
+  width: 100%;
+  height: 100%;
+}
+
+.mapa-controles {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.control-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.control-btn:hover {
+  background-color: #f7f7f7;
+  transform: scale(1.08);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Estilos para el modal de confirmación */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  overflow: hidden;
+  animation: modalIn 0.3s ease-out;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.6rem;
+  background-color: #f7941d;
+  color: white;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.cerrar-modal {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.cerrar-modal:hover {
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: 1.8rem;
+  font-size: 1.05rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1.2rem 1.6rem;
+  gap: 1.2rem;
+  background-color: #f5f5f5;
+  border-top: 1px solid #eee;
+}
+
+/* Estilos para la pantalla de felicitación */
+.overlay-felicitacion {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.felicitacion-content {
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 6px 36px rgba(0, 0, 0, 0.25);
+  padding: 2.5rem;
+  text-align: center;
+  width: 90%;
+  max-width: 550px;
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.felicitacion-icon {
+  font-size: 3.5rem;
+  color: #f7941d;
+  margin-bottom: 1.5rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.felicitacion-content h2 {
+  color: #333;
+  margin-top: 0;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.felicitacion-content p {
+  margin-bottom: 1.8rem;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.stats {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.8rem;
+  border: 1px solid #eee;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  gap: 0.9rem;
+}
+
+.stat-item i {
+  color: #f7941d;
+  width: 24px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.stat-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Estilos para botones */
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+
+.btn-primary, .btn-secondary, .btn-warning, .btn-danger {
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: #f7941d;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #e78006;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-secondary {
+  background-color: #eaeaea;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #d1d1d1;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-warning {
+  background-color: #ff9800;
+  color: white;
+}
+
+.btn-warning:hover {
+  background-color: #f08f00;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-danger {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #e53935;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos adicionales para el marcador de usuario */
+.user-location-marker {
+  position: relative;
+}
+
+.pulse {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(52, 152, 219, 0.4);
+  border: 2px solid rgba(52, 152, 219, 0.6);
+  transform: translate(-20%, -20%);
+  animation: pulseMapa 2s infinite;
+}
+
+@keyframes pulseMapa {
+  0% {
+    transform: translate(-20%, -20%) scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-20%, -20%) scale(2.5);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-20%, -20%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Añadir estos estilos a mis-rutas.component.css */
+
+/* Estilos para la indicación de carga */
+.cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  margin: 2.5rem 0;
+  background-color: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(247, 148, 29, 0.2);
+  border-top-color: #f7941d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.2rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.cargando p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Estado de la ruta */
+.estado-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 10;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.estado-badge.no-iniciada {
+  background-color: #e0e0e0;
+  color: #757575;
+}
+
+.estado-badge.en-progreso {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.estado-badge.completada {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.tarjeta-ruta {
+  position: relative;
+}
+
+/* Información de progreso */
+.info-progreso {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed #e0e0e0;
+}
+
+.barra-progreso-mini {
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  margin: 0.7rem 0;
+  overflow: hidden;
+}
+
+.progreso-relleno {
+  height: 100%;
+  background-color: #4CAF50;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Estado sin rutas */
+.no-rutas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem;
+  margin: 2.5rem 0;
+  background-color: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.no-rutas i {
+  font-size: 3.5rem;
+  color: #ddd;
+  margin-bottom: 1.8rem;
+}
+
+.no-rutas h3 {
+  margin: 0 0 0.7rem 0;
+  color: #555;
+  font-size: 1.4rem;
+}
+
+.no-rutas p {
+  color: #777;
+  margin-bottom: 1.8rem;
+  font-size: 1.1rem;
+}
+
+/* Botón de seguir ruta */
+.btn-seguir {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-seguir:hover {
+  background-color: #388e3c;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para dispositivos pequeños */
+@media (max-width: 991px) {
+  .seguimiento-ruta-wrapper {
+    height: auto;
+    min-height: auto;
+  }
+
+  .info-ruta {
+    max-height: none;
+    height: auto;
+  }
+
+  .mapa-container {
+    min-height: 500px;
+    height: 60vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .datos-ruta {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary, .btn-secondary, .btn-warning, .btn-danger {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.95rem;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+
+  .felicitacion-content {
+    padding: 1.8rem;
+  }
+
+  .mapa-container {
+    min-height: 400px;
+  }
+}

@@ -1,0 +1,203 @@
+<!-- ruta-seguimiento.component.html - VERSIÓN CORREGIDA -->
+<div class="container">
+  <div class="seguimiento-ruta-wrapper">
+    <!-- Panel izquierdo: Información de la ruta -->
+    <div class="info-ruta" *ngIf="ruta">
+      <h2>{{ ruta.nombre }}</h2>
+
+      <div class="info-seccion">
+        <div class="info-header">
+          <i [class]="getIconoRuta(ruta.tipoRuta)" class="tipo-icon"></i>
+          <h3>Seguimiento de Ruta</h3>
+        </div>
+
+        <div class="datos-ruta">
+          <div class="dato">
+            <i class="fas fa-ruler-horizontal"></i>
+            <div class="dato-contenido">
+              <span class="etiqueta">Distancia</span>
+              <span class="valor">{{ ruta.distanciaKm || 0 }} km</span>
+            </div>
+          </div>
+
+          <div class="dato">
+            <i class="fas fa-clock"></i>
+            <div class="dato-contenido">
+              <span class="etiqueta">Duración estimada</span>
+              <span class="valor">{{ formatDuracion(ruta.duracionMin || 0) }}</span>
+            </div>
+          </div>
+
+          <div class="dato">
+            <i class="fas fa-map-marker-alt"></i>
+            <div class="dato-contenido">
+              <span class="etiqueta">Puntos en la ruta</span>
+              <span class="valor">{{ ruta.puntos.length || 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de progreso -->
+      <div class="info-seccion progreso-seccion">
+        <div class="info-header">
+          <i class="fas fa-chart-line"></i>
+          <h3>Progreso</h3>
+        </div>
+
+        <div class="progreso-contenido">
+          <div class="barra-progreso">
+            <div class="progreso-relleno" [style.width.%]="calcularProgreso()"></div>
+          </div>
+          <div class="texto-progreso">{{ calcularProgreso() }}% completado</div>
+
+          <div class="estado-seguimiento">
+            <div *ngIf="siguiendoRuta" class="estado-activo">
+              <i class="fas fa-location-arrow"></i>
+              <span>Navegación activa</span>
+            </div>
+            <div *ngIf="!siguiendoRuta" class="estado-inactivo">
+              <i class="fas fa-pause"></i>
+              <span>Navegación en pausa</span>
+            </div>
+          </div>
+
+          <div *ngIf="siguiendoRuta && currentUserPosition && puntoActualIndex < (ruta?.puntos?.length || 0)" class="info-distancia">
+            <i class="fas fa-map-marker-alt"></i>
+            <div>
+              <span class="etiqueta">Distancia al punto actual:</span>
+              <span id="distancia-punto" class="valor">{{ Math.round(distanciaAlPuntoActual) }} metros</span>
+            </div>
+          </div>
+
+          <div class="botones-seguimiento">
+            <button *ngIf="!siguiendoRuta && !progresoRuta?.completado" class="btn-primary" (click)="iniciarSeguimientoRuta()">
+              <i class="fas fa-play"></i>
+              {{ progresoRuta?.fechaInicio ? 'Continuar seguimiento' : 'Iniciar seguimiento' }}
+            </button>
+            <button *ngIf="siguiendoRuta" class="btn-warning" (click)="detenerSeguimientoRuta()">
+              <i class="fas fa-pause"></i> Pausar seguimiento
+            </button>
+            <button *ngIf="siguiendoRuta && currentUserPosition" class="btn-secondary" (click)="centrarEnUsuario()">
+              <i class="fas fa-location-arrow"></i> Centrar en mi ubicación
+            </button>
+            <button *ngIf="siguiendoRuta && puntoActualIndex < (ruta?.puntos?.length || 0)" class="btn-secondary" (click)="centrarEnPuntoActual()">
+              <i class="fas fa-map-marker-alt"></i> Centrar en próximo punto
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de puntos de ruta -->
+      <div class="info-seccion">
+        <div class="info-header">
+          <i class="fas fa-map-pin"></i>
+          <h3>Puntos de la ruta</h3>
+        </div>
+
+        <div class="puntos-lista">
+          <div *ngFor="let punto of ruta?.puntos || []; let i = index"
+               class="punto-item"
+               tabindex="0"
+               role="button"
+               [class.completado]="progresoRuta?.puntosCompletados?.[punto.id]"
+               [class.activo]="i === puntoActualIndex && !progresoRuta?.puntosCompletados?.[punto.id]"
+               (click)="seleccionarPunto(punto, i)"
+               (keydown.enter)="seleccionarPunto(punto, i)"
+               (keydown.space)="seleccionarPunto(punto, i)">
+            <div class="punto-estado">
+              <div *ngIf="progresoRuta?.puntosCompletados?.[punto.id]" class="check-icon">
+                <i class="fas fa-check"></i>
+              </div>
+              <div *ngIf="!progresoRuta?.puntosCompletados?.[punto.id]" class="punto-numero">{{ i + 1 }}</div>
+            </div>
+            <div class="punto-info">
+              <h4>{{ punto.nombre }}</h4>
+              <p>{{ punto.descripcion }}</p>
+              <div class="punto-meta" *ngIf="progresoRuta?.puntosCompletados?.[punto.id]">
+                <span class="completado-text">Completado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acciones">
+        <button class="btn-secondary" (click)="volverAListado()">
+          <i class="fas fa-arrow-left"></i> Volver
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel derecho: Mapa -->
+    <div class="mapa-container">
+      <div id="map-seguimiento"></div>
+
+      <!-- Controles de mapa -->
+      <div class="mapa-controles">
+        <button class="control-btn vista-completa" title="Ver ruta completa" (click)="centrarRutaCompleta()">
+          <i class="fas fa-expand"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para confirmar punto completado -->
+<div class="modal-overlay" *ngIf="mostrarConfirmacionPunto">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirmar punto</h3>
+      <button class="cerrar-modal" (click)="cancelarConfirmacionPunto()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Has llegado al punto <strong>{{ puntoAConfirmar?.nombre }}</strong>.</p>
+      <p>¿Deseas marcarlo como completado?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" (click)="marcarPuntoCompletado()">
+        <i class="fas fa-check"></i> Marcar como completado
+      </button>
+      <button class="btn-secondary" (click)="cancelarConfirmacionPunto()">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Mensaje de éxito/error/info -->
+<app-popup-exito
+  [mostrar]="mostrarMensaje"
+  [mensaje]="mensajeTexto"
+  [tipo]="tipoMensaje">
+</app-popup-exito>
+
+<!-- Mensaje de completado de ruta -->
+<div class="overlay-felicitacion" *ngIf="progresoRuta?.completado">
+  <div class="felicitacion-content">
+    <div class="felicitacion-icon">
+      <i class="fas fa-trophy"></i>
+    </div>
+    <h2>¡Enhorabuena!</h2>
+    <p>Has completado la ruta <strong>{{ ruta?.nombre }}</strong> con éxito.</p>
+    <div class="stats">
+      <div class="stat-item">
+        <i class="fas fa-ruler-horizontal"></i>
+        <span>{{ ruta?.distanciaKm || 0 }} km recorridos</span>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>{{ ruta?.puntos?.length || 0 }} puntos completados</span>
+      </div>
+      <div class="stat-item" *ngIf="progresoRuta?.fechaInicio && progresoRuta?.fechaFin">
+        <i class="fas fa-clock"></i>
+        <span>Tiempo: {{ calcularTiempoTranscurrido() }}</span>
+      </div>
+    </div>
+    <button class="btn-primary" (click)="volverAListado()">
+      <i class="fas fa-list"></i> Volver a mis rutas
+    </button>
+  </div>
+</div>

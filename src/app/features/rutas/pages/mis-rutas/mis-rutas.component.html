@@ -1,8 +1,33 @@
+<!-- Actualización en mis-rutas.component.html -->
 <div class="container">
   <h2>Todas mis Rutas</h2>
-  <div class="rutas-grid">
+
+  <!-- Sección de carga -->
+  <div class="cargando" *ngIf="cargandoProgresos">
+    <div class="spinner"></div>
+    <p>Cargando rutas y progresos...</p>
+  </div>
+
+  <div class="rutas-grid" *ngIf="!cargandoProgresos">
     <div class="tarjeta-ruta" *ngFor="let ruta of rutas">
       <div class="mapa-ruta" [id]="'map-' + ruta.id"></div>
+
+      <!-- Badge de estado -->
+      <div class="estado-badge" [ngClass]="{
+        'no-iniciada': getEstadoRuta(ruta.id || '') === 'no-iniciada',
+        'en-progreso': getEstadoRuta(ruta.id || '') === 'en-progreso',
+        'completada': getEstadoRuta(ruta.id || '') === 'completada'
+      }">
+        <i class="fas" [ngClass]="{
+          'fa-clock': getEstadoRuta(ruta.id || '') === 'no-iniciada',
+          'fa-spinner fa-spin': getEstadoRuta(ruta.id || '') === 'en-progreso',
+          'fa-check-circle': getEstadoRuta(ruta.id || '') === 'completada'
+        }"></i>
+        <span *ngIf="getEstadoRuta(ruta.id || '') === 'no-iniciada'">Sin iniciar</span>
+        <span *ngIf="getEstadoRuta(ruta.id || '') === 'en-progreso'">{{ getProgresoRuta(ruta.id || '') }}% completado</span>
+        <span *ngIf="getEstadoRuta(ruta.id || '') === 'completada'">Completada</span>
+      </div>
+
       <div class="contenido">
         <div class="header">
           <h3>{{ ruta.nombre }}</h3>
@@ -15,10 +40,28 @@
         <p><strong>Creada:</strong> {{ formatFecha(ruta.fechaCreacion) }}</p>
         <p><strong>Distancia:</strong> {{ ruta.distanciaKm }} km</p>
         <p><strong>Duración:</strong> {{ (ruta.duracionMin || 0) | duracion }}</p>
+
+        <!-- Añadir información de progreso si la ruta está iniciada o completada -->
+        <div class="info-progreso" *ngIf="getEstadoRuta(ruta.id || '') !== 'no-iniciada'">
+          <p><strong>Última actividad:</strong> {{ getUltimaActividad(ruta.id || '') }}</p>
+
+          <!-- Mostrar barra de progreso si está en progreso -->
+          <div class="barra-progreso-mini" *ngIf="getEstadoRuta(ruta.id || '') === 'en-progreso'">
+            <div class="progreso-relleno" [style.width.%]="getProgresoRuta(ruta.id || '')"></div>
+          </div>
+        </div>
       </div>
+
       <div class="acciones-tarjeta">
         <button class="btn-detalle" [routerLink]="['/rutas/detalle/', ruta.id]">
           <i class="fa-solid fa-eye"></i> Ver detalle
+        </button>
+
+        <button class="btn-seguir" [routerLink]="['/ruta-seguimiento', ruta.id]">
+          <i class="fa-solid fa-location-arrow"></i>
+          <span *ngIf="getEstadoRuta(ruta.id || '') === 'no-iniciada'">Iniciar ruta</span>
+          <span *ngIf="getEstadoRuta(ruta.id || '') === 'en-progreso'">Continuar</span>
+          <span *ngIf="getEstadoRuta(ruta.id || '') === 'completada'">Ver recorrido</span>
         </button>
 
         <button class="btn-eliminar" (click)="eliminarRuta(ruta.id ?? '')">
@@ -27,8 +70,19 @@
       </div>
     </div>
   </div>
+
+  <!-- Mostrar mensaje si no hay rutas -->
+  <div class="no-rutas" *ngIf="rutas.length === 0 && !cargandoProgresos">
+    <i class="fas fa-route"></i>
+    <h3>No tienes rutas creadas</h3>
+    <p>Comienza creando tu primera ruta para poder seguirla.</p>
+    <button class="btn-primary" routerLink="/rutas/crear">
+      <i class="fas fa-plus"></i> Crear nueva ruta
+    </button>
+  </div>
 </div>
 
+<!-- Resto del componente (modales, etc.) sin cambios -->
 <app-popup-exito
   [mostrar]="mostrarMensaje"
   [mensaje]="mensajeTexto"
@@ -41,3 +95,5 @@
   (confirmar)="confirmarEliminacionRuta()"
   (cancelar)="cancelarEliminacionRuta()">
 </app-confirm-dialog>
+
+

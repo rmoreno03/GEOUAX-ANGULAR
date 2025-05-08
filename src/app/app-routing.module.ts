@@ -35,6 +35,10 @@ const routes: Routes = [
         loadChildren: () => import('./features/rutas/rutas.module').then(m => m.RutasModule)
       },
       {
+        path: 'ruta-seguimiento',
+        loadChildren: () => import('./features/ruta-seguimiento/ruta-seguimiento.module').then(m => m.RutaSeguimientoModule)
+      },
+      {
         path: 'usuarios',
         canActivate: [AdminGuard],
         loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule)
