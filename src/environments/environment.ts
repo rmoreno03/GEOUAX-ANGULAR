@@ -1,17 +1,15 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBkMnQXqthtBJtmXJN6DOonqr5tYcG2aVU",
-    authDomain: "aplicacion-geo-e0275.firebaseapp.com",
-    projectId: "aplicacion-geo-e0275",
-    storageBucket: "aplicacion-geo-e0275.firebasestorage.app",
-    messagingSenderId: "861490577985",
-    appId: "1:861490577985:web:d79a744873dcd0efa4fcc0",
-    measurementId: "G-1ET3YJ2HDN"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID",
+    measurementId: "YOUR_MEASUREMENT_ID"
   },
-  mapbox_key: 'pk.eyJ1Ijoicm1vcmVubzAzIiwiYSI6ImNtOHdzOXBhNDA2NDYybHIxbThqOHR3cXIifQ.4vsuh0it8sEzlVo1mfRPCA',
-  firebaseFunctionsUrl: 'https://generarmapaimagen-zipgrys2wq-uc.a.run.app',
-  google_vision_api_key: 'AIzaSyCOucsB8gmbywPTx3gAQr2kgr5PzBPHtMc',
+  mapbox_key: "YOUR_MAPBOX_KEY",
+  firebaseFunctionsUrl: "YOUR_FIREBASE_FUNCTIONS_URL",
+  google_vision_api_key: "YOUR_GOOGLE_VISION_API_KEY"
 };
-
-
