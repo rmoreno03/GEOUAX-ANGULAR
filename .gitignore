@@ -1,3 +1,6 @@
+# Entorno / variables privadas
+.env
+.env*
 
 # Compiled output
 /dist
@@ -45,3 +48,5 @@ firebase-debug.log
 
 # Ignorar logs
 *.log
+
+src/app/environments/environment.ts
