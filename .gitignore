@@ -49,5 +49,4 @@ firebase-debug.log
 # Ignorar logs
 *.log
 
-# Ignorar archivos de configuración de Firebase
-src/environments/environment.ts
+
