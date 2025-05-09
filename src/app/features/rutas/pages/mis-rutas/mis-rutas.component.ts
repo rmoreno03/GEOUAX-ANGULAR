@@ -22,8 +22,8 @@ export class MisRutasComponent implements OnInit {
   tipoMensaje: 'exito' | 'eliminado' | 'warning' = 'exito';
   rutaSeleccionadaId: string | null = null;
   mostrarConfirmacion = false;
-  progresosRutas: { [rutaId: string]: ProgresoRuta } = {};
-  cargandoProgresos: boolean = false;
+  progresosRutas: Record<string, ProgresoRuta> = {};
+  cargandoProgresos = false;
 
 
   directionsClient = mbxDirections({ accessToken: environment.mapbox_key });

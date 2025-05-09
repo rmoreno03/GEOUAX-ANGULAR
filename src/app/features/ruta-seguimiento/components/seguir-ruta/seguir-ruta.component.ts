@@ -33,9 +33,9 @@ export class SeguirRutaComponent implements OnInit, OnDestroy {
   progresoId: string | null = null;
 
   // Punto actual que se debe alcanzar
-  puntoActualIndex: number = 0;
-  distanciaAlPuntoActual: number = 0;
-  siguiendoRuta: boolean = false;
+  puntoActualIndex = 0;
+  distanciaAlPuntoActual = 0;
+  siguiendoRuta = false;
 
   // Mensaje
   mostrarMensaje = false;
@@ -132,7 +132,7 @@ export class SeguirRutaComponent implements OnInit, OnDestroy {
         }
       } else {
         // Si no existe, inicializar uno nuevo
-        const puntosCompletados: { [id: string]: boolean } = {};
+        const puntosCompletados: Record<string, boolean> = {};
         this.ruta.puntos.forEach(punto => {
           puntosCompletados[punto.id] = false;
         });
@@ -153,7 +153,7 @@ export class SeguirRutaComponent implements OnInit, OnDestroy {
       console.error('Error al inicializar progreso de ruta:', error);
       // Inicializar con valores por defecto en caso de error
       if (this.ruta) {
-        const puntosCompletados: { [id: string]: boolean } = {};
+        const puntosCompletados: Record<string, boolean> = {};
         this.ruta.puntos.forEach(punto => {
           puntosCompletados[punto.id] = false;
         });

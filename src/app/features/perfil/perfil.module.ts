@@ -9,6 +9,8 @@ import { NotificacionesSolicitudesComponent } from './components/notificaciones-
 import { SolicitudesAmistadComponent } from './pages/solicitudes-amistad/solicitudes-amistad.component';
 import { NotificacionesComponent } from './components/notificaciones/notificaciones.component';
 import { SharedModule } from '../../shared/shared.module';
+import { EditarPerfilComponent } from './pages/editar-perfil/editar-perfil.component';
+import { AjustesCuentaComponent } from './pages/ajustes-cuenta/ajustes-cuenta.component';
 
 
 @NgModule({
@@ -17,7 +19,9 @@ import { SharedModule } from '../../shared/shared.module';
     PerfilUsuarioComponent,
     NotificacionesSolicitudesComponent,
     SolicitudesAmistadComponent,
-    NotificacionesComponent
+    NotificacionesComponent,
+    EditarPerfilComponent,
+    AjustesCuentaComponent
   ],
   imports: [
     CommonModule,

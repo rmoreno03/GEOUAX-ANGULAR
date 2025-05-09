@@ -5,7 +5,7 @@ export interface ProgresoRuta {
   rutaId: string;
   usuarioId: string;
   completado: boolean;
-  puntosCompletados: { [id: string]: boolean };
+  puntosCompletados: Record<string, boolean>;
   fechaInicio: Timestamp | null;
   fechaUltimaActividad: Timestamp | null;
   fechaFin: Timestamp | null;

@@ -9,7 +9,10 @@ export interface Usuario {
   // Datos opcionales de perfil
   fotoUrl?: string;
   biografia?: string;
-  fechaRegistro: Date | Timestamp; // Firestore maneja fechas como objeto
+  fechaRegistro?: any; // Firestore maneja fechas como objeto
+  emailVerified?: boolean;
+  phoneNumber?: string;
+  fechaUltimoLogin?: any; // Timestamp de Firestore
 
   // Control y permisos
   rol: 'admin' | 'usuario' | 'moderador';
@@ -43,5 +46,5 @@ export interface Usuario {
   authProvider?: 'google' | 'facebook' | 'twitter' | 'email';
 
   // Búsqueda rápida - para queries eficientes
-  nombreLowercase?: string; // Nombre en minúsculas para búsquedas insensibles a mayúsculas
+  nombreLowercase?: string;
 }

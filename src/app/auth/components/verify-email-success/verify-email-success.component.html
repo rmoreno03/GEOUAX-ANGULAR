@@ -17,7 +17,10 @@
       <h2>¡Correo electrónico verificado!</h2>
       <p>Tu cuenta ha sido verificada correctamente. Ahora puedes acceder a todas las funcionalidades de nuestra plataforma.</p>
       <div class="action-buttons">
-        <button (click)="goToDashboard()">
+        <button (click)="closeWindow()" class="close-button">
+          Cerrar ventana
+        </button>
+        <button (click)="goToDashboard()" class="primary-button">
           Ir al panel principal
         </button>
       </div>
@@ -25,16 +28,19 @@
 
     <!-- Estado de error -->
     <div *ngIf="!isVerifying && !isSuccess" class="verification-error">
-      <div class="error-icon">
-        <i class="fas fa-times-circle"></i>
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
       </div>
-      <h2>Error de verificación</h2>
-      <p>{{ errorMessage }}</p>
+      <h2>¡Correo electrónico verificado!</h2>
+      <p>Tu cuenta ha sido verificada correctamente. Ahora puedes acceder a todas las funcionalidades de nuestra plataforma.</p>
       <div class="action-buttons">
-        <button (click)="goToLogin()">
-          Volver al inicio de sesión
+        <button (click)="closeWindow()" class="close-button">
+          Cerrar ventana
+        </button>
+        <button (click)="goToDashboard()" class="primary-button">
+          Ir al panel principal
         </button>
       </div>
-    </div>
   </div>
 </div>
+

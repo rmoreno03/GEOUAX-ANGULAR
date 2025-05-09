@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -7,10 +6,8 @@ import { Usuario } from '../../../../models/usuario.model';
 import { Ruta } from '../../../../models/ruta.model';
 import { PerfilService } from '../../services/perfil.service';
 import { RutasService } from '../../../rutas/services/rutas.service';
-import { SubirArchivosService } from '../../services/subir-archivos.service';
-import { Timestamp } from 'firebase/firestore';
 import { AmistadService } from '../../services/amistad.service';
-import { SolicitudAmistad } from '../../../../models/solicitud-amistad.model';
+import { Timestamp } from 'firebase/firestore';
 
 @Component({
   standalone: false,
@@ -28,37 +25,19 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
   cargando = true;
   cargandoRutas = false;
   cargandoAmigos = false;
-  cargandoUsuarios = false;
-  guardando = false;
-
-  // Estados de error y éxito
   error = false;
   mensajeError = '';
-  perfilActualizado = false;
-
-  // Formulario
-  perfilForm: FormGroup;
 
   // Estado de navegación por tabs
-  tabActual: 'info' | 'rutas' | 'amigos' | 'solicitudes' = 'info';
-
-  // Estado de modales
-  mostrarModalFoto = false;
-  mostrarModalBusqueda = false;
-
-  // Gestión de imágenes
-  nuevoArchivo: File | null = null;
-  previewFotoUrl: string | null = null;
+  tabActual: 'info' | 'rutas' | 'amigos' = 'info';
 
   // Búsqueda
   busquedaAmigos = '';
-  busquedaUsuarios = '';
-  resultadosBusqueda: Usuario[] = [];
 
-  // Subscripciones
-  private subscripciones: Subscription[] = [];
+  // Notificaciones
+  solicitudesPendientes = 0;
 
-  //Popups
+  // Popups
   mostrarPopup = false;
   mensajePopup = '';
   tipoPopup: 'exito' | 'eliminado' | 'warning' = 'exito';
@@ -67,25 +46,15 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
   mensajeConfirmacion = '';
   accionConfirmada: (() => void) | null = null;
 
-  solicitudesEnviadas: SolicitudAmistad[] = [];
-  solicitudesRecibidas: SolicitudAmistad[] = [];
-
-
+  // Subscripciones
+  private subscripciones: Subscription[] = [];
 
   constructor(
     private perfilService: PerfilService,
     private rutasService: RutasService,
-    private subirArchivosService: SubirArchivosService,
     private amistadService: AmistadService,
-    private fb: FormBuilder,
     private router: Router
-  ) {
-    // Inicializar formulario
-    this.perfilForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(2)]],
-      biografia: ['', [Validators.maxLength(280)]]
-    });
-  }
+  ) {}
 
   async ngOnInit() {
     try {
@@ -106,19 +75,8 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
         this.usuario = await this.perfilService.crearPerfilSiNoExiste(uid);
       }
 
-      // Actualizar formulario con datos del usuario
-      this.perfilForm.patchValue({
-        nombre: this.usuario.nombre,
-        biografia: this.usuario.biografia || ''
-      });
-
       // Cargar rutas públicas
       this.cargarRutas(uid);
-
-      //CARGAS SOLICITUDES
-      await this.cargarSolicitudes();
-
-
 
       // Si hay amigos, cargarlos
       if (this.usuario.amigos && this.usuario.amigos.length > 0) {
@@ -139,7 +97,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
   }
 
   // NAVEGACIÓN
-  cambiarTab(tab: 'info' | 'rutas' | 'amigos' | 'solicitudes') {
+  cambiarTab(tab: 'info' | 'rutas' | 'amigos') {
     this.tabActual = tab;
 
     // Si cambiamos a la tab de rutas o amigos y no están cargados, cargarlos
@@ -157,51 +115,6 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
     await this.ngOnInit();
   }
 
-  // FORMULARIO DE PERFIL
-  async guardar() {
-    if (this.perfilForm.invalid || !this.usuario) {
-      return;
-    }
-
-    try {
-      this.guardando = true;
-
-      // Actualizar datos del usuario
-      this.usuario.nombre = this.perfilForm.value.nombre;
-      this.usuario.biografia = this.perfilForm.value.biografia;
-
-      // Guardar en Firestore
-      await this.perfilService.actualizarPerfil(this.usuario);
-
-      // Mostrar mensaje de éxito
-      this.perfilActualizado = true;
-      setTimeout(() => this.perfilActualizado = false, 3000);
-
-      // Notificar al usuario
-      this.mostrarExito('Perfil actualizado correctamente');
-    } catch (err) {
-      console.error('Error al actualizar perfil:', err);
-      this.mostrarExito('No se pudo actualizar el perfil', 'warning');
-    } finally {
-      this.guardando = false;
-    }
-  }
-
-  reiniciarFormulario() {
-    // Restaurar valores originales del formulario
-    if (this.usuario) {
-      this.perfilForm.patchValue({
-        nombre: this.usuario.nombre,
-        biografia: this.usuario.biografia || ''
-      });
-    }
-  }
-
-  get nombreInvalido(): boolean {
-    const control = this.perfilForm.get('nombre');
-    return !!control && control.invalid && (control.dirty || control.touched);
-  }
-
   // CARGA DE DATOS
   async cargarRutas(uid: string) {
     try {
@@ -216,32 +129,43 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
   }
 
   async cargarDatosAmigos() {
-    if (!this.usuario?.amigos || this.usuario.amigos.length === 0) {
-      this.amigosData = [];
-      return;
-    }
+  if (!this.usuario?.amigos || this.usuario.amigos.length === 0) {
+    this.amigosData = [];
+    return;
+  }
 
-    try {
-      this.cargandoAmigos = true;
-      this.amigosData = [];
+  try {
+    this.cargandoAmigos = true;
+    this.amigosData = [];
 
-      // Obtener datos de todos los amigos
-      for (const amigoUid of this.usuario.amigos) {
+    // Obtener datos de todos los amigos
+    for (const amigoUid of this.usuario.amigos) {
+      // Verificar que el ID del amigo sea válido
+      if (!amigoUid || typeof amigoUid !== 'string' || amigoUid === 'usuarios') {
+        console.warn('ID de amigo no válido encontrado:', amigoUid);
+        continue; // Saltar este ID y continuar con el siguiente
+      }
+
+      try {
         const datosAmigo = await this.perfilService.obtenerPerfil(amigoUid);
         if (datosAmigo) {
           this.amigosData.push(datosAmigo);
         }
+      } catch (error) {
+        console.error(`Error al cargar amigo con ID ${amigoUid}:`, error);
+        // Continuar con el siguiente amigo en caso de error
       }
-
-      // Ordenar alfabéticamente
-      this.amigosData.sort((a, b) => a.nombre.localeCompare(b.nombre));
-    } catch (err) {
-      console.error('Error al cargar amigos:', err);
-      this.mostrarExito('No se pudieron cargar tus amigos', 'warning');
-    } finally {
-      this.cargandoAmigos = false;
     }
+
+    // Ordenar alfabéticamente
+    this.amigosData.sort((a, b) => a.nombre.localeCompare(b.nombre));
+  } catch (err) {
+    console.error('Error al cargar amigos:', err);
+    this.mostrarExito('No se pudieron cargar tus amigos', 'warning');
+  } finally {
+    this.cargandoAmigos = false;
   }
+}
 
   // BÚSQUEDA DE AMIGOS
   buscarAmigos() {
@@ -258,60 +182,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
     );
   }
 
-  async buscarUsuarios() {
-    if (!this.busquedaUsuarios || this.busquedaUsuarios.length < 3) {
-      this.resultadosBusqueda = [];
-      return;
-    }
-
-    try {
-      this.cargandoUsuarios = true;
-
-      // Implementar búsqueda según tu lógica de Firebase
-      this.resultadosBusqueda = await this.perfilService.buscarUsuarios(this.busquedaUsuarios);
-
-      // Filtrar al propio usuario
-      const uidActual = this.perfilService.getUidActual();
-      this.resultadosBusqueda = this.resultadosBusqueda.filter(u => u.uid !== uidActual);
-    } catch (err) {
-      console.error('Error al buscar usuarios:', err);
-      this.mostrarExito('Error al buscar usuarios', 'warning');
-    } finally {
-      this.cargandoUsuarios = false;
-    }
-  }
-
   // GESTIÓN DE AMIGOS
-  esAmigo(uid: string): boolean {
-    return !!this.usuario?.amigos && this.usuario.amigos.includes(uid);
-  }
-
-  async agregarAmigo(amigo: Usuario) {
-    if (!this.usuario) return;
-
-    try {
-      // Crear array de amigos si no existe
-      if (!this.usuario.amigos) {
-        this.usuario.amigos = [];
-      }
-
-      // Añadir amigo si no está ya en la lista
-      if (!this.usuario.amigos.includes(amigo.uid)) {
-        this.usuario.amigos.push(amigo.uid);
-        await this.perfilService.actualizarPerfil(this.usuario);
-
-        // Actualizar lista de amigos
-        this.amigosData.push(amigo);
-        this.amigosData.sort((a, b) => a.nombre.localeCompare(b.nombre));
-
-        this.mostrarExito(`${amigo.nombre} añadido a tus amigos`, 'exito');
-      }
-    } catch (err) {
-      console.error('Error al añadir amigo:', err);
-      this.mostrarExito('No se pudo añadir al amigo', 'warning');
-    }
-  }
-
   eliminarAmigo(amigo: Usuario) {
     this.confirmarAccion(`¿Eliminar a ${amigo.nombre} de tus amigos?`, async () => {
       if (!this.usuario || !this.usuario.amigos) return;
@@ -332,89 +203,8 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
     });
   }
 
-
-  // GESTIÓN DE FOTO DE PERFIL
-  abrirSelectorFoto() {
-    this.mostrarModalFoto = true;
-    this.nuevoArchivo = null;
-    this.previewFotoUrl = null;
-  }
-
-  cerrarModal() {
-    this.mostrarModalFoto = false;
-    this.nuevoArchivo = null;
-    this.previewFotoUrl = null;
-  }
-
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-
-      // Validar que sea una imagen
-      if (!file.type.startsWith('image/')) {
-        this.mostrarExito('El archivo debe ser una imagen (jpg, png, gif, etc.)', 'warning');
-        return;
-      }
-
-      // Validar tamaño máximo (2 MB)
-      if (file.size > 2 * 1024 * 1024) {
-        this.mostrarExito('La imagen no debe superar los 2 MB', 'warning');
-        return;
-      }
-
-      this.nuevoArchivo = file;
-
-      // Crear vista previa
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.previewFotoUrl = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  async subirFoto() {
-    if (!this.nuevoArchivo || !this.usuario) {
-      return;
-    }
-
-    try {
-      this.guardando = true;
-
-      // Subir archivo a Firebase Storage
-      const ruta = `perfiles/${this.usuario.uid}`;
-      const url = await this.subirArchivosService.subirArchivo(ruta, this.nuevoArchivo);
-
-      // Actualizar URL en perfil
-      this.usuario.fotoUrl = url;
-      await this.perfilService.actualizarPerfil(this.usuario);
-
-      this.mostrarExito('Perfil actualizado correctamente');
-      this.cerrarModal();
-    } catch (err) {
-      console.error('Error al subir foto:', err);
-      this.mostrarExito('No se pudo actualizar el perfil', 'warning');
-    } finally {
-      this.guardando = false;
-    }
-  }
-
-  // GESTIÓN DEL MODAL DE BÚSQUEDA
-  abrirBuscadorUsuarios() {
-    this.mostrarModalBusqueda = true;
-    this.busquedaUsuarios = '';
-    this.resultadosBusqueda = [];
-  }
-
-  cerrarModalBusqueda() {
-    this.mostrarModalBusqueda = false;
-    this.busquedaUsuarios = '';
-    this.resultadosBusqueda = [];
-  }
-
-  formatFecha(fecha: Timestamp | Date | string): string {
+  // UTILIDADES
+  formatFecha(fecha: Timestamp | Date | string | any): string {
     if (!fecha) return '';
 
     let date: Date;
@@ -423,8 +213,8 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
       date = fecha;
     } else if (typeof fecha === 'string') {
       date = new Date(fecha);
-    } else if ((fecha as Timestamp).toDate) {
-      date = (fecha as Timestamp).toDate();
+    } else if (fecha.toDate) {
+      date = fecha.toDate();
     } else {
       return '';
     }
@@ -435,11 +225,11 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
       hour12: false
     }).replace(',', '');
   }
 
+  // GESTIÓN DE POPUPS
   mostrarExito(mensaje: string, tipo: 'exito' | 'eliminado' | 'warning' = 'exito') {
     this.mensajePopup = mensaje;
     this.tipoPopup = tipo;
@@ -465,83 +255,4 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
     this.mostrarConfirmacion = false;
     this.accionConfirmada = null;
   }
-
-  tieneSolicitudPendiente(uid: string): boolean {
-    return this.solicitudesEnviadas.some(s => s.uidReceptor === uid && s.estado === 'pendiente') ||
-           this.solicitudesRecibidas.some(s => s.uidSolicitante === uid && s.estado === 'pendiente');
-  }
-
-  async enviarSolicitudAmistad(user: Usuario) {
-    if (!this.usuario) return;
-
-    try {
-      await this.amistadService.enviarSolicitudAmistad(this.usuario.uid, user.uid);
-      this.solicitudesEnviadas.push({
-        uidSolicitante: this.usuario.uid,
-        uidReceptor: user.uid,
-        estado: 'pendiente',
-        fechaSolicitud: new Date()
-      });
-      this.mostrarExito(`Solicitud enviada a ${user.nombre}`);
-    } catch (err: unknown) {
-      const mensaje = err instanceof Error ? err.message : 'No se pudo enviar la solicitud';
-      console.error('Error al enviar solicitud:', err);
-      this.mostrarExito(mensaje, 'warning');
-    }
-  }
-
-  async cargarSolicitudes() {
-    if (!this.usuario) return;
-
-    try {
-      this.solicitudesRecibidas = await this.amistadService.obtenerSolicitudesPendientesRecibidas(this.usuario.uid);
-      this.solicitudesEnviadas = await this.amistadService.obtenerSolicitudesPendientesEnviadas(this.usuario.uid);
-    } catch (err) {
-      console.error('Error al cargar solicitudes de amistad:', err);
-    }
-  }
-
-  aceptarSolicitud(solicitud: SolicitudAmistad) {
-    this.amistadService.aceptarSolicitudAmistad(solicitud.id!)
-      .then(() => {
-        this.solicitudesRecibidas = this.solicitudesRecibidas.filter(s => s.id !== solicitud.id);
-        this.mostrarExito('Solicitud aceptada');
-      })
-      .catch(() => this.mostrarExito('No se pudo aceptar la solicitud', 'warning'));
-  }
-
-  rechazarSolicitud(solicitud: SolicitudAmistad) {
-    this.amistadService.rechazarSolicitudAmistad(solicitud.id!)
-      .then(() => {
-        this.solicitudesRecibidas = this.solicitudesRecibidas.filter(s => s.id !== solicitud.id);
-        this.mostrarExito('Solicitud rechazada');
-      })
-      .catch(() => this.mostrarExito('No se pudo rechazar la solicitud', 'warning'));
-  }
-
-  cancelarSolicitud(solicitud: SolicitudAmistad) {
-    this.amistadService.cancelarSolicitudAmistad(solicitud.id!)
-      .then(() => {
-        this.solicitudesEnviadas = this.solicitudesEnviadas.filter(s => s.id !== solicitud.id);
-        this.mostrarExito('Solicitud cancelada');
-      })
-      .catch(() => this.mostrarExito('No se pudo cancelar la solicitud', 'warning'));
-  }
-
-  getNombreUsuario(uid: string): string {
-    const encontrado = this.amigosData.find(a => a.uid === uid) || this.resultadosBusqueda.find(u => u.uid === uid);
-    return encontrado?.nombre || 'Usuario';
-  }
-
-  getAvatarUrl(uid: string): string {
-    const user = this.amigosData.find(u => u.uid === uid) || this.resultadosBusqueda.find(u => u.uid === uid);
-    return user?.fotoUrl || 'perfilDefault.png';
-  }
-
-
-
-
-
-
-
 }

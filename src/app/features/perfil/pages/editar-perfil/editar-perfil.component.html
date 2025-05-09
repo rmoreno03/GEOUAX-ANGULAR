@@ -1,0 +1,150 @@
+<!-- Pantalla de Editar Perfil -->
+<div class="loading-container" *ngIf="cargando">
+  <div class="spinner"></div>
+  <p>Cargando tu perfil...</p>
+</div>
+
+<!-- Error -->
+<div class="error-container" *ngIf="error" role="alert">
+  <div class="error-icon">⚠️</div>
+  <p>{{ mensajeError }}</p>
+  <button class="btn-secondary" (click)="reintentar()">Reintentar</button>
+</div>
+
+<!-- Contenido del formulario de edición -->
+<div class="perfil-container" *ngIf="usuario && !cargando">
+  <div class="page-header">
+    <h1>Editar perfil</h1>
+    <button class="btn-outline btn-back" [routerLink]="['/perfil']">
+      <i class="fas fa-arrow-left"></i> Volver a mi perfil
+    </button>
+  </div>
+
+  <div class="form-container">
+    <div class="form-section foto-section">
+      <div class="perfil-avatar-container">
+        <img [src]="previewFotoUrl || usuario.fotoUrl || 'perfilDefault.png'" alt="Foto de perfil" class="avatar large" loading="lazy" />
+        <button class="cambiar-foto-btn" (click)="abrirSelectorFoto()">
+          <i class="fas fa-camera"></i>
+        </button>
+      </div>
+      <p class="foto-help">Haz clic en el icono de la cámara para cambiar tu foto</p>
+    </div>
+
+    <form [formGroup]="perfilForm" (ngSubmit)="guardar()">
+      <div class="form-section">
+        <h2>Información básica</h2>
+
+        <div class="form-group">
+          <label for="nombre">Nombre *</label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            placeholder="Tu nombre" />
+          <div class="error-message" *ngIf="nombreInvalido">
+            El nombre es obligatorio (mínimo 2 caracteres)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="biografia">Biografía</label>
+          <textarea
+            id="biografia"
+            formControlName="biografia"
+            placeholder="Cuéntanos sobre ti..."
+            rows="4"></textarea>
+          <div class="hint-text">{{ 280 - (perfilForm.get('biografia')?.value?.length || 0) }} caracteres restantes</div>
+        </div>
+
+        <div class="form-group" *ngIf="esAdmin">
+          <label for="rol">Rol de usuario</label>
+          <select id="rol" formControlName="rol">
+            <option value="usuario">Usuario</option>
+            <option value="moderador">Moderador</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Información de contacto</h2>
+
+        <div class="form-group">
+          <label for="phoneNumber">Número de teléfono (opcional)</label>
+          <input
+            id="phoneNumber"
+            type="tel"
+            formControlName="phoneNumber"
+            placeholder="Tu número de teléfono" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="perfilForm.invalid || guardando">
+          <span *ngIf="!guardando"><i class="fas fa-save"></i> Guardar cambios</span>
+          <span *ngIf="guardando"><i class="fas fa-spinner fa-spin"></i> Guardando...</span>
+        </button>
+        <button
+          type="button"
+          class="btn-outline"
+          (click)="reiniciarFormulario()"
+          [disabled]="guardando">
+          <i class="fas fa-undo"></i> Cancelar cambios
+        </button>
+        <button
+          type="button"
+          class="btn-outline"
+          [routerLink]="['/perfil']"
+          [disabled]="guardando">
+          <i class="fas fa-times"></i> Descartar y volver
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para seleccionar foto -->
+<div class="modal" *ngIf="mostrarModalFoto">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Cambiar foto de perfil</h2>
+      <button class="btn-close" (click)="cerrarModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="foto-preview">
+        <img [src]="previewFotoUrl || usuario?.fotoUrl || 'perfilDefault.png'" alt="Vista previa" />
+      </div>
+      <div class="foto-options">
+        <label class="btn-secondary upload-btn">
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+          <i class="fas fa-upload"></i> Seleccionar imagen
+        </label>
+      </div>
+      <div class="foto-help-text" *ngIf="!nuevoArchivo">
+        <p>Selecciona una imagen para tu perfil. Recomendamos usar una foto cuadrada.</p>
+        <p>Tamaño máximo: 2 MB</p>
+      </div>
+      <div class="foto-details" *ngIf="nuevoArchivo">
+        <p>Nombre: {{ nuevoArchivo.name }}</p>
+        <p>Tamaño: {{ (nuevoArchivo.size / 1024).toFixed(1) }} KB</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" [disabled]="!nuevoArchivo || guardandoFoto" (click)="subirFoto()">
+        <span *ngIf="!guardandoFoto">Guardar</span>
+        <span *ngIf="guardandoFoto"><i class="fas fa-spinner fa-spin"></i> Subiendo...</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-popup-exito
+  [mostrar]="mostrarPopup"
+  [mensaje]="mensajePopup"
+  [tipo]="tipoPopup">
+</app-popup-exito>

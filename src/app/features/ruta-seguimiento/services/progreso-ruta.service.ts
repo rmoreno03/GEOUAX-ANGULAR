@@ -40,7 +40,7 @@ export class ProgresoRutaService {
       }
 
       // Crear un objeto para los puntos completados, todos inicializados como false
-      const puntosCompletados: { [id: string]: boolean } = {};
+      const puntosCompletados: Record<string, boolean> = {};
       puntosIds.forEach(id => {
         puntosCompletados[id] = false;
       });

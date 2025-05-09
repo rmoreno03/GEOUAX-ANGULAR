@@ -131,9 +131,10 @@ export class TopBarComponent {
         this.title = 'Perfil de Usuario';
         this.menuOptions = [
           { label: 'Mi perfil', icon: 'fas fa-info-circle', action: () => this.router.navigate(['/perfil/mi-perfil']) },
+          { label: 'Editar perfil', icon: 'fas fa-edit', action: () => this.router.navigate(['/perfil/editar']) },
+          { label: 'Ajustes de cuenta', icon: 'fas fa-cog', action: () => this.router.navigate(['/perfil/ajustes']) },
           { label: 'Solicitudes de Amistad', icon: 'fas fa-user-friends', action: () => this.router.navigate(['/perfil/solicitudes']) },
         ];
-
       } else {
         this.title = '';
         this.menuOptions = [];

@@ -151,10 +151,25 @@ export class PerfilUsuarioComponent implements OnInit, OnDestroy {
       this.cargandoAmigos = true;
       this.amigosData = [];
 
-      for (const amigoUid of this.usuario!.amigos!) {
-        const datosAmigo = await this.perfilService.obtenerPerfil(amigoUid);
-        if (datosAmigo) {
-          this.amigosData.push(datosAmigo);
+      if (!this.usuario?.amigos || !Array.isArray(this.usuario.amigos)) {
+        return;
+      }
+
+      for (const amigoUid of this.usuario.amigos) {
+        // Verificar que el ID del amigo sea válido
+        if (!amigoUid || typeof amigoUid !== 'string' || amigoUid === 'usuarios') {
+          console.warn('ID de amigo no válido encontrado:', amigoUid);
+          continue; // Saltar este ID y continuar con el siguiente
+        }
+
+        try {
+          const datosAmigo = await this.perfilService.obtenerPerfil(amigoUid);
+          if (datosAmigo) {
+            this.amigosData.push(datosAmigo);
+          }
+        } catch (error) {
+          console.error(`Error al cargar amigo con ID ${amigoUid}:`, error);
+          // Continuar con el siguiente amigo en caso de error
         }
       }
 

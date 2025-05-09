@@ -74,9 +74,14 @@ export class LoginComponent {
     this.isLoading = true;
 
     try {
+      // Iniciar sesión
       const cred = await this.auth.login(email!, password!);
       const user = cred.user;
 
+      // Forzar actualización del estado de verificación de email
+      await this.refreshUserStatus(user.uid);
+
+      // Verificar el estado de verificación del email después de la actualización
       if (user.emailVerified) {
         this.router.navigate(['/puntos']);
       } else {
@@ -88,7 +93,6 @@ export class LoginComponent {
       this.isLoading = false;
     }
   }
-
 
   async loginWithGoogle() {
     this.errorMessage = '';
@@ -98,6 +102,9 @@ export class LoginComponent {
       const cred = await this.auth.loginWithGoogle();
       const user = cred.user;
 
+      // Forzar actualización del estado de verificación
+      await this.refreshUserStatus(user.uid);
+
       if (user.emailVerified) {
         this.router.navigate(['/puntos']);
       } else {
@@ -110,6 +117,25 @@ export class LoginComponent {
     }
   }
 
+  // Método para forzar la actualización del estado de verificación
+  private async refreshUserStatus(userId: string): Promise<void> {
+    try {
+      // Obtener el usuario actual
+      const user = this.auth.getCurrentUserNow();
+
+      if (user) {
+        // Recargar el usuario para obtener el estado más reciente
+        await user.reload();
+
+        // Forzar actualización del token ID
+        await user.getIdToken(true);
+
+        console.log('Estado de verificación después de actualizar:', user.emailVerified);
+      }
+    } catch (error) {
+      console.error('Error al actualizar estado del usuario:', error);
+    }
+  }
 
   async onResetPassword() {
     if (!this.resetForm.valid) return;

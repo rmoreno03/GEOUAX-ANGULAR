@@ -26,7 +26,8 @@ import {
   signInWithPopup,
   updateProfile,
   User,
-  getAdditionalUserInfo
+  getAdditionalUserInfo,
+  deleteUser
 } from 'firebase/auth';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { map, tap, catchError, switchMap } from 'rxjs/operators';
@@ -43,18 +44,20 @@ import {
   onSnapshot
 } from '@angular/fire/firestore';
 
-// Interfaz para el perfil de usuario en Firestore
-export interface UserProfile {
+// Interfaz para el usuario en Firestore (ahora se llama Usuario)
+export interface Usuario {
   uid: string;
   email: string;
-  displayName?: string;
-  photoURL?: string;
-  emailVerified: boolean;
+  nombre?: string;
+  fotoUrl?: string;
+  emailVerified?: boolean;
+  estaActivo?: boolean;
   phoneNumber?: string;
-  createdAt: any; // Timestamp de Firestore
-  lastLogin: any; // Timestamp de Firestore
-  roles?: string[];
-  accountStatus: 'active' | 'suspended' | 'pending_verification';
+  fechaRegistro?: any; // Timestamp de Firestore
+  fechaUltimoLogin?: any; // Timestamp de Firestore
+  rol?: 'admin' | 'usuario' | 'moderador';
+  biografia?: string;
+  amigos?: string[];
 }
 
 // Modelo para el historial de inicios de sesión
@@ -75,7 +78,7 @@ export class AuthService {
   private firestore = inject(Firestore);
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   private userSubject = new BehaviorSubject<User | null>(null);
-  private userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
+  private userProfileSubject = new BehaviorSubject<Usuario | null>(null);
 
   // Configuración para redirección después de acciones de correo
   private actionCodeSettings: ActionCodeSettings = {
@@ -92,7 +95,7 @@ export class AuthService {
   // Configuración de seguridad
   private maxFailedAttempts = 5;
   private lockoutDuration = 15 * 60 * 1000; // 15 minutos en milisegundos
-  private failedLoginAttempts: { [email: string]: { count: number, timestamp: number } } = {};
+  private failedLoginAttempts: Record<string, { count: number, timestamp: number }> = {};
 
   constructor(private router: Router) {
     // Observar cambios en el estado de autenticación
@@ -320,40 +323,78 @@ export class AuthService {
    * Aplica un código de acción
    * @param oobCode Código de acción recibido por correo
    */
-  async applyActionCode(oobCode: string): Promise<void> {
+  // Corregir el método applyActionCode en AuthService
+
+    async applyActionCode(oobCode: string): Promise<void> {
     try {
+      console.log('Aplicando código de acción:', oobCode);
+
+      // Aplicar el código de acción de Firebase
       await applyActionCode(this.auth, oobCode);
+      console.log('Código aplicado correctamente');
 
       // Recargar el usuario para actualizar su estado de verificación
       const user = this.auth.currentUser;
       if (user) {
-        await user.reload();
-        // Actualizar el subject
-        this.userSubject.next(user);
+        try {
+          // IMPORTANTE: Esperar a que se recargue el usuario
+          await user.reload();
 
-        // Actualizar también el perfil en Firestore
-        const userRef = doc(this.firestore, `users/${user.uid}`);
-        await updateDoc(userRef, {
-          emailVerified: true,
-          accountStatus: 'active',
-          updatedAt: serverTimestamp()
-        });
+          // IMPORTANTE: También forzar la actualización del token ID
+          await user.getIdToken(true);
 
-        // Actualizar el userProfile
-        const currentProfile = this.userProfileSubject.value;
-        if (currentProfile) {
-          this.userProfileSubject.next({
-            ...currentProfile,
+          console.log('Usuario recargado, emailVerified:', user.emailVerified);
+
+          // Actualizar el subject
+          this.userSubject.next(user);
+
+          // Actualizar también el perfil en Firestore SIEMPRE
+          const userRef = doc(this.firestore, `usuarios/${user.uid}`);
+
+          // Actualizamos Firestore independientemente del valor en Auth
+          await updateDoc(userRef, {
             emailVerified: true,
-            accountStatus: 'active'
+            estaActivo: true,
+            updatedAt: serverTimestamp()
           });
+
+          console.log('Perfil en Firestore actualizado: emailVerified=true');
+
+          // Actualizar el userProfile
+          const currentProfile = this.userProfileSubject.value;
+          if (currentProfile) {
+            this.userProfileSubject.next({
+              ...currentProfile,
+              emailVerified: true,
+              estaActivo: true
+            });
+          }
+        } catch (reloadError) {
+          console.error('Error al recargar usuario:', reloadError);
+
+          // Si hay error al recargar, intentar actualizar Firestore de todos modos
+          try {
+            const userRef = doc(this.firestore, `usuarios/${user.uid}`);
+            await updateDoc(userRef, {
+              emailVerified: true,
+              estaActivo: true,
+              updatedAt: serverTimestamp()
+            });
+            console.log('Perfil en Firestore actualizado a pesar del error de recarga');
+          } catch (firestoreError) {
+            console.error('Error al actualizar Firestore:', firestoreError);
+          }
         }
+      } else {
+        console.warn('No hay usuario autenticado al aplicar el código de verificación');
       }
     } catch (error) {
       console.error('❌ Error al aplicar código de acción:', error);
       throw this.handleAuthError(error);
     }
   }
+
+
 
   // MÉTODOS DE RESTABLECIMIENTO DE CONTRASEÑA
 
@@ -420,11 +461,14 @@ export class AuthService {
       await updateProfile(user, updates);
 
       // Actualizar perfil en Firestore
-      const userRef = doc(this.firestore, `users/${user.uid}`);
-      await updateDoc(userRef, {
-        ...updates,
-        updatedAt: serverTimestamp()
-      });
+      const userRef = doc(this.firestore, `usuarios/${user.uid}`);
+      const firestoreUpdates: any = {};
+
+      if (updates.displayName) firestoreUpdates.nombre = updates.displayName;
+      if (updates.photoURL) firestoreUpdates.fotoUrl = updates.photoURL;
+      firestoreUpdates.updatedAt = serverTimestamp();
+
+      await updateDoc(userRef, firestoreUpdates);
 
       // Actualizar el subject
       this.userSubject.next(user);
@@ -434,7 +478,8 @@ export class AuthService {
       if (currentProfile) {
         this.userProfileSubject.next({
           ...currentProfile,
-          ...updates
+          nombre: updates.displayName || currentProfile.nombre,
+          fotoUrl: updates.photoURL || currentProfile.fotoUrl
         });
       }
 
@@ -469,11 +514,11 @@ export class AuthService {
       await updateEmail(user, newEmail);
 
       // Actualizar el email y estado de verificación en Firestore
-      const userRef = doc(this.firestore, `users/${user.uid}`);
+      const userRef = doc(this.firestore, `usuarios/${user.uid}`);
       await updateDoc(userRef, {
         email: newEmail,
         emailVerified: false,
-        accountStatus: 'pending_verification',
+        estaActivo: false,
         updatedAt: serverTimestamp()
       });
 
@@ -487,7 +532,7 @@ export class AuthService {
           ...currentProfile,
           email: newEmail,
           emailVerified: false,
-          accountStatus: 'pending_verification'
+          estaActivo: false
         });
       }
 
@@ -524,7 +569,7 @@ export class AuthService {
       await updatePassword(user, newPassword);
 
       // Registrar el cambio de contraseña en Firestore
-      const userRef = doc(this.firestore, `users/${user.uid}`);
+      const userRef = doc(this.firestore, `usuarios/${user.uid}`);
       await updateDoc(userRef, {
         passwordUpdatedAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -551,7 +596,7 @@ export class AuthService {
     return this.userSubject.asObservable();
   }
 
-  getUserProfile(): Observable<UserProfile | null> {
+  getUserProfile(): Observable<Usuario | null> {
     return this.userProfileSubject.asObservable();
   }
 
@@ -575,23 +620,23 @@ export class AuthService {
   private async createUserProfile(
     user: User,
     displayName?: string,
-    emailVerified: boolean = false
+    emailVerified = false
   ): Promise<void> {
-    const userProfile: UserProfile = {
+    const userProfile: Usuario = {
       uid: user.uid,
       email: user.email || '',
-      displayName: displayName || user.displayName || '',
-      photoURL: user.photoURL || '',
+      nombre: displayName || user.displayName || '',
+      fotoUrl: user.photoURL || '',
       emailVerified: emailVerified || user.emailVerified,
+      estaActivo: emailVerified || false,
       phoneNumber: user.phoneNumber || '',
-      createdAt: serverTimestamp(),
-      lastLogin: serverTimestamp(),
-      accountStatus: emailVerified ? 'active' : 'pending_verification',
-      roles: ['user'] // Rol predeterminado
+      fechaRegistro: serverTimestamp(),
+      fechaUltimoLogin: serverTimestamp(),
+      rol: 'usuario' // Rol predeterminado
     };
 
     try {
-      const userRef = doc(this.firestore, `users/${user.uid}`);
+      const userRef = doc(this.firestore, `usuarios/${user.uid}`);
       await setDoc(userRef, userProfile);
 
       this.userProfileSubject.next(userProfile);
@@ -608,7 +653,7 @@ export class AuthService {
    */
   private async updateUserLastLogin(userId: string): Promise<void> {
     try {
-      const userRef = doc(this.firestore, `users/${userId}`);
+      const userRef = doc(this.firestore, `usuarios/${userId}`);
 
       // Verificar si el documento existe
       const docSnap = await getDoc(userRef);
@@ -616,7 +661,7 @@ export class AuthService {
       if (docSnap.exists()) {
         // El documento existe, actualizar la fecha de último login
         await updateDoc(userRef, {
-          lastLogin: serverTimestamp(),
+          fechaUltimoLogin: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
 
@@ -647,13 +692,13 @@ export class AuthService {
    */
   private async fetchUserProfile(userId: string): Promise<void> {
     try {
-      const userRef = doc(this.firestore, `users/${userId}`);
+      const userRef = doc(this.firestore, `usuarios/${userId}`);
 
       // Usar onSnapshot para obtener actualizaciones en tiempo real
       const unsubscribe = onSnapshot(userRef,
         (doc) => {
           if (doc.exists()) {
-            const profile = doc.data() as UserProfile;
+            const profile = doc.data() as Usuario;
             this.userProfileSubject.next(profile);
           } else {
             // Si no existe el perfil pero sí el usuario, crearlo
@@ -709,16 +754,16 @@ export class AuthService {
    * Obtiene el perfil del usuario actual directamente (no como observable)
    * @returns El perfil del usuario o null si no existe
    */
-  async getUserProfileSnapshot(): Promise<UserProfile | null> {
+  async getUserProfileSnapshot(): Promise<Usuario | null> {
     const userId = this.getUserId();
     if (!userId) return null;
 
     try {
-      const userRef = doc(this.firestore, `users/${userId}`);
+      const userRef = doc(this.firestore, `usuarios/${userId}`);
       const userDoc = await getDoc(userRef);
 
       if (userDoc.exists()) {
-        return userDoc.data() as UserProfile;
+        return userDoc.data() as Usuario;
       }
       return null;
     } catch (error) {
@@ -791,77 +836,217 @@ export class AuthService {
     return attempts.count >= this.maxFailedAttempts;
   }
 
-  // MANEJO DE ERRORES DE AUTENTICACIÓN
-
-  private handleAuthError(error: any): Error {
-    let errorMessage = 'Se produjo un error desconocido';
-
-    // Si el error es ya una instancia de Error, devolverlo directamente
-    if (error instanceof Error && !error.hasOwnProperty('code')) {
-      return error;
+  /**
+ * Fuerza la actualización del estado de verificación del email
+ * Útil después de que el usuario verifica su correo
+ */
+async refreshEmailVerificationStatus(forceFirestore = true): Promise<boolean> {
+  try {
+    const user = this.auth.currentUser;
+    if (!user) {
+      console.warn('No hay usuario para actualizar estado de verificación');
+      return false;
     }
 
-    if (error.code) {
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          errorMessage = 'Este correo electrónico ya está registrado';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'El formato del correo electrónico no es válido';
-          break;
-        case 'auth/user-disabled':
-          errorMessage = 'Esta cuenta ha sido deshabilitada';
-          break;
-        case 'auth/user-not-found':
-          errorMessage = 'No existe una cuenta con este correo electrónico';
-          break;
-        case 'auth/wrong-password':
-          errorMessage = 'Contraseña incorrecta';
-          break;
-        case 'auth/weak-password':
-          errorMessage = 'La contraseña debe tener al menos 6 caracteres';
-          break;
-        case 'auth/too-many-requests':
-          errorMessage = 'Demasiados intentos fallidos. Inténtalo más tarde o restablece tu contraseña.';
-          break;
-        case 'auth/popup-closed-by-user':
-          errorMessage = 'El proceso de autenticación fue cancelado';
-          break;
-        case 'auth/operation-not-allowed':
-          errorMessage = 'Esta operación no está permitida';
-          break;
-        case 'auth/requires-recent-login':
-          errorMessage = 'Esta operación requiere una autenticación reciente. Por favor, inicia sesión nuevamente.';
-          break;
-        case 'auth/expired-action-code':
-          errorMessage = 'El código de acción ha expirado. Por favor, solicita uno nuevo.';
-          break;
-        case 'auth/invalid-action-code':
-          errorMessage = 'El código de acción no es válido. Puede haber sido usado o haber expirado.';
-          break;
-        case 'auth/account-exists-with-different-credential':
-          errorMessage = 'Ya existe una cuenta con este correo electrónico pero con otro método de inicio de sesión.';
-          break;
-        case 'auth/invalid-credential':
-          errorMessage = 'Credenciales inválidas. Por favor, verifica tus datos e inténtalo de nuevo.';
-          break;
-        case 'auth/captcha-check-failed':
-          errorMessage = 'La verificación captcha ha fallado. Por favor, inténtalo de nuevo.';
-          break;
-        case 'auth/missing-phone-number':
-          errorMessage = 'Falta el número de teléfono.';
-          break;
-        case 'auth/invalid-phone-number':
-          errorMessage = 'El formato del número de teléfono no es válido.';
-          break;
-        case 'auth/quota-exceeded':
-          errorMessage = 'Se ha superado la cuota de solicitudes. Inténtalo más tarde.';
-          break;
-        default:
-          errorMessage = error.message || 'Error de autenticación. Por favor, inténtalo de nuevo más tarde.';
+    // Recargar el usuario desde Firebase
+    await user.reload();
+
+    // Forzar la actualización del token
+    await user.getIdToken(true);
+
+    // Verificar el estado después de recargar
+    const isVerified = user.emailVerified;
+    console.log('Estado de verificación después de reload:', isVerified);
+
+    // Actualizar el subject
+    this.userSubject.next(user);
+
+    // Si está verificado o se fuerza la actualización, actualizar también en Firestore
+    if (isVerified || forceFirestore) {
+      const userRef = doc(this.firestore, `usuarios/${user.uid}`);
+      await updateDoc(userRef, {
+        emailVerified: true,
+        estaActivo: true,
+        updatedAt: serverTimestamp()
+      });
+
+      console.log('Firestore actualizado con emailVerified=true');
+
+      // Actualizar el userProfile
+      const currentProfile = this.userProfileSubject.value;
+      if (currentProfile) {
+        this.userProfileSubject.next({
+          ...currentProfile,
+          emailVerified: true,
+          estaActivo: true
+        });
       }
     }
 
-    return new Error(errorMessage);
+    return isVerified;
+  } catch (error) {
+    console.error('Error al actualizar estado de verificación:', error);
+    return false;
+  }
+}
+
+  /**
+   * Inicia un poll para comprobar periódicamente
+   * si el email ha sido verificado
+   */
+  startVerificationPolling(intervalMs = 5000, maxAttempts = 12): Promise<boolean> {
+    return new Promise((resolve) => {
+      let attempts = 0;
+
+      const checkInterval = setInterval(async () => {
+        attempts++;
+        console.log(`Verificación ${attempts}/${maxAttempts}...`);
+
+        try {
+          // Obtener usuario actual
+          const user = this.auth.currentUser;
+          if (!user) {
+            clearInterval(checkInterval);
+            resolve(false);
+            return;
+          }
+
+          // Recargar usuario
+          await user.reload();
+
+          // Si el email está verificado, resolver con éxito
+          if (user.emailVerified) {
+            clearInterval(checkInterval);
+
+            // Actualizar Firestore
+            const userRef = doc(this.firestore, `usuarios/${user.uid}`);
+            await updateDoc(userRef, {
+              emailVerified: true,
+              estaActivo: true,
+              updatedAt: serverTimestamp()
+            });
+
+            // Actualizar el subject
+            this.userSubject.next(user);
+
+            resolve(true);
+            return;
+          }
+
+          // Si se alcanza el número máximo de intentos, resolver con false
+          if (attempts >= maxAttempts) {
+            clearInterval(checkInterval);
+            resolve(false);
+          }
+        } catch (error) {
+          console.error('Error en polling de verificación:', error);
+          // Continuar con el polling a pesar del error
+        }
+      }, intervalMs);
+    });
+  }
+
+  // MANEJO DE ERRORES DE AUTENTICACIÓN
+
+  private handleAuthError(error: any): Error {
+      let errorMessage = 'Se produjo un error desconocido';
+
+      // Si el error es ya una instancia de Error, devolverlo directamente
+      if (error instanceof Error && !error.hasOwnProperty('code')) {
+        return error;
+      }
+
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'Este correo electrónico ya está registrado';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'El formato del correo electrónico no es válido';
+            break;
+          case 'auth/user-disabled':
+            errorMessage = 'Esta cuenta ha sido deshabilitada';
+            break;
+          case 'auth/user-not-found':
+            errorMessage = 'No existe una cuenta con este correo electrónico';
+            break;
+          case 'auth/wrong-password':
+            errorMessage = 'Contraseña incorrecta';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+            break;
+          case 'auth/too-many-requests':
+            errorMessage = 'Demasiados intentos fallidos. Inténtalo más tarde o restablece tu contraseña.';
+            break;
+          case 'auth/popup-closed-by-user':
+            errorMessage = 'El proceso de autenticación fue cancelado';
+            break;
+          case 'auth/operation-not-allowed':
+            errorMessage = 'Esta operación no está permitida';
+            break;
+          case 'auth/requires-recent-login':
+            errorMessage = 'Esta operación requiere una autenticación reciente. Por favor, inicia sesión nuevamente.';
+            break;
+          case 'auth/expired-action-code':
+            errorMessage = 'El código de acción ha expirado. Por favor, solicita uno nuevo.';
+            break;
+          case 'auth/invalid-action-code':
+            errorMessage = 'El código de acción no es válido. Puede haber sido usado o haber expirado.';
+            break;
+          case 'auth/account-exists-with-different-credential':
+            errorMessage = 'Ya existe una cuenta con este correo electrónico pero con otro método de inicio de sesión.';
+            break;
+          case 'auth/invalid-credential':
+            errorMessage = 'Credenciales inválidas. Por favor, verifica tus datos e inténtalo de nuevo.';
+            break;
+          case 'auth/captcha-check-failed':
+            errorMessage = 'La verificación captcha ha fallado. Por favor, inténtalo de nuevo.';
+            break;
+          case 'auth/missing-phone-number':
+            errorMessage = 'Falta el número de teléfono.';
+            break;
+          case 'auth/invalid-phone-number':
+            errorMessage = 'El formato del número de teléfono no es válido.';
+            break;
+          case 'auth/quota-exceeded':
+            errorMessage = 'Se ha superado la cuota de solicitudes. Inténtalo más tarde.';
+            break;
+          default:
+            errorMessage = error.message || 'Error de autenticación. Por favor, inténtalo de nuevo más tarde.';
+        }
+      }
+
+      return new Error(errorMessage);
+    }
+
+    /**
+ * Elimina la cuenta del usuario y su perfil asociado
+ * @param password Contraseña actual para reautenticar
+ */
+  async deleteUserAccount(password: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('No hay usuario autenticado');
+    }
+
+    if (!user.email) {
+      throw new Error('El usuario no tiene un correo electrónico asociado');
+    }
+
+    try {
+      // Re-autenticar al usuario
+      const credential = EmailAuthProvider.credential(user.email, password);
+      await reauthenticateWithCredential(user, credential);
+
+      // Eliminar usuario de Auth
+      await deleteUser(user);
+
+      console.log('✅ Cuenta eliminada correctamente');
+      this.router.navigate(['/landing']);
+    } catch (error) {
+      console.error('❌ Error al eliminar cuenta:', error);
+      throw this.handleAuthError(error);
+    }
   }
 }
