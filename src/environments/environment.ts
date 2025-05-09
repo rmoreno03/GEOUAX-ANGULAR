@@ -13,3 +13,5 @@ export const environment = {
   firebaseFunctionsUrl: 'https://generarmapaimagen-zipgrys2wq-uc.a.run.app',
   google_vision_api_key: 'AIzaSyCOucsB8gmbywPTx3gAQr2kgr5PzBPHtMc',
 };
+
+//aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
