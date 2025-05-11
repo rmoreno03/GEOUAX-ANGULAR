@@ -206,7 +206,7 @@ export class EditarPerfilComponent implements OnInit {
         if (user) {
           await this.authService.updateUserProfile({ photoURL: url });
         }
-      } catch (e) {
+      } catch {
         console.warn('No se pudo actualizar la foto en Auth, pero sí en Firestore');
       }
 

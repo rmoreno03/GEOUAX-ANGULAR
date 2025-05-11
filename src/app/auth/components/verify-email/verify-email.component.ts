@@ -210,8 +210,12 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     try {
       await this.auth.logout();
       this.router.navigate(['/auth/login']);
-    } catch (err: any) {
-      this.errorMessage = err.message;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        this.errorMessage = err.message;
+      } else {
+        this.errorMessage = 'Ha ocurrido un error inesperado';
+      }
     }
   }
 }

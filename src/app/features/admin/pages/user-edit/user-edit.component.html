@@ -1,0 +1,444 @@
+<div class="user-edit-container">
+  <!-- Header con navegación -->
+  <header class="edit-header">
+    <div class="breadcrumb">
+      <a routerLink="/admin/gestion-usuarios" class="breadcrumb-link">
+        <i class="fas fa-arrow-left"></i>
+        Volver a Gestión de Usuarios
+      </a>
+      <span class="breadcrumb-separator">/</span>
+      <a *ngIf="user" [routerLink]="['/admin/usuarios', user.uid]" class="breadcrumb-link">
+        {{ user.nombre || 'Usuario sin nombre' }}
+      </a>
+    </div>
+
+    <div class="edit-title">
+      <h1>
+        <i class="fas fa-user-edit"></i>
+        Editar Usuario
+      </h1>
+      <p *ngIf="lastSaved" class="last-saved">
+        Último guardado: {{ formatFecha(lastSaved) }}
+      </p>
+    </div>
+  </header>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Cargando información del usuario...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error" class="error-state">
+    <div class="error-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h2>Error al cargar usuario</h2>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="retry()">
+      <i class="fas fa-redo"></i>
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Controles de comparación -->
+  <div *ngIf="userForm && !loading && !error" class="comparison-controls">
+    <button class="btn btn-outline" (click)="toggleOriginalValues()">
+      <i class="fas" [class.fa-eye]="!showOriginalValues" [class.fa-eye-slash]="showOriginalValues"></i>
+      {{ showOriginalValues ? 'Ocultar valores originales' : 'Mostrar valores originales' }}
+    </button>
+
+    <div *ngIf="hasChanges" class="changes-summary">
+      <h4>Campos modificados:</h4>
+      <ul>
+        <li *ngFor="let field of getChangedFields()">{{ field }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Formulario de edición -->
+  <form *ngIf="userForm && !loading && !error" [formGroup]="userForm" (ngSubmit)="onSubmit()" class="edit-form">
+    <!-- Información básica -->
+    <section class="form-section">
+      <header class="section-header">
+        <h2>
+          <i class="fas fa-user"></i>
+          Información Personal
+        </h2>
+        <span class="required-note">* Campos obligatorios</span>
+      </header>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="nombre" class="form-label">
+            Nombre completo
+            <span class="required">*</span>
+          </label>
+          <div class="input-with-comparison">
+            <input
+              id="nombre"
+              type="text"
+              formControlName="nombre"
+              class="form-input"
+              [class.invalid]="userForm.get('nombre')?.invalid && userForm.get('nombre')?.touched"
+              placeholder="Ingrese el nombre completo"
+            >
+            <div *ngIf="showOriginalValues" class="original-value">
+              <span class="original-label">Valor anterior:</span>
+              <span class="original-text">{{ originalValues.nombre }}</span>
+            </div>
+          </div>
+          <span *ngIf="userForm.get('nombre')?.errors?.['required'] && userForm.get('nombre')?.touched"
+                class="error-message">
+            El nombre es obligatorio
+          </span>
+          <span *ngIf="userForm.get('nombre')?.errors?.['minlength'] && userForm.get('nombre')?.touched"
+                class="error-message">
+            El nombre debe tener al menos 2 caracteres
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">
+            Correo electrónico
+            <span class="required">*</span>
+          </label>
+          <div class="input-with-comparison">
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="form-input"
+              [class.invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+              placeholder="correo@ejemplo.com"
+              [readonly]="!canEditEmail"
+            >
+            <div *ngIf="showOriginalValues" class="original-value">
+              <span class="original-label">Valor anterior:</span>
+              <span class="original-text">{{ originalValues.email }}</span>
+            </div>
+          </div>
+          <span *ngIf="userForm.get('email')?.errors?.['required'] && userForm.get('email')?.touched"
+                class="error-message">
+            El correo es obligatorio
+          </span>
+          <span *ngIf="userForm.get('email')?.errors?.['email'] && userForm.get('email')?.touched"
+                class="error-message">
+            Ingrese un correo válido
+          </span>
+          <span *ngIf="!canEditEmail" class="info-message">
+            <i class="fas fa-info-circle"></i>
+            El correo no puede ser modificado para usuarios con autenticación social
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber" class="form-label">Teléfono</label>
+          <div class="input-with-comparison">
+            <input
+              id="phoneNumber"
+              type="tel"
+              formControlName="phoneNumber"
+              class="form-input"
+              placeholder="+34 600 000 000"
+            >
+            <div *ngIf="showOriginalValues" class="original-value">
+              <span class="original-label">Valor anterior:</span>
+              <span class="original-text">{{ originalValues.phoneNumber }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="biografia" class="form-label">Biografía</label>
+          <div class="input-with-comparison">
+            <textarea
+              id="biografia"
+              formControlName="biografia"
+              class="form-textarea"
+              rows="3"
+              placeholder="Escribe algo sobre ti..."
+            ></textarea>
+            <div *ngIf="showOriginalValues" class="original-value">
+              <span class="original-label">Valor anterior:</span>
+              <span class="original-text">{{ originalValues.biografia }}</span>
+            </div>
+          </div>
+          <span class="char-count">{{ userForm.get('biografia')?.value?.length || 0 }}/500</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configuración de cuenta -->
+    <section class="form-section">
+      <header class="section-header">
+        <h2>
+          <i class="fas fa-cogs"></i>
+          Configuración de Cuenta
+        </h2>
+      </header>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="rol" class="form-label">
+            Rol del usuario
+            <span class="required">*</span>
+          </label>
+          <div class="input-with-comparison">
+            <select
+              id="rol"
+              formControlName="rol"
+              class="form-select"
+              [disabled]="!canEditRole"
+              [class.invalid]="userForm.get('rol')?.invalid && userForm.get('rol')?.touched"
+            >
+              <option value="usuario">Usuario</option>
+              <option value="moderador">Moderador</option>
+              <option value="admin">Administrador</option>
+            </select>
+            <div *ngIf="showOriginalValues" class="original-value">
+              <span class="original-label">Valor anterior:</span>
+              <span class="original-text">{{ originalValues.rol | titlecase }}</span>
+            </div>
+          </div>
+          <span *ngIf="!canEditRole" class="info-message">
+            <i class="fas fa-info-circle"></i>
+            No tienes permisos para modificar este rol
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Estado de la cuenta</label>
+          <div class="input-with-comparison">
+            <div class="toggle-container">
+              <label class="toggle">
+                <input type="checkbox" formControlName="estaActivo">
+                <span class="slider"></span>
+                <span class="label-text">{{ userForm.get('estaActivo')?.value ? 'Activo' : 'Inactivo' }}</span>
+              </label>
+            </div>
+            <div *ngIf="showOriginalValues" class="original-value">
+              <span class="original-label">Valor anterior:</span>
+              <span class="original-text">{{ originalValues.estaActivo }}</span>
+            </div>
+          </div>
+          <span class="help-text">Desactivar esta opción impedirá que el usuario acceda a la aplicación</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email verificado</label>
+          <div class="input-with-comparison">
+            <div class="toggle-container">
+              <label class="toggle">
+                <input type="checkbox" formControlName="emailVerified">
+                <span class="slider"></span>
+                <span class="label-text">{{ userForm.get('emailVerified')?.value ? 'Verificado' : 'No verificado' }}</span>
+              </label>
+            </div>
+            <div *ngIf="showOriginalValues" class="original-value">
+              <span class="original-label">Valor anterior:</span>
+              <span class="original-text">{{ originalValues.emailVerified }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configuración de privacidad -->
+    <section class="form-section" *ngIf="userForm.get('ajustes')">
+      <header class="section-header">
+        <h2>
+          <i class="fas fa-shield-alt"></i>
+          Configuración de Privacidad
+        </h2>
+      </header>
+
+      <div formGroupName="ajustes">
+        <div formGroupName="privacidad" class="privacy-settings">
+          <div class="form-group">
+            <div class="input-with-comparison">
+              <label class="toggle">
+                <input type="checkbox" formControlName="perfilPublico">
+                <span class="slider"></span>
+                <span class="label-text">Perfil público</span>
+              </label>
+              <div *ngIf="showOriginalValues" class="original-value">
+                <span class="original-label">Valor anterior:</span>
+                <span class="original-text">{{ originalValues.privacidad.perfilPublico }}</span>
+              </div>
+            </div>
+            <span class="help-text">Permitir que otros usuarios vean tu perfil</span>
+          </div>
+
+          <div class="form-group">
+            <div class="input-with-comparison">
+              <label class="toggle">
+                <input type="checkbox" formControlName="mostrarEmail">
+                <span class="slider"></span>
+                <span class="label-text">Mostrar email en el perfil</span>
+              </label>
+              <div *ngIf="showOriginalValues" class="original-value">
+                <span class="original-label">Valor anterior:</span>
+                <span class="original-text">{{ originalValues.privacidad.mostrarEmail }}</span>
+              </div>
+            </div>
+            <span class="help-text">El email será visible en tu perfil público</span>
+          </div>
+
+          <div class="form-group">
+            <div class="input-with-comparison">
+              <label class="toggle">
+                <input type="checkbox" formControlName="mostrarAmigos">
+                <span class="slider"></span>
+                <span class="label-text">Mostrar lista de amigos</span>
+              </label>
+              <div *ngIf="showOriginalValues" class="original-value">
+                <span class="original-label">Valor anterior:</span>
+                <span class="original-text">{{ originalValues.privacidad.mostrarAmigos }}</span>
+              </div>
+            </div>
+            <span class="help-text">Otros usuarios podrán ver tu lista de amigos</span>
+          </div>
+
+          <div class="form-group">
+            <div class="input-with-comparison">
+              <label class="toggle">
+                <input type="checkbox" formControlName="notificacionesEmail">
+                <span class="slider"></span>
+                <span class="label-text">Recibir notificaciones por email</span>
+              </label>
+              <div *ngIf="showOriginalValues" class="original-value">
+                <span class="original-label">Valor anterior:</span>
+                <span class="original-text">{{ originalValues.privacidad.notificacionesEmail }}</span>
+              </div>
+            </div>
+            <span class="help-text">Recibir actualizaciones y notificaciones por correo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Información del sistema -->
+    <section class="form-section info-section">
+      <header class="section-header">
+        <h2>
+          <i class="fas fa-info-circle"></i>
+          Información del Sistema
+        </h2>
+      </header>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>ID de Usuario</label>
+          <p class="mono-text">{{ user?.uid }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Fecha de registro</label>
+          <p>{{ formatFecha(user?.fechaRegistro) }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Último acceso</label>
+          <p>{{ formatFecha(user?.fechaUltimoLogin || user?.ultimaConexion) }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Proveedor de autenticación</label>
+          <p>
+            <span class="provider-chip" [class]="'provider-' + (user?.authProvider || 'email')">
+              <i class="fab" [class]="getProviderIcon(user?.authProvider || 'email')"></i>
+              {{ getProviderName(user?.authProvider || 'email') }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Acciones del formulario -->
+    <div class="form-actions">
+      <div class="actions-left">
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="confirmDelete()"
+          *ngIf="canDeleteUser"
+        >
+          <i class="fas fa-trash-alt"></i>
+          Eliminar Usuario
+        </button>
+      </div>
+
+      <div class="actions-right">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cancel()"
+          [disabled]="saving"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="userForm.invalid || saving || !hasChanges"
+        >
+          <i *ngIf="saving" class="fas fa-spinner fa-spin"></i>
+          <i *ngIf="!saving" class="fas fa-save"></i>
+          {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Cambios pendientes -->
+    <div *ngIf="hasChanges" class="changes-indicator">
+      <i class="fas fa-info-circle"></i>
+      Hay cambios sin guardar
+    </div>
+  </form>
+
+  <!-- Modal de confirmación de eliminación -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h3>
+          <i class="fas fa-exclamation-triangle"></i>
+          Confirmar Eliminación
+        </h3>
+        <button class="modal-close" (click)="cancelDelete()">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <!-- Modal footer ahora está arriba del body -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelDelete()">
+          Cancelar
+        </button>
+        <button class="btn btn-danger" (click)="deleteUser()" [disabled]="deleting">
+          <i *ngIf="deleting" class="fas fa-spinner fa-spin"></i>
+          {{ deleting ? 'Eliminando...' : 'Eliminar Usuario' }}
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>¿Estás seguro de que quieres eliminar este usuario?</p>
+        <p class="warning-text">Esta acción no se puede deshacer. Se eliminarán todos los datos asociados a este usuario.</p>
+
+        <div class="user-preview">
+          <img
+            [src]="user?.fotoUrl || '/assets/images/default-avatar.png'"
+            alt="Usuario"
+            class="preview-avatar"
+          >
+          <div class="preview-info">
+            <h4>{{ user?.nombre || 'Usuario sin nombre' }}</h4>
+            <p>{{ user?.email }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -146,7 +146,7 @@ export class GuiasService {
    * Descarga una guía PDF
    * @param id ID de la guía
    */
-  descargarGuia(id: string): Observable<Blob> {
+  descargarGuia(): Observable<Blob> {
     // En producción, utilizar esto:
     // const url = `${this.apiUrl}/${id}/descargar`;
     // return this.http.get(url, { responseType: 'blob' })

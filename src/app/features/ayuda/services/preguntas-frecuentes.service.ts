@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { PreguntaFrecuente } from '../../../models/pregunta-frecuente.model';
+import { RespuestaOperacionSimple, RespuestaSolicitudGuia } from '../../../models/RespuestaSolicitada.model';
+import { EstadoSolicitud } from '../../../models/guia.model';
 
 @Injectable({
   providedIn: 'root'
@@ -149,25 +151,7 @@ export class PreguntasFrecuentesService {
     return of(pregunta);
   }
 
-  /**
-   * Incrementa el contador de visitas de una pregunta
-   * @param id ID de la pregunta
-   */
-  incrementarVisitas(id: string): Observable<any> {
-    // En producción, utilizar esto:
-    // const url = `${this.apiUrl}/${id}/incrementar-visitas`;
-    // return this.http.post<any>(url, {})
-    //   .pipe(
-    //     catchError(this.handleError<any>('incrementarVisitas'))
-    //   );
 
-    // Para desarrollo, simular incremento:
-    const pregunta = this.preguntasEjemplo.find(p => p.id === id);
-    if (pregunta && pregunta.visitas !== undefined) {
-      pregunta.visitas += 1;
-    }
-    return of({ success: true });
-  }
 
   /**
    * Marca una pregunta como útil o no útil
@@ -194,6 +178,29 @@ export class PreguntasFrecuentesService {
     }
     return of({ success: true });
   }
+
+  solicitarGuia(tema: string): Observable<RespuestaSolicitudGuia> {
+    console.log(`Solicitud de guía recibida para tema: ${tema}`);
+    return of({
+      success: true,
+      mensaje: 'Solicitud recibida correctamente',
+      solicitud: {
+        id: 'solicitud-' + Date.now(),
+        tema: tema,
+        fechaSolicitud: new Date(),
+        estado: EstadoSolicitud.PENDIENTE
+      }
+    });
+  }
+
+  incrementarVisitas(id: string): Observable<RespuestaOperacionSimple> {
+    const pregunta = this.preguntasEjemplo.find(p => p.id === id);
+    if (pregunta && pregunta.visitas !== undefined) {
+      pregunta.visitas += 1;
+    }
+    return of({ success: true });
+  }
+
 
   /**
    * Busca preguntas frecuentes por término de búsqueda
@@ -225,14 +232,15 @@ export class PreguntasFrecuentesService {
    * @param result Valor opcional para devolver como resultado observable
    */
   private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      // Registrar el error en la consola
-      console.error(`${operation} falló: ${error.message}`);
+    return (error: unknown): Observable<T> => {
+      if (error instanceof Error) {
+        console.error(`${operation} falló: ${error.message}`);
+      } else {
+        console.error(`${operation} falló: error desconocido`, error);
+      }
 
-      // Transformar el error para una mejor UI
       console.log(`${operation} error details:`, error);
 
-      // Devolver un resultado vacío para seguir ejecutando la aplicación
       return of(result as T);
     };
   }

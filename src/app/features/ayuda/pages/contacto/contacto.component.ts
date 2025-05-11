@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ContactoService } from '../../services/contacto.service';
 
@@ -20,7 +20,7 @@ interface PreguntaFrecuente {
   templateUrl: './contacto.component.html',
   styleUrls: ['./contacto.component.css']
 })
-export class ContactoComponent implements OnInit {
+export class ContactoComponent {
 
   contactForm!: FormGroup;
 
@@ -72,9 +72,6 @@ export class ContactoComponent implements OnInit {
     this.crearFormulario();
   }
 
-  ngOnInit(): void {
-    // Inicialización adicional si fuera necesaria
-  }
 
   /**
    * Crea el formulario de contacto con sus validaciones

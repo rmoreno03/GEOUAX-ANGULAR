@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FeaturesLayoutComponent } from './features/layout/pages/features-layout/features-layout.component';
-import { AuthGuard } from './auth/guards/auth.guard';
-import { NoAuthGuard } from './auth/guards/no-auth.guard';
 import { AuthLayoutComponent } from './features/layout/pages/auth-layout/auth-layout.component';
 import { LandingPageComponent } from './features/layout/components/landing-page/landing-page.component';
 import { LandingLayoutComponent } from './features/layout/pages/landing-layout/landing-layout.component';
@@ -25,7 +23,7 @@ const routes: Routes = [
   {
     path: '',
     component: FeaturesLayoutComponent,
-    canActivate: [EmailVerifiedGuard], // Cambiamos AuthGuard por EmailVerifiedGuard para asegurar email verificado
+    canActivate: [EmailVerifiedGuard],
     children: [
       {
         path: 'puntos',

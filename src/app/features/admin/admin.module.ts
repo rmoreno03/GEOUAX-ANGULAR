@@ -10,6 +10,8 @@ import { AuditoriaLogsComponent } from './pages/auditoria-logs/auditoria-logs.co
 import { ConfiguracionGeneralComponent } from './pages/configuracion-general/configuracion-general.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { SharedModule } from '../../shared/shared.module';
+import { UserDetailComponent } from './pages/user-detail/user-detail.component';
+import { UserEditComponent } from './pages/user-edit/user-edit.component';
 
 
 @NgModule({
@@ -19,7 +21,9 @@ import { SharedModule } from '../../shared/shared.module';
     ContenidoReportadoComponent,
     AuditoriaLogsComponent,
     ConfiguracionGeneralComponent,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    UserDetailComponent,
+    UserEditComponent
   ],
   imports: [
     CommonModule,

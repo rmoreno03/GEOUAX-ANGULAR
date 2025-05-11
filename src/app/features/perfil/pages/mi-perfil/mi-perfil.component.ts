@@ -7,7 +7,7 @@ import { Ruta } from '../../../../models/ruta.model';
 import { PerfilService } from '../../services/perfil.service';
 import { RutasService } from '../../../rutas/services/rutas.service';
 import { AmistadService } from '../../services/amistad.service';
-import { Timestamp } from 'firebase/firestore';
+import { FieldValue, Timestamp } from 'firebase/firestore';
 
 @Component({
   standalone: false,
@@ -204,7 +204,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
   }
 
   // UTILIDADES
-  formatFecha(fecha: Timestamp | Date | string | any): string {
+  formatFecha(fecha: Timestamp | Date | string | FieldValue | undefined): string {
     if (!fecha) return '';
 
     let date: Date;
@@ -212,11 +212,14 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
     if (fecha instanceof Date) {
       date = fecha;
     } else if (typeof fecha === 'string') {
-      date = new Date(fecha);
-    } else if (fecha.toDate) {
+      const parsed = new Date(fecha);
+      if (isNaN(parsed.getTime())) return ''; // fecha inválida
+      date = parsed;
+    } else if (fecha instanceof Timestamp) {
       date = fecha.toDate();
     } else {
-      return '';
+      // Si es FieldValue (ej: serverTimestamp()) que aún no ha sido resuelto
+      return 'pendiente...';
     }
 
     return date.toLocaleString('es-ES', {
@@ -225,6 +228,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      second: '2-digit',
       hour12: false
     }).replace(',', '');
   }

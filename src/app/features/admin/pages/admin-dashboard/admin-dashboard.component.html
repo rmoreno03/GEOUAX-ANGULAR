@@ -1,156 +1,286 @@
 <div class="admin-dashboard">
-  <div class="dashboard-header">
-    <h2><i class="fas fa-cogs"></i> Panel de Administración</h2>
-    <div class="actions">
-      <div class="search-container">
-        <i class="fas fa-search"></i>
-        <input type="text" placeholder="Buscar usuarios..." [(ngModel)]="searchTerm" (input)="filtrarUsuarios()">
+  <!-- Header mejorado -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="header-main">
+        <h1 class="dashboard-title">
+          <i class="fas fa-shield-alt"></i>
+          Panel de Administración
+        </h1>
+        <p class="dashboard-subtitle">Gestiona usuarios y supervisa la actividad del sistema</p>
       </div>
-      <button class="btn-action"><i class="fas fa-plus"></i> Nuevo Usuario</button>
-    </div>
-  </div>
 
-  <div class="dashboard-stats">
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fas fa-users"></i></div>
-      <div class="stat-info">
-        <h3>{{ totalUsuarios }}</h3>
-        <p>Usuarios totales</p>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
-      <div class="stat-info">
-        <h3>{{ usuariosAdmin }}</h3>
-        <p>Administradores</p>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fas fa-user-check"></i></div>
-      <div class="stat-info">
-        <h3>{{ usuariosActivos }}</h3>
-        <p>Usuarios activos</p>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fas fa-route"></i></div>
-      <div class="stat-info">
-        <h3>{{ totalRutas }}</h3>
-        <p>Rutas creadas</p>
-      </div>
-    </div>
-  </div>
+      <div class="header-actions">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar usuarios..."
+            [(ngModel)]="searchTerm"
+            (input)="filtrarUsuarios()"
+            class="search-input"
+          >
+        </div>
 
-  <div class="dashboard-content">
-    <div class="content-header">
-      <h3>Gestión de Usuarios</h3>
-      <div class="filter-options">
-        <select [(ngModel)]="filtroRol" (change)="filtrarUsuarios()">
+        <button class="btn btn-primary" (click)="router.navigate(['/admin/usuarios/nuevo'])">
+          <i class="fas fa-plus-circle"></i>
+          Nuevo Usuario
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Estadísticas mejoradas con datos reales y tooltips -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card users-total"
+           title="Número total de usuarios registrados en la plataforma">
+        <div class="stat-icon-wrapper">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-details">
+          <h3 class="stat-value">{{ totalUsuarios }}</h3>
+          <p class="stat-label">Usuarios Totales</p>
+        </div>
+        <div class="stat-trend"
+             [class.positive]="tendencias.totalUsuarios > 0"
+             [class.negative]="tendencias.totalUsuarios < 0"
+             [class.neutral]="tendencias.totalUsuarios === 0"
+             [title]="'Variación del ' + (tendencias.totalUsuarios > 0 ? '+' : '') + tendencias.totalUsuarios + '% respecto al mes anterior'">
+          <i class="fas"
+             [class.fa-arrow-up]="tendencias.totalUsuarios > 0"
+             [class.fa-arrow-down]="tendencias.totalUsuarios < 0"
+             [class.fa-minus]="tendencias.totalUsuarios === 0"></i>
+          {{ tendencias.totalUsuarios > 0 ? '+' : '' }}{{ tendencias.totalUsuarios }}%
+        </div>
+      </div>
+
+      <div class="stat-card admins"
+           title="Usuarios con privilegios de administrador que pueden gestionar el sistema">
+        <div class="stat-icon-wrapper">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="stat-details">
+          <h3 class="stat-value">{{ usuariosAdmin }}</h3>
+          <p class="stat-label">Administradores</p>
+        </div>
+        <div class="stat-trend"
+             [class.positive]="tendencias.usuariosAdmin > 0"
+             [class.negative]="tendencias.usuariosAdmin < 0"
+             [class.neutral]="tendencias.usuariosAdmin === 0"
+             [title]="'Variación del ' + (tendencias.usuariosAdmin > 0 ? '+' : '') + tendencias.usuariosAdmin + '% en administradores respecto al mes anterior'">
+          <i class="fas"
+             [class.fa-arrow-up]="tendencias.usuariosAdmin > 0"
+             [class.fa-arrow-down]="tendencias.usuariosAdmin < 0"
+             [class.fa-minus]="tendencias.usuariosAdmin === 0"></i>
+          {{ tendencias.usuariosAdmin > 0 ? '+' : '' }}{{ tendencias.usuariosAdmin }}%
+        </div>
+      </div>
+
+      <div class="stat-card active-users"
+           title="Usuarios que han iniciado sesión en los últimos 30 días y tienen sus cuentas activas">
+        <div class="stat-icon-wrapper">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-details">
+          <h3 class="stat-value">{{ usuariosActivos }}</h3>
+          <p class="stat-label">Usuarios Activos</p>
+        </div>
+        <div class="stat-trend"
+             [class.positive]="tendencias.usuariosActivos > 0"
+             [class.negative]="tendencias.usuariosActivos < 0"
+             [class.neutral]="tendencias.usuariosActivos === 0"
+             [title]="'Variación del ' + (tendencias.usuariosActivos > 0 ? '+' : '') + tendencias.usuariosActivos + '% en usuarios activos respecto al mes anterior'">
+          <i class="fas"
+             [class.fa-arrow-up]="tendencias.usuariosActivos > 0"
+             [class.fa-arrow-down]="tendencias.usuariosActivos < 0"
+             [class.fa-minus]="tendencias.usuariosActivos === 0"></i>
+          {{ tendencias.usuariosActivos > 0 ? '+' : '' }}{{ tendencias.usuariosActivos }}%
+        </div>
+      </div>
+
+      <div class="stat-card routes"
+           title="Total de rutas creadas en la plataforma por todos los usuarios">
+        <div class="stat-icon-wrapper">
+          <i class="fas fa-route"></i>
+        </div>
+        <div class="stat-details">
+          <h3 class="stat-value">{{ totalRutas }}</h3>
+          <p class="stat-label">Rutas Creadas</p>
+        </div>
+        <div class="stat-trend"
+             [class.positive]="tendencias.totalRutas > 0"
+             [class.negative]="tendencias.totalRutas < 0"
+             [class.neutral]="tendencias.totalRutas === 0"
+             [title]="'Variación del ' + (tendencias.totalRutas > 0 ? '+' : '') + tendencias.totalRutas + '% en rutas creadas respecto al mes anterior'">
+          <i class="fas"
+             [class.fa-arrow-up]="tendencias.totalRutas > 0"
+             [class.fa-arrow-down]="tendencias.totalRutas < 0"
+             [class.fa-minus]="tendencias.totalRutas === 0"></i>
+          {{ tendencias.totalRutas > 0 ? '+' : '' }}{{ tendencias.totalRutas }}%
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filtros mejorados -->
+  <section class="filters-section">
+    <div class="filters-header">
+      <h2 class="section-title">Gestión de Usuarios</h2>
+      <div class="filters-wrapper">
+        <select [(ngModel)]="filtroRol" (change)="filtrarUsuarios()" class="filter-select">
           <option value="">Todos los roles</option>
           <option value="admin">Administradores</option>
           <option value="moderador">Moderadores</option>
           <option value="usuario">Usuarios</option>
         </select>
-        <select [(ngModel)]="filtroActivo" (change)="filtrarUsuarios()">
+
+        <select [(ngModel)]="filtroActivo" (change)="filtrarUsuarios()" class="filter-select">
           <option value="">Todos los estados</option>
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
         </select>
-        <select [(ngModel)]="filtroProveedor" (change)="filtrarUsuarios()">
+
+        <select [(ngModel)]="filtroProveedor" (change)="filtrarUsuarios()" class="filter-select">
           <option value="">Todos los proveedores</option>
           <option value="google">Google</option>
           <option value="facebook">Facebook</option>
           <option value="twitter">Twitter</option>
           <option value="email">Email</option>
         </select>
-        <select [(ngModel)]="ordenUsuarios" (change)="ordenarUsuarios()">
-          <option value="reciente">Registrados recientes</option>
+
+        <select [(ngModel)]="ordenUsuarios" (change)="filtrarUsuarios()" class="filter-select">
+          <option value="reciente">Más recientes</option>
           <option value="ultimaConexion">Última conexión</option>
           <option value="alfabetico">Alfabético</option>
           <option value="totalRutas">Más rutas</option>
         </select>
+
+        <button *ngIf="searchTerm || filtroRol || filtroActivo || filtroProveedor"
+                class="btn btn-outline"
+                (click)="resetFiltros()">
+          <i class="fas fa-sync-alt"></i>
+          Limpiar
+        </button>
       </div>
     </div>
+  </section>
 
-    <div *ngIf="cargando" class="loader">
-      <div class="spinner"></div>
-      <p>Cargando usuarios...</p>
+  <!-- Tabla de usuarios con datos reales -->
+  <section class="users-section">
+    <!-- Loading state -->
+    <div *ngIf="cargando" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Cargando usuarios y estadísticas...</p>
     </div>
 
-    <div *ngIf="!cargando && usuariosFiltrados.length === 0" class="no-results">
-      <i class="fas fa-search"></i>
-      <p>No se encontraron usuarios con los filtros aplicados</p>
-      <button (click)="resetFiltros()" class="btn-reset">Resetear filtros</button>
-    </div>
-
-    <div *ngIf="!cargando && usuariosFiltrados.length > 0" class="tabla-usuarios">
-      <div class="usuario-card" *ngFor="let user of usuariosFiltrados">
-        <div class="card-header">
-          <div class="user-badge" [ngClass]="'badge-' + user.rol">{{ user.rol }}</div>
-          <div class="user-actions">
-            <button class="btn-icon" title="Editar usuario"><i class="fas fa-edit"></i></button>
-            <button class="btn-icon" title="Eliminar usuario"><i class="fas fa-trash-alt"></i></button>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="avatar-container">
-            <img *ngIf="user.fotoUrl" [src]="user.fotoUrl" class="avatar" alt="avatar" />
-            <div *ngIf="!user.fotoUrl" class="avatar-placeholder">
-              <span>{{ getInitials(user.nombre) }}</span>
-            </div>
-            <div class="status-indicator" [ngClass]="{ 'online': user.estaActivo }"></div>
-            <div *ngIf="user.authProvider" class="provider-badge" [ngClass]="'provider-' + user.authProvider">
-              <i class="fab" [ngClass]="getProviderIcon(user.authProvider)"></i>
-            </div>
-          </div>
-          <div class="info">
-            <h4>{{ user.nombre || 'Usuario sin nombre' }}</h4>
-            <p><i class="fas fa-envelope"></i> {{ user.email }} <i *ngIf="user.emailVerified" class="fas fa-check-circle verificado" title="Email verificado"></i></p>
-            <p class="uid-text"><i class="fas fa-fingerprint"></i> {{ user.uid }}</p>
-            <p *ngIf="user.fechaRegistro"><i class="fas fa-calendar-alt"></i> Registrado: {{ formatFecha(user.fechaRegistro) }}</p>
-            <p *ngIf="user.fechaUltimoLogin"><i class="fas fa-clock"></i> Último login: {{ formatFecha(user.fechaUltimoLogin) }}</p>
-            <p *ngIf="user.ultimaConexion"><i class="fas fa-plug"></i> Última conexión: {{ formatFecha(user.ultimaConexion) }}</p>
-            <p *ngIf="user.biografia"><i class="fas fa-comment-alt"></i> {{ user.biografia }}</p>
-            <p *ngIf="user.phoneNumber"><i class="fas fa-phone"></i> {{ user.phoneNumber }}</p>
-
-            <div *ngIf="user.totalRutas || user.kmRecorridos || user.rutasPublicas" class="user-stats">
-              <div class="stat-chip" *ngIf="user.totalRutas">
-                <i class="fas fa-route"></i> {{ user.totalRutas }} rutas
-              </div>
-              <div class="stat-chip" *ngIf="user.rutasPublicas">
-                <i class="fas fa-map"></i> {{ user.rutasPublicas }} públicas
-              </div>
-              <div class="stat-chip" *ngIf="user.kmRecorridos">
-                <i class="fas fa-road"></i> {{ user.kmRecorridos }} km
-              </div>
-            </div>
-
-            <div *ngIf="user.ajustes?.privacidad" class="privacidad-info">
-              <span class="privacidad-label">Privacidad:</span>
-            <!-- <span class="privacidad-valor" [ngClass]="{'activo': user.ajustes.privacidad.perfilPublico}">Perfil {{ user.ajustes.privacidad.perfilPublico ? 'público' : 'privado' }}</span>  aun no esta implementado -->
-            </div>
-
-            <p *ngIf="user.amigos && user.amigos.length > 0" class="amigos-info">
-              <i class="fas fa-users"></i> {{ user.amigos.length }} amigos
-            </p>
-          </div>
-        </div>
-        <div class="card-footer">
-          <button class="btn-action-sm"><i class="fas fa-edit"></i> Editar</button>
-          <button class="btn-action-sm btn-danger"><i class="fas fa-trash-alt"></i> Eliminar</button>
-          <button class="btn-action-sm btn-warning"><i class="fas fa-power-off"></i> {{ user.estaActivo ? 'Desactivar' : 'Activar' }}</button>
-        </div>
+    <!-- Empty state -->
+    <div *ngIf="!cargando && usuariosFiltrados.length === 0" class="empty-container">
+      <div class="empty-icon">
+        <i class="fas fa-users-slash"></i>
       </div>
+      <h3 class="empty-title">No se encontraron usuarios</h3>
+      <p class="empty-message">Prueba ajustando los filtros de búsqueda</p>
+      <button class="btn btn-primary" (click)="resetFiltros()">
+        <i class="fas fa-redo"></i>
+        Restablecer filtros
+      </button>
     </div>
 
-    <div *ngIf="!cargando && totalPaginas > 1" class="pagination">
-      <button [disabled]="paginaActual === 1" (click)="cambiarPagina(paginaActual - 1)">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
-      <button [disabled]="paginaActual === totalPaginas" (click)="cambiarPagina(paginaActual + 1)">
-        <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
-  </div>
-</div>
+    <!-- Users table -->
+    <div *ngIf="!cargando && usuariosFiltrados.length > 0" class="users-table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>
+              <input
+                type="checkbox"
+                [checked]="usuariosSeleccionados.size === usuariosFiltrados.length && usuariosFiltrados.length > 0"
+                [indeterminate]="usuariosSeleccionados.size > 0 && usuariosSeleccionados.size < usuariosFiltrados.length"
+                (change)="toggleSeleccionTodo()"
+                class="table-checkbox"
+              >
+            </th>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Registro</th>
+            <th>Última Actividad</th>
+            <th>Estadísticas</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of usuariosFiltrados" [class.selected]="usuariosSeleccionados.has(user.uid)">
+            <td>
+              <input
+                type="checkbox"
+                [checked]="usuariosSeleccionados.has(user.uid)"
+                (change)="toggleSeleccionUsuario(user.uid)"
+                class="table-checkbox"
+              >
+            </td>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar-wrapper">
+                  <img *ngIf="user.fotoUrl" [src]="user.fotoUrl" [alt]="user.nombre" class="user-avatar">
+                  <div *ngIf="!user.fotoUrl" class="user-avatar-placeholder">
+                    {{ getInitials(user.nombre) }}
+                  </div>
+                  <div *ngIf="user.authProvider" class="provider-badge" [class]="'provider-' + user.authProvider">
+                    <i class="fab" [class]="getProviderIcon(user.authProvider)"></i>
+                  </div>
+                </div>
+                <div class="user-details">
+                  <h4 class="user-name">{{ user.nombre || 'Usuario sin nombre' }}</h4>
+                  <span class="user-id">ID: {{ user.uid }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="email-cell">
+                <span class="email-text">{{ user.email }}</span>
+                <i *ngIf="user.emailVerified" class="fas fa-check-circle verified-icon" title="Email verificado"></i>
+              </div>
+            </td>
+            <td>
+              <span class="role-badge" [class]="'role-' + user.rol">{{ user.rol.toUpperCase() }}</span>
+            </td>
+            <td>
+              <div class="status-cell">
+                <span class="status-dot" [class.active]="user.estaActivo"></span>
+                <span class="status-text">{{ user.estaActivo ? 'Activo' : 'Inactivo' }}</span>
+              </div>
+            </td>
+            <td>
+              <time class="date-text">{{ formatFecha(user.fechaRegistro) }}</time>
+            </td>
+            <td>
+              <time class="date-text">{{ formatFecha(user.fechaUltimoLogin || user.ultimaConexion) }}</time>
+            </td>
+            <td>
+              <div class="stats-pills">
+                <span *ngIf="user.totalRutas !== undefined" class="stat-pill routes" title="Total de rutas creadas por el usuario">
+                  <i class="fas fa-route"></i>
+                  {{ user.totalRutas || 0 }}
+                </span>
+                <span *ngIf="user.rutasPublicas !== undefined" class="stat-pill public" title="Rutas públicas compartidas por el usuario">
+                  <i class="fas fa-globe"></i>
+                  {{ user.rutasPublicas || 0 }}
+                </span>
+                <span *ngIf="user.kmRecorridos !== undefined" class="stat-pill km" title="Kilómetros recorridos por el usuario">
+                  <i class="fas fa-road"></i>
+                  {{ user.kmRecorridos || 0 }}km
+                </span>
+              </div>
+            </td>
+            <td class="actions-cell">
+              <div class="actions-buttons">
+                <button class="action-btn edit" (click)="editarUsuario(user)" title="Editar">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn toggle"
+                        (click)="toggleUsuarioActivo(user)"
+                        [title]="user.estaActivo ? 'Desactivar' : 'Activar'">
+                  <i class="fas" [class.fa-toggle-on]="user.estaActivo" [class.fa-toggle-off]="!user.estaActivo"></i>

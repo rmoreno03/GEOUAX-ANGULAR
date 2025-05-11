@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { FieldValue, Timestamp } from "firebase/firestore";
 
 export interface Usuario {
   // Propiedades básicas
@@ -9,15 +9,17 @@ export interface Usuario {
   // Datos opcionales de perfil
   fotoUrl?: string;
   biografia?: string;
-  fechaRegistro?: any; // Firestore maneja fechas como objeto
+  fechaRegistro?: Timestamp | FieldValue; // Firestore maneja fechas como objeto
   emailVerified?: boolean;
   phoneNumber?: string;
-  fechaUltimoLogin?: any; // Timestamp de Firestore
+  fechaUltimoLogin?: Timestamp | FieldValue; // Timestamp de Firestore
 
   // Control y permisos
-  rol: 'admin' | 'usuario' | 'moderador';
+  rol: 'admin' | 'usuario' | 'moderador' | 'editor';
   estaActivo?: boolean;
-  ultimaConexion?: Date | Timestamp;
+  ultimaConexion?: Date | Timestamp | FieldValue | undefined | null; // Timestamp de Firestore
+  updatedAt?: FieldValue | Timestamp;
+
 
   // Relaciones sociales
   amigos?: string[]; // Array de UIDs de amigos

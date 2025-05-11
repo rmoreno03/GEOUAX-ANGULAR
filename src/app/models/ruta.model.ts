@@ -58,7 +58,10 @@ export interface Ruta {
   tiempoEstimado?: string;
   isPublic?: boolean;
   carbonFootprint?: CarbonFootprintData;
+  altitudMaxima?: number;
+  desnivelAcumulado?: number;
 }
+
 
 
 // Tipos útiles para el componente ver-todas

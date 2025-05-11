@@ -12,7 +12,6 @@ import {
   checkActionCode,
   verifyPasswordResetCode,
   fetchSignInMethodsForEmail,
-  linkWithCredential,
   EmailAuthProvider,
   updateEmail,
   reauthenticateWithCredential,
@@ -29,8 +28,8 @@ import {
   getAdditionalUserInfo,
   deleteUser
 } from 'firebase/auth';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { tap, catchError} from 'rxjs/operators';
 import {
   Firestore,
   doc,
@@ -40,30 +39,20 @@ import {
   collection,
   addDoc,
   serverTimestamp,
+  onSnapshot,
   Timestamp,
-  onSnapshot
+  FieldValue
 } from '@angular/fire/firestore';
+import { AuditLogService } from '../../core/services/audit-log.service';
+import { Usuario } from '../../models/usuario.model';
 
 // Interfaz para el usuario en Firestore (ahora se llama Usuario)
-export interface Usuario {
-  uid: string;
-  email: string;
-  nombre?: string;
-  fotoUrl?: string;
-  emailVerified?: boolean;
-  estaActivo?: boolean;
-  phoneNumber?: string;
-  fechaRegistro?: any; // Timestamp de Firestore
-  fechaUltimoLogin?: any; // Timestamp de Firestore
-  rol?: 'admin' | 'usuario' | 'moderador';
-  biografia?: string;
-  amigos?: string[];
-}
+
 
 // Modelo para el historial de inicios de sesión
 export interface LoginAttempt {
   userId: string;
-  timestamp: any; // Timestamp
+  timestamp: Timestamp | FieldValue; // Timestamp
   success: boolean;
   ipAddress?: string;
   deviceInfo?: string;
@@ -97,7 +86,10 @@ export class AuthService {
   private lockoutDuration = 15 * 60 * 1000; // 15 minutos en milisegundos
   private failedLoginAttempts: Record<string, { count: number, timestamp: number }> = {};
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private auditLog: AuditLogService // NUEVO: Inyectar servicio de logs
+  ) {
     // Observar cambios en el estado de autenticación
     authState(this.auth).pipe(
       tap(user => {
@@ -112,6 +104,10 @@ export class AuthService {
       }),
       catchError(error => {
         console.error('❌ Error observando el estado de autenticación:', error);
+
+        // NUEVO: Log de error
+        this.auditLog.logError('Error observando estado de autenticación', error, 'authState');
+
         return of(null);
       })
     ).subscribe(user => {
@@ -156,6 +152,9 @@ export class AuthService {
       // Registrar inicio de sesión exitoso
       await this.logLoginAttempt(result.user.uid, true, 'email');
 
+      // NUEVO: Log de inicio de sesión exitoso
+      await this.auditLog.logInicioSesion();
+
       // Actualizar fecha de último login en Firestore
       await this.updateUserLastLogin(result.user.uid);
 
@@ -174,6 +173,15 @@ export class AuthService {
 
       // Registrar intento fallido
       await this.logLoginAttempt('unknown', false, 'email');
+
+      // Log de intento fallido de inicio de sesión
+      await this.auditLog.log(
+        'Intento fallido de inicio de sesión',
+        'warning',
+        { email, error: (error instanceof Error ? error.toString() : String(error)) },
+        undefined,
+        'sesion'
+      );
 
       console.error('❌ Error al iniciar sesión:', error);
       throw this.handleAuthError(error);
@@ -212,12 +220,25 @@ export class AuthService {
       // Registrar la creación de cuenta
       await this.logLoginAttempt(userCredential.user.uid, true, 'email');
 
+      // NUEVO: Log de registro exitoso
+      await this.auditLog.log(
+        'Usuario registrado',
+        'success',
+        { email, displayName },
+        userCredential.user.uid,
+        'usuario'
+      );
+
       // Redirigir a la página de verificación
       this.router.navigate(['/auth/verify-email']);
 
       return userCredential;
     } catch (error) {
       console.error('❌ Error al registrar usuario:', error);
+
+      // NUEVO: Log de error de registro
+      await this.auditLog.logError('Error al registrar usuario', error, 'register');
+
       throw this.handleAuthError(error);
     }
   }
@@ -242,6 +263,15 @@ export class AuthService {
       if (additionalInfo?.isNewUser) {
         // Los usuarios de Google ya tienen el email verificado
         await this.createUserProfile(result.user, result.user.displayName ?? undefined, true);
+
+        // NUEVO: Log de nuevo registro con Google
+        await this.auditLog.log(
+          'Nuevo usuario registrado con Google',
+          'success',
+          { email: result.user.email },
+          result.user.uid,
+          'usuario'
+        );
       } else {
         // Actualizar fecha de último login
         await this.updateUserLastLogin(result.user.uid);
@@ -250,12 +280,24 @@ export class AuthService {
       // Registrar inicio de sesión exitoso
       await this.logLoginAttempt(result.user.uid, true, 'google');
 
+      // NUEVO: Log de inicio de sesión con Google
+      await this.auditLog.log(
+        'Inicio de sesión con Google',
+        'success',
+        { email: result.user.email },
+        result.user.uid,
+        'sesion'
+      );
+
       return result;
     } catch (error) {
       console.error('❌ Error al iniciar sesión con Google:', error);
 
       // Registrar intento fallido
       await this.logLoginAttempt('unknown', false, 'google');
+
+      // NUEVO: Log de error de inicio de sesión con Google
+      await this.auditLog.logError('Error al iniciar sesión con Google', error, 'loginWithGoogle');
 
       throw this.handleAuthError(error);
     }
@@ -272,6 +314,9 @@ export class AuthService {
         await this.logLoginAttempt(userId, true, 'other');
       }
 
+      // NUEVO: Log de cierre de sesión
+      await this.auditLog.logCierreSesion();
+
       await signOut(this.auth);
       this.isLoggedInSubject.next(false);
       this.userSubject.next(null);
@@ -279,6 +324,10 @@ export class AuthService {
       this.router.navigate(['/landing']);
     } catch (error) {
       console.error('❌ Error al cerrar sesión:', error);
+
+      // NUEVO: Log de error al cerrar sesión
+      await this.auditLog.logError('Error al cerrar sesión', error, 'logout');
+
       throw this.handleAuthError(error);
     }
   }
@@ -299,9 +348,22 @@ export class AuthService {
       // Enviar email usando Firebase Auth
       await sendEmailVerification(currentUser, this.actionCodeSettings);
 
+      // NUEVO: Log de envío de correo de verificación
+      await this.auditLog.log(
+        'Correo de verificación enviado',
+        'info',
+        { email: currentUser.email },
+        currentUser.uid,
+        'usuario'
+      );
+
       console.log('✅ Correo de verificación enviado a:', currentUser.email);
     } catch (error) {
       console.error('❌ Error al enviar correo de verificación:', error);
+
+      // NUEVO: Log de error de envío de correo de verificación
+      await this.auditLog.logError('Error al enviar correo de verificación', error, 'sendVerificationEmail');
+
       throw this.handleAuthError(error);
     }
   }
@@ -315,6 +377,10 @@ export class AuthService {
       return await checkActionCode(this.auth, oobCode);
     } catch (error) {
       console.error('❌ Error al verificar código de acción:', error);
+
+      // NUEVO: Log de error al verificar código
+      await this.auditLog.logError('Error al verificar código de acción', error, 'checkActionCode');
+
       throw this.handleAuthError(error);
     }
   }
@@ -323,9 +389,7 @@ export class AuthService {
    * Aplica un código de acción
    * @param oobCode Código de acción recibido por correo
    */
-  // Corregir el método applyActionCode en AuthService
-
-    async applyActionCode(oobCode: string): Promise<void> {
+  async applyActionCode(oobCode: string): Promise<void> {
     try {
       console.log('Aplicando código de acción:', oobCode);
 
@@ -360,6 +424,15 @@ export class AuthService {
 
           console.log('Perfil en Firestore actualizado: emailVerified=true');
 
+          // NUEVO: Log de verificación de email exitosa
+          await this.auditLog.log(
+            'Email verificado exitosamente',
+            'success',
+            { email: user.email },
+            user.uid,
+            'usuario'
+          );
+
           // Actualizar el userProfile
           const currentProfile = this.userProfileSubject.value;
           if (currentProfile) {
@@ -372,6 +445,9 @@ export class AuthService {
         } catch (reloadError) {
           console.error('Error al recargar usuario:', reloadError);
 
+          // NUEVO: Log de error al recargar usuario
+          await this.auditLog.logError('Error al recargar usuario después de verificar email', reloadError, 'applyActionCode');
+
           // Si hay error al recargar, intentar actualizar Firestore de todos modos
           try {
             const userRef = doc(this.firestore, `usuarios/${user.uid}`);
@@ -383,6 +459,9 @@ export class AuthService {
             console.log('Perfil en Firestore actualizado a pesar del error de recarga');
           } catch (firestoreError) {
             console.error('Error al actualizar Firestore:', firestoreError);
+
+            // NUEVO: Log de error al actualizar Firestore
+            await this.auditLog.logError('Error al actualizar Firestore después de verificar email', firestoreError, 'applyActionCode');
           }
         }
       } else {
@@ -390,6 +469,10 @@ export class AuthService {
       }
     } catch (error) {
       console.error('❌ Error al aplicar código de acción:', error);
+
+      // NUEVO: Log de error al aplicar código de acción
+      await this.auditLog.logError('Error al aplicar código de acción', error, 'applyActionCode');
+
       throw this.handleAuthError(error);
     }
   }
@@ -407,10 +490,23 @@ export class AuthService {
       await sendPasswordResetEmail(this.auth, email, this.passwordResetSettings);
       console.log('✅ Correo de restablecimiento enviado a:', email);
 
+      // NUEVO: Log de solicitud de restablecimiento de contraseña
+      await this.auditLog.log(
+        'Solicitud de restablecimiento de contraseña',
+        'info',
+        { email },
+        undefined,
+        'usuario'
+      );
+
       // Resetear contador de intentos fallidos si existe
       this.resetFailedAttempts(email);
     } catch (error) {
       console.error('❌ Error al enviar correo de restablecimiento:', error);
+
+      // NUEVO: Log de error al enviar correo de restablecimiento
+      await this.auditLog.logError('Error al enviar correo de restablecimiento', error, 'resetPassword');
+
       throw this.handleAuthError(error);
     }
   }
@@ -436,10 +532,23 @@ export class AuthService {
       await confirmPasswordReset(this.auth, oobCode, newPassword);
       console.log('✅ Contraseña restablecida correctamente');
 
+      // NUEVO: Log de contraseña restablecida
+      await this.auditLog.log(
+        'Contraseña restablecida',
+        'success',
+        { email },
+        undefined,
+        'usuario'
+      );
+
       // Resetear contador de intentos fallidos
       this.resetFailedAttempts(email);
     } catch (error) {
       console.error('❌ Error al restablecer contraseña:', error);
+
+      // NUEVO: Log de error al restablecer contraseña
+      await this.auditLog.logError('Error al restablecer contraseña', error, 'confirmResetPassword');
+
       throw this.handleAuthError(error);
     }
   }
@@ -470,6 +579,10 @@ export class AuthService {
 
       await updateDoc(userRef, firestoreUpdates);
 
+      // NUEVO: Log de actualización de perfil
+      const cambios = Object.keys(firestoreUpdates).filter(k => k !== 'updatedAt');
+      await this.auditLog.logPerfilActualizado(user.uid, cambios);
+
       // Actualizar el subject
       this.userSubject.next(user);
 
@@ -486,6 +599,10 @@ export class AuthService {
       console.log('✅ Perfil actualizado correctamente');
     } catch (error) {
       console.error('❌ Error al actualizar perfil:', error);
+
+      // NUEVO: Log de error al actualizar perfil
+      await this.auditLog.logError('Error al actualizar perfil', error, 'updateUserProfile');
+
       throw this.handleAuthError(error);
     }
   }
@@ -509,6 +626,15 @@ export class AuthService {
       // Re-autenticar al usuario
       const credential = EmailAuthProvider.credential(user.email, password);
       await reauthenticateWithCredential(user, credential);
+
+      // NUEVO: Log de cambio de email
+      await this.auditLog.log(
+        'Cambio de correo electrónico',
+        'warning',
+        { oldEmail: user.email, newEmail },
+        user.uid,
+        'usuario'
+      );
 
       // Actualizar el email
       await updateEmail(user, newEmail);
@@ -541,6 +667,10 @@ export class AuthService {
       this.router.navigate(['/auth/verify-email']);
     } catch (error) {
       console.error('❌ Error al actualizar email:', error);
+
+      // NUEVO: Log de error al actualizar email
+      await this.auditLog.logError('Error al actualizar email', error, 'updateUserEmail');
+
       throw this.handleAuthError(error);
     }
   }
@@ -575,9 +705,16 @@ export class AuthService {
         updatedAt: serverTimestamp()
       });
 
+      // NUEVO: Log de cambio de contraseña
+      await this.auditLog.logCambioPassword(user.uid);
+
       console.log('✅ Contraseña actualizada correctamente');
     } catch (error) {
       console.error('❌ Error al actualizar contraseña:', error);
+
+      // NUEVO: Log de error al actualizar contraseña
+      await this.auditLog.logError('Error al actualizar contraseña', error, 'updateUserPassword');
+
       throw this.handleAuthError(error);
     }
   }
@@ -641,8 +778,21 @@ export class AuthService {
 
       this.userProfileSubject.next(userProfile);
       console.log('✅ Perfil de usuario creado correctamente');
+
+      // NUEVO: Log de creación de perfil
+      await this.auditLog.log(
+        'Perfil de usuario creado',
+        'success',
+        { email: user.email, displayName },
+        user.uid,
+        'usuario'
+      );
     } catch (error) {
       console.error('❌ Error al crear perfil de usuario:', error);
+
+      // NUEVO: Log de error al crear perfil
+      await this.auditLog.logError('Error al crear perfil de usuario', error, 'createUserProfile');
+
       throw error;
     }
   }
@@ -683,6 +833,10 @@ export class AuthService {
       }
     } catch (error) {
       console.error('❌ Error al actualizar fecha de último inicio de sesión:', error);
+
+      // NUEVO: Log de error al actualizar fecha de último inicio de sesión
+      await this.auditLog.logError('Error al actualizar fecha de último inicio de sesión', error, 'updateUserLastLogin');
+
       // No lanzar el error para evitar que interrumpa el flujo de autenticación
     }
   }
@@ -710,12 +864,18 @@ export class AuthService {
         },
         (error) => {
           console.error('❌ Error al observar perfil de usuario:', error);
+
+          // NUEVO: Log de error al observar perfil
+          this.auditLog.logError('Error al observar perfil de usuario', error, 'fetchUserProfile');
         }
       );
 
       // Para limpiar el observable cuando sea necesario, guardar unsubscribe en una variable o añadirlo a un array
     } catch (error) {
       console.error('❌ Error al obtener perfil de usuario:', error);
+
+      // NUEVO: Log de error al obtener perfil
+      await this.auditLog.logError('Error al obtener perfil de usuario', error, 'fetchUserProfile');
     }
   }
 
@@ -747,6 +907,9 @@ export class AuthService {
     } catch (error) {
       // Registramos el error pero no lo propagamos para evitar bloquear el flujo principal
       console.error('❌ Error al registrar intento de inicio de sesión:', error);
+
+      // NUEVO: Log de error al registrar intento de inicio de sesión
+      await this.auditLog.logError('Error al registrar intento de inicio de sesión', error, 'logLoginAttempt');
     }
   }
 
@@ -768,6 +931,10 @@ export class AuthService {
       return null;
     } catch (error) {
       console.error('❌ Error al obtener perfil de usuario:', error);
+
+      // NUEVO: Log de error al obtener perfil snapshot
+      await this.auditLog.logError('Error al obtener perfil de usuario snapshot', error, 'getUserProfileSnapshot');
+
       return null;
     }
   }
@@ -812,6 +979,17 @@ export class AuthService {
     }
 
     console.warn(`⚠️ Intento fallido para ${email}: ${this.failedLoginAttempts[email].count}/${this.maxFailedAttempts}`);
+
+    // NUEVO: Log de intento fallido
+    if (this.failedLoginAttempts[email].count >= 3) {
+      this.auditLog.log(
+        `Múltiples intentos fallidos de login (${this.failedLoginAttempts[email].count})`,
+        'warning',
+        { email, intentos: this.failedLoginAttempts[email].count },
+        undefined,
+        'sesion'
+      );
+    }
   }
 
   private resetFailedAttempts(email: string): void {
@@ -833,7 +1011,20 @@ export class AuthService {
     }
 
     // Bloquear si se supera el máximo de intentos
-    return attempts.count >= this.maxFailedAttempts;
+    if (attempts.count >= this.maxFailedAttempts) {
+      // NUEVO: Log de cuenta bloqueada
+      this.auditLog.log(
+        'Cuenta bloqueada temporalmente por intentos fallidos',
+        'warning',
+        { email, intentos: attempts.count },
+        undefined,
+        'sesion'
+      );
+
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -872,6 +1063,17 @@ async refreshEmailVerificationStatus(forceFirestore = true): Promise<boolean> {
 
       console.log('Firestore actualizado con emailVerified=true');
 
+      // NUEVO: Log de email verificado
+      if (isVerified) {
+        await this.auditLog.log(
+          'Email verificado (actualización forzada)',
+          'success',
+          { email: user.email },
+          user.uid,
+          'usuario'
+        );
+      }
+
       // Actualizar el userProfile
       const currentProfile = this.userProfileSubject.value;
       if (currentProfile) {
@@ -886,6 +1088,10 @@ async refreshEmailVerificationStatus(forceFirestore = true): Promise<boolean> {
     return isVerified;
   } catch (error) {
     console.error('Error al actualizar estado de verificación:', error);
+
+    // NUEVO: Log de error al actualizar estado de verificación
+    await this.auditLog.logError('Error al actualizar estado de verificación', error, 'refreshEmailVerificationStatus');
+
     return false;
   }
 }
@@ -926,6 +1132,15 @@ async refreshEmailVerificationStatus(forceFirestore = true): Promise<boolean> {
               updatedAt: serverTimestamp()
             });
 
+            // NUEVO: Log de email verificado (polling)
+            await this.auditLog.log(
+              'Email verificado (detectado por polling)',
+              'success',
+              { email: user.email },
+              user.uid,
+              'usuario'
+            );
+
             // Actualizar el subject
             this.userSubject.next(user);
 
@@ -940,6 +1155,10 @@ async refreshEmailVerificationStatus(forceFirestore = true): Promise<boolean> {
           }
         } catch (error) {
           console.error('Error en polling de verificación:', error);
+
+          // NUEVO: Log de error en polling
+          this.auditLog.logError('Error en polling de verificación', error, 'startVerificationPolling');
+
           // Continuar con el polling a pesar del error
         }
       }, intervalMs);
@@ -1039,6 +1258,15 @@ async refreshEmailVerificationStatus(forceFirestore = true): Promise<boolean> {
       const credential = EmailAuthProvider.credential(user.email, password);
       await reauthenticateWithCredential(user, credential);
 
+      // NUEVO: Log de eliminación de cuenta
+      await this.auditLog.log(
+        'Cuenta de usuario eliminada',
+        'warning',
+        { email: user.email },
+        user.uid,
+        'usuario'
+      );
+
       // Eliminar usuario de Auth
       await deleteUser(user);
 
@@ -1046,6 +1274,10 @@ async refreshEmailVerificationStatus(forceFirestore = true): Promise<boolean> {
       this.router.navigate(['/landing']);
     } catch (error) {
       console.error('❌ Error al eliminar cuenta:', error);
+
+      // NUEVO: Log de error al eliminar cuenta
+      await this.auditLog.logError('Error al eliminar cuenta', error, 'deleteUserAccount');
+
       throw this.handleAuthError(error);
     }
   }

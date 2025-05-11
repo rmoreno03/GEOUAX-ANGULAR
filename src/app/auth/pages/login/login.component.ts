@@ -79,7 +79,7 @@ export class LoginComponent {
       const user = cred.user;
 
       // Forzar actualización del estado de verificación de email
-      await this.refreshUserStatus(user.uid);
+      await this.refreshUserStatus();
 
       // Verificar el estado de verificación del email después de la actualización
       if (user.emailVerified) {
@@ -103,7 +103,7 @@ export class LoginComponent {
       const user = cred.user;
 
       // Forzar actualización del estado de verificación
-      await this.refreshUserStatus(user.uid);
+      await this.refreshUserStatus();
 
       if (user.emailVerified) {
         this.router.navigate(['/puntos']);
@@ -118,7 +118,7 @@ export class LoginComponent {
   }
 
   // Método para forzar la actualización del estado de verificación
-  private async refreshUserStatus(userId: string): Promise<void> {
+  private async refreshUserStatus(): Promise<void> {
     try {
       // Obtener el usuario actual
       const user = this.auth.getCurrentUserNow();

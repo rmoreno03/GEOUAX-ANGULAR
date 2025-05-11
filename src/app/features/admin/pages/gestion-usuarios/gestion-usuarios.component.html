@@ -1,61 +1,310 @@
-<div class="gestion-container">
-  <h2><i class="fas fa-users-cog"></i> Gestión de Usuarios</h2>
+<div class="gestion-usuarios">
+  <!-- Header de la sección -->
+  <header class="gestion-header">
+    <div class="header-content">
+      <h2 class="section-title">
+        <i class="fas fa-users-cog"></i>
+        Gestión de Usuarios
+      </h2>
+      <p class="section-subtitle">Administra permisos y estados de usuario</p>
+    </div>
 
-  <input type="text" [(ngModel)]="searchTerm" (input)="filtrar()"
-         placeholder="Buscar por nombre, email o rol" class="buscador" />
+    <!-- Controles de búsqueda y filtros -->
+    <div class="search-controls">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="filtrar()"
+          placeholder="Buscar por nombre, email o rol..."
+          class="search-input"
+        />
+        <button *ngIf="searchTerm" class="clear-search" (click)="clearSearch()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
 
-  <div *ngIf="cargando" class="loader">
-    <i class="fas fa-spinner fa-spin"></i> Cargando usuarios...
-  </div>
+      <div class="filter-controls">
+        <select [(ngModel)]="filtroRol" (change)="filtrar()" class="filter-select">
+          <option value="">Todos los roles</option>
+          <option value="admin">Administradores</option>
+          <option value="moderador">Moderadores</option>
+          <option value="usuario">Usuarios</option>
+        </select>
 
-  <div *ngIf="!cargando && paginados.length === 0" class="vacio">
-    <p><i class="fas fa-user-times"></i> No se encontraron usuarios.</p>
-  </div>
+        <select [(ngModel)]="filtroEstado" (change)="filtrar()" class="filter-select">
+          <option value="">Todos los estados</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
 
-  <div class="tabla-usuarios" *ngIf="!cargando && paginados.length > 0">
-    <div class="usuario-card" *ngFor="let user of paginados">
+        <button class="refresh-btn" (click)="refreshData()" [disabled]="cargando">
+          <i class="fas fa-sync-alt" [class.fa-spin]="cargando"></i>
+          Actualizar
+        </button>
+      </div>
+    </div>
+  </header>
 
-      <!-- Imagen con fallback -->
-      <img [src]="user.fotoUrl ? user.fotoUrl : 'perfilDefault.png'" class="avatar" />
+  <!-- Estadísticas rápidas -->
+  <div class="quick-stats">
+    <div class="stat-item">
+      <div class="stat-icon users">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ filtrados.length }}</span>
+        <span class="stat-label">Usuarios encontrados</span>
+      </div>
+    </div>
 
-      <div class="info">
-        <h4>{{ user.nombre || 'Usuario sin nombre' }}</h4>
-        <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
-        <p><i class="fas fa-calendar-alt"></i> Registrado: {{ formatFecha(user.fechaRegistro) }}</p>
+    <div class="stat-item">
+      <div class="stat-icon admins">
+        <i class="fas fa-user-shield"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getAdminCount() }}</span>
+        <span class="stat-label">Administradores</span>
+      </div>
+    </div>
 
-        <div class="campo">
-          <i class="fas fa-user-tag"></i> Rol:
-          <select [value]="user.rol" (change)="cambiarRol(user, getValorEvento($event))">
-            <option value="usuario">Usuario</option>
-            <option value="moderador">Moderador</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-
-        <div class="campo">
-          <i class="fas fa-toggle-on"></i> Estado:
-          <span [class.activo]="user.estaActivo" [class.inactivo]="!user.estaActivo">
-            {{ user.estaActivo ? 'Activo' : 'Inactivo' }}
-          </span>
-          <button (click)="toggleEstado(user)">Cambiar</button>
-        </div>
-
-        <div class="stats">
-          <p><i class="fas fa-route"></i> Rutas: {{ user.totalRutas || 0 }}</p>
-          <p><i class="fas fa-map"></i> Públicas: {{ user.rutasPublicas || 0 }}</p>
-          <p><i class="fas fa-shoe-prints"></i> Km: {{ user.kmRecorridos || 0 }}</p>
-        </div>
+    <div class="stat-item">
+      <div class="stat-icon active">
+        <i class="fas fa-user-check"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getActiveCount() }}</span>
+        <span class="stat-label">Usuarios activos</span>
       </div>
     </div>
   </div>
 
-  <div class="paginacion" *ngIf="totalPages > 1">
-    <button (click)="cambiarPagina(currentPage - 1)" [disabled]="currentPage === 1">Anterior</button>
-    <button *ngFor="let p of [].constructor(totalPages); let i = index"
-            [class.activa]="currentPage === i + 1"
-            (click)="cambiarPagina(i + 1)">
-      {{ i + 1 }}
+  <!-- Estados de carga y vacío -->
+  <div *ngIf="cargando" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <p class="loading-text">Cargando usuarios...</p>
+  </div>
+
+  <div *ngIf="!cargando && paginados.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="fas fa-users-slash"></i>
+    </div>
+    <h3 class="empty-title">No se encontraron usuarios</h3>
+    <p class="empty-message">
+      {{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Aún no hay usuarios registrados' }}
+    </p>
+    <button class="btn-primary" (click)="clearFilters()">
+      <i class="fas fa-redo"></i>
+      Limpiar filtros
     </button>
-    <button (click)="cambiarPagina(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente</button>
+  </div>
+
+  <!-- Tabla de usuarios mejorada -->
+  <div *ngIf="!cargando && paginados.length > 0" class="users-table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Registro</th>
+          <th>Estadísticas</th>
+          <th class="actions-header">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of paginados" class="user-row">
+          <!-- Usuario con avatar -->
+          <td class="user-cell">
+            <div class="user-info">
+              <div class="avatar-wrapper">
+                <img
+                  [src]="user.fotoUrl || '/assets/images/default-avatar.png'"
+                  class="user-avatar"
+                  [alt]="user.nombre || 'Usuario'"
+                  (error)="onImageError($event)"
+                >
+                <div class="avatar-status" [class.online]="user.estaActivo"></div>
+              </div>
+              <div class="user-details">
+                <span class="user-name">{{ user.nombre || 'Usuario sin nombre' }}</span>
+                <span class="user-id">{{ user.uid }}</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- Email -->
+          <td class="email-cell">
+            <div class="email-wrapper">
+              <span class="email-text">{{ user.email }}</span>
+              <span *ngIf="user.emailVerified" class="verified-badge" title="Email verificado">
+                <i class="fas fa-check-circle"></i>
+              </span>
+            </div>
+          </td>
+
+          <!-- Rol con dropdown editable -->
+          <td class="role-cell">
+            <div class="role-selector">
+              <div [class]="'role-badge role-' + user.rol">
+                {{ user.rol | titlecase }}
+              </div>
+              <select
+                [value]="user.rol"
+                (change)="cambiarRol(user, getValorEvento($event))"
+                class="role-select"
+                [disabled]="!canEditUser(user)"
+              >
+                <option value="usuario">Usuario</option>
+                <option value="moderador">Moderador</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+          </td>
+
+          <!-- Estado con toggle -->
+          <td class="status-cell">
+            <div class="status-toggle">
+              <button
+                class="toggle-btn"
+                [class.active]="user.estaActivo"
+                (click)="toggleEstado(user)"
+                [disabled]="!canEditUser(user)"
+                [title]="user.estaActivo ? 'Desactivar usuario' : 'Activar usuario'"
+              >
+                <span class="toggle-slider"></span>
+              </button>
+              <span class="status-label" [class.active]="user.estaActivo">
+                {{ user.estaActivo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+          </td>
+
+          <!-- Fecha de registro -->
+          <td class="date-cell">
+            <time class="date-text">{{ formatFecha(user.fechaRegistro) }}</time>
+          </td>
+
+          <!-- Estadísticas del usuario -->
+          <td class="stats-cell">
+            <div class="user-stats">
+              <div class="stat-badge routes" title="Rutas creadas">
+                <i class="fas fa-route"></i>
+                <span>{{ user.totalRutas || 0 }}</span>
+              </div>
+              <div class="stat-badge public" title="Rutas públicas">
+                <i class="fas fa-globe"></i>
+                <span>{{ user.rutasPublicas || 0 }}</span>
+              </div>
+              <div class="stat-badge distance" title="Kilómetros recorridos">
+                <i class="fas fa-road"></i>
+                <span>{{ user.kmRecorridos || 0 }}km</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- Acciones -->
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button
+                class="action-btn view"
+                (click)="viewUser(user)"
+                title="Ver detalles"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+              <button
+                class="action-btn edit"
+                (click)="editUser(user)"
+                [disabled]="!canEditUser(user)"
+                title="Editar usuario"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                class="action-btn delete"
+                (click)="deleteUser(user)"
+                [disabled]="!canDeleteUser(user)"
+                title="Eliminar usuario"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación mejorada -->
+  <div class="pagination-container" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      <span>Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ currentPage * itemsPerPage }} de {{ filtrados.length }} usuarios</span>
+    </div>
+
+    <div class="pagination-controls">
+      <button
+        class="pagination-btn"
+        (click)="cambiarPagina(1)"
+        [disabled]="currentPage === 1"
+        title="Primera página"
+      >
+        <i class="fas fa-angle-double-left"></i>
+      </button>
+
+      <button
+        class="pagination-btn"
+        (click)="cambiarPagina(currentPage - 1)"
+        [disabled]="currentPage === 1"
+        title="Página anterior"
+      >
+        <i class="fas fa-angle-left"></i>
+      </button>
+
+      <span class="page-numbers">
+        <button
+          *ngFor="let p of getPageNumbers()"
+          class="page-btn"
+          [class.active]="currentPage === p"
+          (click)="typeof p === 'number' && cambiarPagina(p)"
+          [disabled]="p === '...'"
+        >
+          {{ p }}
+        </button>
+      </span>
+
+      <button
+        class="pagination-btn"
+        (click)="cambiarPagina(currentPage + 1)"
+        [disabled]="currentPage === totalPages"
+        title="Página siguiente"
+      >
+        <i class="fas fa-angle-right"></i>
+      </button>
+
+      <button
+        class="pagination-btn"
+        (click)="cambiarPagina(totalPages)"
+        [disabled]="currentPage === totalPages"
+        title="Última página"
+      >
+        <i class="fas fa-angle-double-right"></i>
+      </button>
+    </div>
+
+    <div class="items-per-page">
+      <label>Mostrar:</label>
+      <select [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()" class="items-select">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+      </select>
+      <span>por página</span>
+    </div>
   </div>
 </div>

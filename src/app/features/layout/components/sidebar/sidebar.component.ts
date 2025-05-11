@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { AuthService } from '../../../../auth/services/auth.service';
 import { Auth } from '@angular/fire/auth';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
@@ -13,9 +13,11 @@ export class SidebarComponent implements OnInit {
   @Input() collapsed = false;
   esAdmin = false;
 
-  private authService = inject(AuthService);
-  private auth = inject(Auth);
-  private firestore = inject(Firestore);
+  constructor(
+    private authService: AuthService,
+    private auth: Auth,
+    private firestore: Firestore
+  ) {}
 
   async ngOnInit() {
     const user = this.auth.currentUser;

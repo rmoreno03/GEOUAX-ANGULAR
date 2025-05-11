@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Usuario } from '../../../../models/usuario.model';
 import { AuthService } from '../../../../auth/services/auth.service';
 import { PerfilService } from '../../services/perfil.service';
-import { Timestamp } from 'firebase/firestore';
+import { FieldValue, Timestamp } from 'firebase/firestore';
 
 @Component({
   standalone: false,
@@ -221,12 +221,12 @@ export class AjustesCuentaComponent implements OnInit {
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
-  eliminarValidator(control: any) {
+  eliminarValidator(control: FormGroup) {
     return control.value === 'ELIMINAR' ? null : { invalidConfirmText: true };
   }
 
   // UTILIDADES
-  formatFecha(fecha: Timestamp | Date | string | any): string {
+  formatFecha(fecha: Timestamp | Date | string | FieldValue | undefined): string {
     if (!fecha) return '';
 
     let date: Date;
@@ -234,11 +234,14 @@ export class AjustesCuentaComponent implements OnInit {
     if (fecha instanceof Date) {
       date = fecha;
     } else if (typeof fecha === 'string') {
-      date = new Date(fecha);
-    } else if (fecha.toDate) {
+      const parsed = new Date(fecha);
+      if (isNaN(parsed.getTime())) return ''; // fecha inválida
+      date = parsed;
+    } else if (fecha instanceof Timestamp) {
       date = fecha.toDate();
     } else {
-      return '';
+      // Si es FieldValue (ej: serverTimestamp()) que aún no ha sido resuelto
+      return 'pendiente...';
     }
 
     return date.toLocaleString('es-ES', {
@@ -247,6 +250,7 @@ export class AjustesCuentaComponent implements OnInit {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      second: '2-digit',
       hour12: false
     }).replace(',', '');
   }

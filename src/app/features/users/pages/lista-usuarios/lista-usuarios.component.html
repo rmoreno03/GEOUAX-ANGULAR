@@ -22,11 +22,12 @@
             type="text"
             [(ngModel)]="filtroTexto"
             placeholder="Buscar usuario..."
-            class="search-input">
+            class="search-input"
+            (input)="aplicarFiltros()">
         </div>
 
         <div class="search-options">
-          <select [(ngModel)]="filtroPor">
+          <select [(ngModel)]="filtroPor" (change)="aplicarFiltros()">
             <option value="nombre">Por nombre</option>
             <option value="email">Por email</option>
             <option value="rol">Por rol</option>
@@ -76,20 +77,20 @@
         </thead>
         <tbody>
           <tr *ngFor="let usuario of filtrarUsuarios()">
-            <td *ngIf="columnas[0].visible">{{ usuario.nombre }}</td>
+            <td *ngIf="columnas[0].visible">{{ usuario.nombre || 'Sin nombre' }}</td>
             <td *ngIf="columnas[1].visible">{{ usuario.email }}</td>
             <td *ngIf="columnas[2].visible">
               <span class="role-badge" [ngClass]="{
-                'role-admin': usuario.rol === 'Administrador',
-                'role-editor': usuario.rol === 'Editor',
-                'role-moderator': usuario.rol === 'Moderador',
-                'role-user': usuario.rol === 'Usuario'
-              }">{{ usuario.rol }}</span>
+                'role-admin': usuario.rol === 'admin',
+                'role-editor': usuario.rol === 'editor',
+                'role-moderator': usuario.rol === 'moderador',
+                'role-user': usuario.rol === 'usuario'
+              }">{{ usuario.rol || 'Usuario' }}</span>
             </td>
             <td *ngIf="columnas[3].visible">{{ formatFecha(usuario.fechaRegistro) }}</td>
-            <td *ngIf="columnas[4].visible">{{ formatFecha(usuario.ultimoAcceso) }}</td>
-            <td *ngIf="columnas[5].visible">{{ usuario.rutasCreadas }}</td>
-            <td *ngIf="columnas[6].visible">{{ usuario.puntosRegistrados }}</td>
+            <td *ngIf="columnas[4].visible">{{ formatFecha(usuario.fechaUltimoLogin) }}</td>
+            <td *ngIf="columnas[5].visible">{{ usuario.rutasCreadas || 0 }}</td>
+            <td *ngIf="columnas[6].visible">{{ usuario.puntosRegistrados || 0 }}</td>
             <td *ngIf="columnas[7].visible" class="actions-cell">
               <button class="action-icon edit" (click)="editarUsuario(usuario.id)" title="Editar usuario">
                 <i class="fas fa-edit"></i>
@@ -99,8 +100,10 @@
                 <i class="fas fa-chart-line"></i>
               </button>
 
-              <button class="action-icon deactivate" (click)="desactivarUsuario(usuario.id)" title="Desactivar usuario">
-                <i class="fas fa-user-slash"></i>
+              <button class="action-icon deactivate"
+                (click)="desactivarUsuario(usuario.id)"
+                title="{{ usuario.estaActivo ? 'Desactivar usuario' : 'Activar usuario' }}">
+                <i class="fas" [ngClass]="usuario.estaActivo ? 'fa-user-slash' : 'fa-user-check'"></i>
               </button>
             </td>
           </tr>
@@ -114,15 +117,21 @@
       <p>No se encontraron usuarios con los criterios de búsqueda.</p>
     </div>
 
-    <!-- Paginación (simplificada) -->
+    <!-- Paginación (funcional) -->
     <div class="pagination">
-      <button class="pagination-btn" disabled>
+      <button
+        class="pagination-btn"
+        [disabled]="anteriorDeshabilitado"
+        (click)="paginaAnterior()">
         <i class="fas fa-chevron-left"></i>
       </button>
 
-      <span class="pagination-info">Página 1 de 1</span>
+      <span class="pagination-info">Página {{ paginaActual }} de {{ totalPaginas }}</span>
 
-      <button class="pagination-btn" disabled>
+      <button
+        class="pagination-btn"
+        [disabled]="siguienteDeshabilitado"
+        (click)="paginaSiguiente()">
         <i class="fas fa-chevron-right"></i>
       </button>
     </div>

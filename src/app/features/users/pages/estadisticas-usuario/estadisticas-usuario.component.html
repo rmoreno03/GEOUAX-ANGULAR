@@ -38,10 +38,10 @@
         </div>
         <div class="user-role">
           <span class="role-badge" [ngClass]="{
-            'role-admin': usuario.rol === 'Administrador',
-            'role-editor': usuario.rol === 'Editor',
-            'role-moderator': usuario.rol === 'Moderador',
-            'role-user': usuario.rol === 'Usuario'
+            'role-admin': usuario.rol === 'admin',
+            'role-editor': usuario.rol === 'editor',
+            'role-moderator': usuario.rol === 'moderador',
+            'role-user': usuario.rol === 'usuario'
           }">{{ usuario.rol }}</span>
         </div>
       </div>
@@ -68,7 +68,7 @@
             <span><i class="fas fa-envelope"></i> {{ usuarioSeleccionado.email }}</span>
             <span><i class="fas fa-user-tag"></i> {{ usuarioSeleccionado.rol }}</span>
             <span><i class="fas fa-calendar-plus"></i> Miembro desde {{ formatFecha(usuarioSeleccionado.fechaRegistro) }}</span>
-            <span><i class="fas fa-sign-in-alt"></i> Último acceso {{ formatFecha(usuarioSeleccionado.ultimoAcceso) }}</span>
+            <span><i class="fas fa-sign-in-alt"></i> Último acceso {{ formatFecha(usuarioSeleccionado.ultimaConexion) }}</span>
           </div>
         </div>
 

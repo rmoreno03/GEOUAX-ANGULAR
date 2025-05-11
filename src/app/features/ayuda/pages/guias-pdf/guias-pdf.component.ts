@@ -130,7 +130,7 @@ export class GuiasPdfComponent implements OnInit {
    * @param guia Guía a descargar
    */
   descargarGuia(guia: Guia): void {
-    this.guiasService.descargarGuia(guia.id).subscribe(
+    this.guiasService.descargarGuia().subscribe(
       (blob) => {
         // Crear un objeto URL para el blob
         const url = window.URL.createObjectURL(blob);

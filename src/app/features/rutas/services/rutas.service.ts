@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -19,6 +19,7 @@ import { Ruta, CarbonFootprintData } from '../../../models/ruta.model';
 import { TipoRuta } from '../../../models/ruta.model';
 import { PuntoLocalizacion } from '../../../models/punto-localizacion.model';
 import { CarbonFootprintService } from './carbonFootprint.service';
+import { AuditLogService } from '../../../core/services/audit-log.service';
 
 interface ComparativaTransporte {
   type: string;
@@ -27,16 +28,19 @@ interface ComparativaTransporte {
   class: string;
 }
 
-
-
 @Injectable({ providedIn: 'root' })
 export class RutasService {
-  private firestore = inject(Firestore);
-  private auth = inject(Auth);
-  private rutasRef = collection(this.firestore, 'rutas');
-  private carbonService = inject(CarbonFootprintService);
-
+  private rutasRef;
   directionsClient = mbxDirections({ accessToken: environment.mapbox_key });
+
+  constructor(
+    private firestore: Firestore,
+    private auth: Auth,
+    private carbonService: CarbonFootprintService,
+    private auditLog: AuditLogService // NUEVO
+  ) {
+    this.rutasRef = collection(this.firestore, 'rutas');
+  }
 
   public getUserId(): string | null {
     return this.auth.currentUser?.uid ?? null;
@@ -112,11 +116,18 @@ export class RutasService {
       };
 
       // Guardar la ruta en Firestore
-      await addDoc(this.rutasRef, ruta);
+      const docRef = await addDoc(this.rutasRef, ruta);
+
+      // NUEVO: Log de ruta creada
+      await this.auditLog.logRutaCreada(docRef.id, ruta.nombre);
 
       console.log('Ruta creada con éxito:', ruta.nombre);
     } catch (error) {
       console.error('Error al crear ruta:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al crear ruta', error, 'crearRuta');
+
       throw error;
     }
   }
@@ -149,9 +160,22 @@ export class RutasService {
         carbonFootprint: carbonData
       });
 
+      // NUEVO: Log de huella calculada
+      await this.auditLog.log(
+        'Huella de carbono calculada',
+        'info',
+        { rutaId, tipoTransporte, pasajeros, carbonData },
+        rutaId,
+        'ruta'
+      );
+
       return carbonData;
     } catch (error) {
       console.error('Error al calcular/actualizar huella de carbono:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al calcular huella', error, 'calcularHuellaCarbono');
+
       return null;
     }
   }
@@ -165,7 +189,6 @@ export class RutasService {
     return this.carbonService.getComparisonData(distanciaKm);
   }
 
-  // Mantener el resto de métodos existentes...
 
   async cargarRutasPorUsuario(usuarioId: string): Promise<Ruta[]> {
     try {
@@ -175,6 +198,10 @@ export class RutasService {
       return snapshot.docs.map(doc => this.mapearRuta(doc.id, doc.data() as Omit<Ruta, 'id'>));
     } catch (error) {
       console.error('Error al cargar rutas:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al cargar rutas por usuario', error, 'cargarRutasPorUsuario');
+
       return [];
     }
   }
@@ -187,6 +214,10 @@ export class RutasService {
       return snapshot.docs.map(doc => this.mapearRuta(doc.id, doc.data() as Omit<Ruta, 'id'>));
     } catch (error) {
       console.error('Error al cargar rutas públicas:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al cargar rutas públicas', error, 'cargarRutasPublicas');
+
       throw error;
     }
   }
@@ -206,10 +237,13 @@ export class RutasService {
       );
     } catch (error) {
       console.error('Error al cargar rutas públicas del usuario:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al cargar rutas públicas por usuario', error, 'cargarRutasPublicasPorUsuario');
+
       return [];
     }
   }
-
 
   async obtenerRutaPorId(id: string): Promise<Ruta | null> {
     try {
@@ -218,9 +252,18 @@ export class RutasService {
 
       if (!snap.exists()) return null;
 
-      return this.mapearRuta(snap.id, snap.data() as Omit<Ruta, 'id'>);
+      const ruta = this.mapearRuta(snap.id, snap.data() as Omit<Ruta, 'id'>);
+
+      // NUEVO: Log de ruta vista
+      await this.auditLog.logRutaVista(id, ruta.nombre);
+
+      return ruta;
     } catch (error) {
       console.error('Error obteniendo ruta por ID:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al obtener ruta por ID', error, 'obtenerRutaPorId');
+
       return null;
     }
   }
@@ -258,10 +301,25 @@ export class RutasService {
 
   async eliminarRutaPorId(id: string): Promise<void> {
     try {
+      // Primero obtener el nombre para el log
       const rutaDoc = doc(this.rutasRef, id);
+      const rutaSnap = await getDoc(rutaDoc);
+      let nombreRuta = 'Ruta desconocida';
+
+      if (rutaSnap.exists()) {
+        nombreRuta = rutaSnap.data()['nombre'] || 'Ruta sin nombre';
+      }
+
       await deleteDoc(rutaDoc);
+
+      // NUEVO: Log de ruta eliminada
+      await this.auditLog.logRutaEliminada(id, nombreRuta);
     } catch (error) {
       console.error('Error al eliminar ruta:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al eliminar ruta', error, 'eliminarRutaPorId');
+
       throw error;
     }
   }
@@ -277,6 +335,9 @@ export class RutasService {
       await updateDoc(rutaDoc, { visitas: visitasActuales + 1 });
     } catch (error) {
       console.error('Error al incrementar visitas:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al incrementar visitas', error, 'incrementarVisitas');
     }
   }
 
@@ -287,16 +348,22 @@ export class RutasService {
 
       if (!rutaSnap.exists()) return;
 
-      const valoracionActual = rutaSnap.data()['valoracionPromedio'] || 0;
-      const visitasActuales = rutaSnap.data()['visitas'] || 1; // evitar dividir por cero
+      const data = rutaSnap.data();
+      const valoracionActual = data['valoracionPromedio'] || 0;
+      const visitasActuales = data['visitas'] || 1; // evitar dividir por cero
+      const nombreRuta = data['nombre'] || 'Ruta sin nombre';
 
       const nuevaMedia = ((valoracionActual * (visitasActuales - 1)) + nuevaValoracion) / visitasActuales;
 
       await updateDoc(rutaDoc, { valoracionPromedio: nuevaMedia });
+
+      // NUEVO: Log de valoración
+      await this.auditLog.logRutaValorada(id, nombreRuta, nuevaValoracion);
     } catch (error) {
       console.error('Error al actualizar valoracion:', error);
+
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al actualizar valoración', error, 'actualizarValoracion');
     }
   }
-
 }
-

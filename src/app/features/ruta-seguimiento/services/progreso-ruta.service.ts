@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -6,7 +6,6 @@ import {
   getDocs,
   getDoc,
   updateDoc,
-  deleteDoc,
   doc,
   Timestamp,
   query,
@@ -14,6 +13,7 @@ import {
 } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { ProgresoRuta } from '../../../models/progreso-ruta.model';
+import { AuditLogService } from '../../../core/services/audit-log.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +23,8 @@ export class ProgresoRutaService {
 
   constructor(
     private firestore: Firestore,
-    private auth: Auth
+    private auth: Auth,
+    private auditLog: AuditLogService // NUEVO
   ) {
     this.progresoRef = collection(this.firestore, 'progreso-rutas');
   }
@@ -56,9 +57,21 @@ export class ProgresoRutaService {
       };
 
       const docRef = await addDoc(this.progresoRef, nuevoProgreso);
+
+      // NUEVO: Log de ruta iniciada
+      await this.auditLog.log(
+        'Ruta iniciada',
+        'info',
+        { rutaId, progresoId: docRef.id, puntosTotal: puntosIds.length },
+        rutaId,
+        'ruta'
+      );
+
       return docRef.id;
     } catch (error) {
       console.error('Error al crear progreso de ruta:', error);
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al crear progreso de ruta', error, 'crearProgresoRuta');
       throw error;
     }
   }
@@ -86,6 +99,8 @@ export class ProgresoRutaService {
       return { id: doc.id, ...doc.data() } as ProgresoRuta;
     } catch (error) {
       console.error('Error al obtener progreso de ruta:', error);
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al obtener progreso de ruta', error, 'obtenerProgresoRuta');
       return null;
     }
   }
@@ -101,8 +116,19 @@ export class ProgresoRutaService {
       };
 
       await updateDoc(progresoRef, actualizacionesConTimestamp);
+
+      // NUEVO: Log de progreso actualizado
+      await this.auditLog.log(
+        'Progreso de ruta actualizado',
+        'info',
+        { progresoId, actualizaciones },
+        undefined,
+        'ruta'
+      );
     } catch (error) {
       console.error('Error al actualizar progreso de ruta:', error);
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al actualizar progreso', error, 'actualizarProgresoRuta');
       throw error;
     }
   }
@@ -143,8 +169,23 @@ export class ProgresoRutaService {
       }
 
       await updateDoc(progresoRef, actualizaciones);
+
+      // NUEVO: Log de punto completado
+      await this.auditLog.logPuntoCompletado(puntoId, 'Punto', progreso.rutaId);
+
+      // Si la ruta está completada, log adicional
+      if (todosCompletados) {
+        // Obtener más información de la ruta para el log
+        const rutaRef = doc(this.firestore, 'rutas', progreso.rutaId);
+        const rutaSnap = await getDoc(rutaRef);
+        const rutaNombre = rutaSnap.exists() ? rutaSnap.data()['nombre'] : 'Ruta desconocida';
+
+        await this.auditLog.logRutaCompletada(progreso.rutaId, rutaNombre, actualizaciones.tiempoTotal);
+      }
     } catch (error) {
       console.error('Error al marcar punto como completado:', error);
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al marcar punto completado', error, 'marcarPuntoCompletado');
       throw error;
     }
   }
@@ -170,6 +211,8 @@ export class ProgresoRutaService {
       } as ProgresoRuta));
     } catch (error) {
       console.error('Error al obtener rutas en progreso:', error);
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al obtener rutas en progreso', error, 'obtenerRutasEnProgreso');
       return [];
     }
   }
@@ -195,6 +238,8 @@ export class ProgresoRutaService {
       } as ProgresoRuta));
     } catch (error) {
       console.error('Error al obtener rutas completadas:', error);
+      // NUEVO: Log de error
+      await this.auditLog.logError('Error al obtener rutas completadas', error, 'obtenerRutasCompletadas');
       return [];
     }
   }

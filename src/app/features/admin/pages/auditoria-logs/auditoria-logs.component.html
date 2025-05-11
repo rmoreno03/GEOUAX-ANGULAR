@@ -1,25 +1,106 @@
+<!-- audit-logs.component.html -->
 <div class="logs-container">
-  <h2><i class="fas fa-clipboard-list"></i> Auditoría / Logs del sistema</h2>
+  <h2>
+    <i class="fas fa-clipboard-list"></i>
+    Auditoría / Logs del sistema
+  </h2>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <div class="filtro-grupo">
+      <label>Tipo de evento:</label>
+      <select [(ngModel)]="filtroTipo" (change)="filtrarLogs()">
+        <option value="">Todos</option>
+        <option value="success">Éxito</option>
+        <option value="info">Info</option>
+        <option value="warning">Advertencia</option>
+        <option value="error">Error</option>
+      </select>
+    </div>
+
+    <div class="filtro-grupo">
+      <label>Entidad:</label>
+      <select [(ngModel)]="filtroEntidad" (change)="filtrarLogs()">
+        <option value="">Todas</option>
+        <option value="usuario">Usuario</option>
+        <option value="ruta">Ruta</option>
+        <option value="punto">Punto</option>
+        <option value="sesion">Sesión</option>
+        <option value="sistema">Sistema</option>
+      </select>
+    </div>
+
+    <div class="filtro-grupo">
+      <label>Usuario:</label>
+      <input type="text" [(ngModel)]="filtroUsuario" (input)="filtrarLogs()" placeholder="Email del usuario">
+    </div>
+
+    <div class="filtro-grupo">
+      <button class="btn-limpiar" (click)="limpiarFiltros()">
+        <i class="fas fa-eraser"></i> Limpiar Filtros
+      </button>
+    </div>
+  </div>
 
   <div *ngIf="cargando" class="loader">
     <i class="fas fa-spinner fa-spin"></i> Cargando registros...
   </div>
 
-  <div *ngIf="!cargando && logs.length === 0" class="vacio">
-    <p><i class="fas fa-check-circle"></i> No hay registros de auditoría disponibles.</p>
+  <div *ngIf="!cargando && logsFiltrados.length === 0" class="vacio">
+    <p><i class="fas fa-search"></i> No hay registros que coincidan con los filtros aplicados.</p>
   </div>
 
-  <div *ngIf="!cargando && logs.length > 0" class="lista-logs">
-    <div class="log-card" *ngFor="let log of logs">
+  <div *ngIf="!cargando && logsFiltrados.length > 0" class="lista-logs">
+    <div class="log-card" *ngFor="let log of logsFiltrados; trackBy: trackByFn">
       <div class="detalle-log">
-        <p><strong>Usuario:</strong> {{ log.usuario }}</p>
-        <p><strong>Acción:</strong> {{ log.accion }}</p>
-        <p><strong>Fecha:</strong> {{ formatFecha(log.fecha) }}</p>
-        <p *ngIf="log.ip"><strong>IP:</strong> {{ log.ip }}</p>
-        <p><strong>Tipo:</strong>
-          <span class="tipo-log" [ngClass]="log.tipo">{{ log.tipo | titlecase }}</span>
-        </p>
+        <div class="header-log">
+          <div class="tipo-icono" [ngClass]="log.tipo">
+            <i [class]="getIcono(log.tipo)"></i>
+          </div>
+          <div class="info-principal">
+            <h4>{{ log.accion }}</h4>
+            <p class="usuario-fecha">
+              <strong>{{ log.usuarioNombre || log.usuario }}</strong> -
+              {{ formatFecha(log.fecha) }}
+            </p>
+          </div>
+          <span class="tipo-label" [ngClass]="log.tipo">{{ log.tipo | titlecase }}</span>
+        </div>
+
+        <div class="detalles-expandibles" *ngIf="log.entidadTipo || log.ip || log.detalles">
+          <div class="detalle-item" *ngIf="log.entidadTipo">
+            <span class="label">Entidad:</span>
+            <span class="value">{{ log.entidadTipo | titlecase }}</span>
+          </div>
+
+          <div class="detalle-item" *ngIf="log.ip">
+            <span class="label">IP:</span>
+            <span class="value">{{ log.ip }}</span>
+          </div>
+
+          <div class="detalle-item" *ngIf="log.detalles">
+            <button class="btn-ver-detalles" (click)="toggleDetalles(log.id!)">
+              <i class="fas" [class.fa-chevron-down]="!log.expanded" [class.fa-chevron-up]="log.expanded"></i>
+              Ver detalles
+            </button>
+          </div>
+
+          <div class="detalles-json" *ngIf="log.expanded && log.detalles">
+            <pre>{{ formatDetalles(log.detalles) }}</pre>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="paginacion" *ngIf="logsFiltrados.length > 0">
+    <button
+      class="btn-pagina"
+      (click)="cargarMasLogs()"
+      [disabled]="!hayMasLogs"
+      *ngIf="hayMasLogs">
+      <i class="fas fa-plus"></i> Cargar más registros
+    </button>
   </div>
 </div>

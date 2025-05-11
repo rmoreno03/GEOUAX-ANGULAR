@@ -1,0 +1,292 @@
+<div class="user-detail-container" *ngIf="user">
+  <!-- Header con navegación -->
+  <header class="detail-header">
+    <div class="breadcrumb">
+      <a routerLink="/admin/gestion-usuarios" class="breadcrumb-link">
+        <i class="fas fa-arrow-left"></i>
+        Volver a Gestión de Usuarios
+      </a>
+    </div>
+
+    <div class="user-header">
+      <div class="user-identity">
+        <div class="avatar-container">
+          <img
+            [src]="user.fotoUrl || '/assets/images/default-avatar.png'"
+            [alt]="user.nombre || 'Usuario'"
+            class="user-avatar"
+            (error)="onImageError($event)"
+          >
+          <div *ngIf="user.authProvider" class="provider-badge" [class]="'provider-' + user.authProvider">
+            <i class="fab" [class]="getProviderIcon(user.authProvider)"></i>
+          </div>
+          <div class="status-indicator" [class.active]="user.estaActivo"></div>
+        </div>
+
+        <div class="user-info">
+          <h1 class="user-name">
+            {{ user.nombre || 'Usuario sin nombre' }}
+            <span *ngIf="user.emailVerified" class="verified-badge" title="Email verificado">
+              <i class="fas fa-check-circle"></i>
+            </span>
+          </h1>
+          <p class="user-email">{{ user.email }}</p>
+          <div class="user-metadata">
+            <span class="role-badge" [class]="'role-' + user.rol">{{ user.rol | titlecase }}</span>
+            <span class="status-badge" [class.active]="user.estaActivo">{{ user.estaActivo ? 'Activo' : 'Inactivo' }}</span>
+            <span class="uid-badge">{{ user.uid }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn btn-secondary" (click)="exportUser()">
+          <i class="fas fa-download"></i>
+          Exportar
+        </button>
+        <button class="btn btn-primary" [routerLink]="['/admin/usuarios', user.uid, 'edit']">
+          <i class="fas fa-edit"></i>
+          Editar Usuario
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Estadísticas generales -->
+  <section class="user-stats-section">
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon">
+          <i class="fas fa-route"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Rutas Totales</h3>
+          <p class="stat-value">{{ user.totalRutas || 0 }}</p>
+          <span class="stat-detail">Creadas desde el registro</span>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon">
+          <i class="fas fa-globe"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Rutas Públicas</h3>
+          <p class="stat-value">{{ user.rutasPublicas || 0 }}</p>
+          <span class="stat-detail">Visibles para todos</span>
+        </div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-icon">
+          <i class="fas fa-road"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Kilómetros Recorridos</h3>
+          <p class="stat-value">{{ user.kmRecorridos || 0 }} km</p>
+          <span class="stat-detail">Distancia total</span>
+        </div>
+      </div>
+
+      <div class="stat-card info">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Red Social</h3>
+          <p class="stat-value">{{ (user.amigos || []).length }}</p>
+          <span class="stat-detail">Amigos en la plataforma</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Información detallada -->
+  <div class="details-container">
+    <!-- Información personal -->
+    <section class="detail-section">
+      <header class="section-header">
+        <h2>
+          <i class="fas fa-user"></i>
+          Información Personal
+        </h2>
+      </header>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Nombre completo</label>
+          <p>{{ user.nombre || 'No especificado' }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Correo electrónico</label>
+          <p>
+            {{ user.email }}
+            <span *ngIf="user.emailVerified" class="verified-icon" title="Email verificado">
+              <i class="fas fa-check-circle"></i>
+            </span>
+          </p>
+        </div>
+
+        <div class="info-item">
+          <label>Teléfono</label>
+          <p>{{ user.phoneNumber || 'No especificado' }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Biografía</label>
+          <p class="bio">{{ user.biografia || 'Sin descripción personal' }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Información del sistema -->
+    <section class="detail-section">
+      <header class="section-header">
+        <h2>
+          <i class="fas fa-cogs"></i>
+          Información del Sistema
+        </h2>
+      </header>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>ID de Usuario</label>
+          <p class="mono-text">{{ user.uid }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Fecha de registro</label>
+          <p>{{ formatFecha(user.fechaRegistro) }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Último acceso</label>
+          <p>{{ formatFecha(user.fechaUltimoLogin || user.ultimaConexion) }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Proveedor de autenticación</label>
+          <p>
+            <span class="provider-chip" [class]="'provider-' + (user.authProvider || 'email')">
+              <i class="fab" [class]="getProviderIcon(user.authProvider || 'email')"></i>
+              {{ getProviderName(user.authProvider || 'email') }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configuración y permisos -->
+    <section class="detail-section">
+      <header class="section-header">
+        <h2>
+          <i class="fas fa-shield-alt"></i>
+          Permisos y Configuración
+        </h2>
+      </header>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Rol del usuario</label>
+          <p>
+            <span class="role-badge large" [class]="'role-' + user.rol">
+              {{ user.rol | titlecase }}
+            </span>
+          </p>
+        </div>
+
+        <div class="info-item">
+          <label>Estado de la cuenta</label>
+          <p>
+            <span class="status-badge large" [class.active]="user.estaActivo">
+              {{ user.estaActivo ? 'Activa' : 'Inactiva' }}
+            </span>
+          </p>
+        </div>
+
+        <div class="info-item" *ngIf="user.ajustes?.privacidad">
+          <label>Configuración de privacidad</label>
+          <div class="privacy-settings">
+            <div class="privacy-item" *ngIf="user.ajustes?.privacidad?.perfilPublico !== undefined">
+              <span class="privacy-label">Perfil público:</span>
+              <span class="privacy-value" [class.active]="user.ajustes?.privacidad?.perfilPublico">
+                 {{ user.ajustes?.privacidad?.perfilPublico ? 'Sí' : 'No' }}
+              </span>
+            </div>
+            <div class="privacy-item" *ngIf="user.ajustes?.privacidad?.mostrarEmail !== undefined">
+              <span class="privacy-label">Mostrar email:</span>
+              <span class="privacy-value" [class.active]="user.ajustes?.privacidad?.mostrarEmail">
+                {{ user.ajustes?.privacidad?.mostrarEmail ? 'Sí' : 'No' }}
+              </span>
+            </div>
+            <div class="privacy-item" *ngIf="user.ajustes?.privacidad?.notificacionesEmail !== undefined">
+              <span class="privacy-label">Notificaciones:</span>
+              <span class="privacy-value" [class.active]="user.ajustes?.privacidad?.notificacionesEmail">
+                {{ user.ajustes?.privacidad?.notificacionesEmail ? 'Activadas' : 'Desactivadas' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Actividad reciente -->
+    <section class="detail-section">
+      <header class="section-header">
+        <h2>
+          <i class="fas fa-history"></i>
+          Actividad Reciente
+        </h2>
+        <button class="btn btn-outline" (click)="loadRecentActivity()">
+          <i class="fas fa-sync-alt"></i>
+          Actualizar
+        </button>
+      </header>
+
+      <div *ngIf="loadingActivity" class="loading-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        Cargando actividad...
+      </div>
+
+      <div *ngIf="!loadingActivity && recentActivities.length === 0" class="empty-activity">
+        <i class="fas fa-clock"></i>
+        <p>No hay actividades recientes registradas</p>
+      </div>
+
+      <div *ngIf="!loadingActivity && recentActivities.length > 0" class="activity-list">
+        <div *ngFor="let activity of recentActivities" class="activity-item">
+          <div class="activity-icon" [class]="activity.type">
+            <i [class]="getActivityIcon(activity.type)"></i>
+          </div>
+          <div class="activity-content">
+            <h4>{{ activity.title }}</h4>
+            <p>{{ activity.description }}</p>
+            <time>{{ formatFecha(activity.timestamp) }}</time>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="loading-content">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Cargando información del usuario...</p>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h2>Error al cargar usuario</h2>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="retry()">
+      <i class="fas fa-redo"></i>
+      Reintentar
+    </button>
+  </div>
+</div>

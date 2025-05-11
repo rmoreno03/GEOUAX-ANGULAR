@@ -1,68 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import {
+  Firestore,
+  Timestamp
+} from '@angular/fire/firestore';
+import { AuthService } from '../../../../auth/services/auth.service';
+import { AuditLogService } from '../../../../core/services/audit-log.service';
+import { UserManagementService } from '../../services/user-management.service';
+import {
+  UserStatisticsService,
+  EstadisticasUsuario,
+  Actividad,
+  PeriodoTiempo
+} from '../../services/user-statistics.service';
+import { Subscription } from 'rxjs';
+import { Usuario } from '../../../../models/usuario.model';
 
-interface Usuario {
-  id: number;
-  nombre: string;
-  email: string;
-  rol: string;
-  fechaRegistro: Date;
-  ultimoAcceso: Date;
-  imagen: string | null;
-}
-
-interface PuntoInteres {
-  nombre: string;
-  visitas: number;
-}
-
-interface ActividadMensual {
-  mes: string;
-  rutas: number;
-  kilometros: number;
-}
-
-interface DistribucionTipo {
-  tipo: string;
-  porcentaje: number;
-  rutas: number;
-}
-
-interface RutaMasLarga {
-  nombre: string;
-  distancia: number;
-  fecha: Date;
-}
-
-interface EstadisticasUsuario {
-  totalRutas: number;
-  totalPuntos: number;
-  totalKilometros: number;
-  mediaKilometros: number;
-  tiempoTotal: string;
-  mediaVelocidad: string;
-  altitudMaxima: number;
-  desnivelAcumulado: number;
-  rutaMasLarga: RutaMasLarga;
-  puntosInteres: PuntoInteres[];
-  actividadMensual: ActividadMensual[];
-  distribucionTipos: DistribucionTipo[];
-  logrosConseguidos: number;
-  totalLogros: number;
-  retosCompletados: number;
-  retosActivos: number;
-}
-
-type TipoActividad = 'ruta' | 'punto' | 'logro' | 'reto';
-
-interface Actividad {
-  tipo: TipoActividad;
-  nombre: string;
-  fecha: Date;
-  kilometros?: number;
-  tiempo?: string;
-  ubicacion?: string;
-  descripcion?: string;
-  progreso?: number;
+// Tipo extendido para mostrar en la interfaz
+interface UsuarioExtendido extends Usuario {
+  id: string; // Para compatibilidad con el HTML
 }
 
 @Component({
@@ -71,177 +27,398 @@ interface Actividad {
   templateUrl: './estadisticas-usuario.component.html',
   styleUrls: ['./estadisticas-usuario.component.css']
 })
-export class EstadisticasUsuarioComponent implements OnInit {
+export class EstadisticasUsuarioComponent implements OnInit, OnDestroy {
   loading = false;
   error = '';
-  usuarioSeleccionado: Usuario | null = null;
-  periodoSeleccionado = 'mensual';
+  usuarioSeleccionado: UsuarioExtendido | null = null;
+  periodoSeleccionado: PeriodoTiempo = 'mensual';
   usuarioBusqueda = '';
 
-  usuarios: Usuario[] = [
-    {
-      id: 1,
-      nombre: 'Juan Pérez',
-      email: 'juan.perez@ejemplo.com',
-      rol: 'Administrador',
-      fechaRegistro: new Date('2024-12-15'),
-      ultimoAcceso: new Date('2025-04-28'),
-      imagen: null
-    },
-    {
-      id: 2,
-      nombre: 'María García',
-      email: 'maria.garcia@ejemplo.com',
-      rol: 'Editor',
-      fechaRegistro: new Date('2025-01-10'),
-      ultimoAcceso: new Date('2025-04-25'),
-      imagen: null
-    },
-    {
-      id: 3,
-      nombre: 'Carlos Rodríguez',
-      email: 'carlos.rodriguez@ejemplo.com',
-      rol: 'Usuario',
-      fechaRegistro: new Date('2025-02-05'),
-      ultimoAcceso: new Date('2025-04-27'),
-      imagen: null
-    },
-    {
-      id: 4,
-      nombre: 'Ana Martínez',
-      email: 'ana.martinez@ejemplo.com',
-      rol: 'Moderador',
-      fechaRegistro: new Date('2024-11-20'),
-      ultimoAcceso: new Date('2025-04-22'),
-      imagen: null
-    },
-    {
-      id: 5,
-      nombre: 'David López',
-      email: 'david.lopez@ejemplo.com',
-      rol: 'Usuario',
-      fechaRegistro: new Date('2025-03-15'),
-      ultimoAcceso: new Date('2025-04-26'),
-      imagen: null
-    }
-  ];
+  // Lista de usuarios
+  usuarios: UsuarioExtendido[] = [];
 
+  // Datos de estadísticas
   estadisticasUsuario: EstadisticasUsuario = {
-    totalRutas: 28,
-    totalPuntos: 142,
-    totalKilometros: 756.3,
-    mediaKilometros: 27.01,
-    tiempoTotal: '46h 28m',
-    mediaVelocidad: '16.4 km/h',
-    altitudMaxima: 1842,
-    desnivelAcumulado: 12350,
+    totalRutas: 0,
+    totalPuntos: 0,
+    totalKilometros: 0,
+    mediaKilometros: 0,
+    tiempoTotal: '0h 0m',
+    mediaVelocidad: '0 km/h',
+    altitudMaxima: 0,
+    desnivelAcumulado: 0,
     rutaMasLarga: {
-      nombre: 'Senda del Oso',
-      distancia: 42.8,
-      fecha: new Date('2025-03-15')
+      nombre: 'Sin rutas',
+      distancia: 0,
+      fecha: new Date()
     },
-    puntosInteres: [
-      { nombre: 'Mirador del Valle', visitas: 5 },
-      { nombre: 'Cascada del Purgatorio', visitas: 3 },
-      { nombre: 'Pico de la Miel', visitas: 2 },
-      { nombre: 'Laguna Grande', visitas: 4 },
-      { nombre: 'Refugio Zabala', visitas: 2 }
-    ],
-    actividadMensual: [
-      { mes: 'Noviembre', rutas: 3, kilometros: 82 },
-      { mes: 'Diciembre', rutas: 5, kilometros: 124 },
-      { mes: 'Enero', rutas: 4, kilometros: 96 },
-      { mes: 'Febrero', rutas: 6, kilometros: 178 },
-      { mes: 'Marzo', rutas: 7, kilometros: 214 },
-      { mes: 'Abril', rutas: 3, kilometros: 62 }
-    ],
-    distribucionTipos: [
-      { tipo: 'Senderismo', porcentaje: 64, rutas: 18 },
-      { tipo: 'Ciclismo', porcentaje: 21, rutas: 6 },
-      { tipo: 'Running', porcentaje: 11, rutas: 3 },
-      { tipo: 'Otro', porcentaje: 4, rutas: 1 }
-    ],
-    logrosConseguidos: 12,
-    totalLogros: 25,
-    retosCompletados: 5,
-    retosActivos: 2
+    puntosInteres: [],
+    actividadMensual: [],
+    distribucionTipos: [],
+    logrosConseguidos: 0,
+    totalLogros: 0,
+    retosCompletados: 0,
+    retosActivos: 0
   };
 
-  actividadReciente: Actividad[] = [
-    {
-      tipo: 'ruta',
-      nombre: 'Ruta del Pico de la Miel',
-      fecha: new Date('2025-04-28'),
-      kilometros: 14.5,
-      tiempo: '2h 30m'
-    },
-    {
-      tipo: 'punto',
-      nombre: 'Mirador del Valle',
-      fecha: new Date('2025-04-25'),
-      ubicacion: 'Sierra de Guadarrama'
-    },
-    {
-      tipo: 'ruta',
-      nombre: 'Ruta circular La Pedriza',
-      fecha: new Date('2025-04-15'),
-      kilometros: 12.8,
-      tiempo: '2h 45m'
-    },
-    {
-      tipo: 'logro',
-      nombre: 'Explorador de Altura',
-      fecha: new Date('2025-04-10'),
-      descripcion: 'Visitar 5 puntos con altitud superior a 1500m'
-    },
-    {
-      tipo: 'reto',
-      nombre: '100km en un mes',
-      fecha: new Date('2025-04-05'),
-      progreso: 85,
-      descripcion: 'Completar 100km en rutas registradas durante un mes'
-    }
-  ];
+  // Actividad reciente
+  actividadReciente: Actividad[] = [];
+
+  // Suscripciones para evitar memory leaks
+  private suscripciones: Subscription[] = [];
+
+  constructor(
+    private firestore: Firestore,
+    private authService: AuthService,
+    private auditLog: AuditLogService,
+    private userService: UserManagementService,
+    private statsService: UserStatisticsService,
+    private route: ActivatedRoute,
+    private ngZone: NgZone // Para evitar problemas con detección de cambios
+  ) {}
 
   ngOnInit(): void {
-    if (this.usuarios.length > 0) {
-      this.seleccionarUsuario(this.usuarios[0]);
+    // Verificar si hay un ID de usuario en la URL
+    this.suscripciones.push(
+      this.route.params.subscribe(params => {
+        if (params['id']) {
+          this.cargarUsuarioPorId(params['id']);
+        } else {
+          this.cargarUsuarios();
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    // Cancelar suscripciones para evitar memory leaks
+    this.suscripciones.forEach(sub => sub.unsubscribe());
+  }
+
+  async cargarUsuarios(): Promise<void> {
+    try {
+      this.loading = true;
+      this.error = ''; // Limpiar errores anteriores
+
+      // Cargar usuarios mediante el servicio de gestión de usuarios
+      const usuariosData = await this.userService.getUsers();
+
+      // Transformar a UsuarioExtendido en la zona de Angular para detección de cambios
+      this.ngZone.run(() => {
+        this.usuarios = usuariosData.map(usuario => ({
+          ...usuario,
+          id: usuario.uid // Para compatibilidad con el template
+        }));
+
+        // Si hay usuarios, seleccionar el primero por defecto
+        if (this.usuarios.length > 0) {
+          this.seleccionarUsuario(this.usuarios[0]);
+        }
+      });
+
+      // Log de carga de usuarios (fuera de ngZone, no afecta la UI)
+      await this.auditLog.log(
+        'Carga de lista de usuarios para estadísticas',
+        'info',
+        { cantidad: this.usuarios.length },
+        null, // null en vez de undefined
+        'sistema'
+      );
+
+    } catch (error) {
+      console.error('Error al cargar usuarios:', error);
+
+      // Actualizar la UI dentro de ngZone
+      this.ngZone.run(() => {
+        this.error = 'Error al cargar la lista de usuarios. Inténtalo de nuevo.';
+      });
+
+      // Log de error
+      await this.auditLog.logError('Error al cargar usuarios para estadísticas', error, 'cargarUsuarios');
+    } finally {
+      // Actualizar la UI dentro de ngZone
+      this.ngZone.run(() => {
+        this.loading = false;
+      });
     }
   }
 
-  seleccionarUsuario(usuario: Usuario): void {
-    this.loading = true;
-    this.usuarioSeleccionado = usuario;
-    setTimeout(() => this.loading = false, 1200);
+  async cargarUsuarioPorId(userId: string): Promise<void> {
+    try {
+      this.loading = true;
+      this.error = ''; // Limpiar errores anteriores
+
+      // Obtener el usuario específico
+      const usuario = await this.userService.getUserById(userId);
+
+      if (usuario) {
+        // Convertir a UsuarioExtendido y seleccionar en ngZone
+        this.ngZone.run(() => {
+          const usuarioExtendido: UsuarioExtendido = {
+            ...usuario,
+            id: usuario.uid
+          };
+
+          this.usuarioSeleccionado = usuarioExtendido;
+        });
+
+        // Cargar estadísticas y actividad
+        await this.cargarEstadisticasYActividad(userId);
+
+        // Cargar la lista de usuarios para el selector
+        await this.cargarUsuarios();
+      } else {
+        this.ngZone.run(() => {
+          this.error = 'Usuario no encontrado';
+        });
+
+        // Cargar la lista de todos modos
+        await this.cargarUsuarios();
+      }
+
+    } catch (error) {
+      console.error('Error al cargar usuario por ID:', error);
+
+      this.ngZone.run(() => {
+        this.error = 'Error al cargar usuario. Inténtalo de nuevo.';
+      });
+
+      // Log de error
+      await this.auditLog.logError('Error al cargar usuario por ID para estadísticas', error, 'cargarUsuarioPorId');
+
+      // Intentar cargar todos los usuarios de todos modos
+      await this.cargarUsuarios();
+    } finally {
+      this.ngZone.run(() => {
+        this.loading = false;
+      });
+    }
   }
 
-  filtrarUsuarios(): Usuario[] {
+  // Método auxiliar para cargar estadísticas y actividad
+  private async cargarEstadisticasYActividad(userId: string): Promise<void> {
+    try {
+      // Usar el servicio para obtener las estadísticas
+      const estadisticas = await this.statsService.getUserStatistics(
+        userId,
+        this.periodoSeleccionado
+      );
+
+      // Usar el servicio para obtener la actividad reciente
+      const actividad = await this.statsService.getUserActivity(userId, 5);
+
+      // Actualizar la UI en la zona de Angular
+      this.ngZone.run(() => {
+        this.estadisticasUsuario = estadisticas;
+        this.actividadReciente = actividad;
+      });
+    } catch (error) {
+      console.error('Error al cargar estadísticas y actividad:', error);
+      await this.auditLog.logError('Error al cargar estadísticas y actividad', error, 'cargarEstadisticasYActividad');
+
+      // Mostrar error en la UI
+      this.ngZone.run(() => {
+        this.error = 'Error al cargar estadísticas. Inténtalo de nuevo.';
+      });
+    }
+  }
+
+  filtrarUsuarios(): UsuarioExtendido[] {
     if (!this.usuarioBusqueda) return this.usuarios;
+
     const filtro = this.usuarioBusqueda.toLowerCase();
     return this.usuarios.filter(usuario =>
-      usuario.nombre.toLowerCase().includes(filtro) ||
+      (usuario.nombre || '').toLowerCase().includes(filtro) ||
       usuario.email.toLowerCase().includes(filtro)
     );
   }
 
-  cambiarPeriodo(periodo: string): void {
-    this.periodoSeleccionado = periodo;
-    this.loading = true;
-    setTimeout(() => this.loading = false, 800);
+  async seleccionarUsuario(usuario: UsuarioExtendido): Promise<void> {
+    try {
+      this.loading = true;
+      this.error = ''; // Limpiar errores anteriores
+
+      // Actualizar usuario seleccionado inmediatamente
+      this.ngZone.run(() => {
+        this.usuarioSeleccionado = usuario;
+      });
+
+      // Log de selección de usuario
+      await this.auditLog.log(
+        'Consulta de estadísticas de usuario',
+        'info',
+        {
+          userId: usuario.id,
+          nombre: usuario.nombre,
+          email: usuario.email
+        },
+        usuario.id || null, // null en vez de undefined
+        'usuario'
+      );
+
+      // Cargar estadísticas y actividad
+      await this.cargarEstadisticasYActividad(usuario.id);
+
+    } catch (error) {
+      console.error('Error al seleccionar usuario:', error);
+
+      this.ngZone.run(() => {
+        this.error = 'Error al seleccionar usuario. Inténtalo de nuevo.';
+      });
+
+      // Log de error
+      await this.auditLog.logError('Error al seleccionar usuario para estadísticas', error, 'seleccionarUsuario');
+    } finally {
+      this.ngZone.run(() => {
+        this.loading = false;
+      });
+    }
   }
 
-  formatFecha(fecha: Date): string {
-    return fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+  async cambiarPeriodo(periodo: string): Promise<void> {
+    try {
+      this.loading = true;
+      this.error = ''; // Limpiar errores anteriores
+
+      // Actualizar el período inmediatamente
+      this.ngZone.run(() => {
+        this.periodoSeleccionado = periodo as PeriodoTiempo;
+      });
+
+      // Si hay usuario seleccionado, recargar estadísticas
+      if (this.usuarioSeleccionado) {
+        // Log de cambio de período
+        await this.auditLog.log(
+          'Cambio de período en estadísticas',
+          'info',
+          {
+            periodo,
+            userId: this.usuarioSeleccionado.id
+          },
+          this.usuarioSeleccionado.id || null, // null en vez de undefined
+          'usuario'
+        );
+
+        // Obtener estadísticas actualizadas
+        const estadisticas = await this.statsService.getUserStatistics(
+          this.usuarioSeleccionado.id,
+          this.periodoSeleccionado
+        );
+
+        // Actualizar la UI
+        this.ngZone.run(() => {
+          this.estadisticasUsuario = estadisticas;
+        });
+      }
+
+    } catch (error) {
+      console.error('Error al cambiar período:', error);
+
+      this.ngZone.run(() => {
+        this.error = 'Error al cambiar período. Inténtalo de nuevo.';
+      });
+
+      // Log de error
+      await this.auditLog.logError('Error al cambiar período', error, 'cambiarPeriodo');
+    } finally {
+      this.ngZone.run(() => {
+        this.loading = false;
+      });
+    }
   }
 
-  formatearFechaRelativa(fecha: Date): string {
-    const ahora = new Date();
-    const dias = Math.floor((ahora.getTime() - fecha.getTime()) / (1000 * 3600 * 24));
-    if (dias === 0) return 'Hoy';
-    if (dias === 1) return 'Ayer';
-    if (dias < 7) return `Hace ${dias} días`;
-    if (dias < 30) return `Hace ${Math.floor(dias / 7)} semanas`;
-    return `Hace ${Math.floor(dias / 30)} meses`;
+  async exportarEstadisticas(): Promise<void> {
+    if (!this.usuarioSeleccionado) return;
+
+    try {
+      this.loading = true;
+      this.error = ''; // Limpiar errores anteriores
+
+      // Usar el servicio para exportar estadísticas
+      const csvContent = await this.statsService.exportUserStatistics(
+        this.usuarioSeleccionado.id,
+        this.periodoSeleccionado
+      );
+
+      // Crear archivo y descargarlo
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download',
+        `estadisticas_${this.usuarioSeleccionado.nombre || 'usuario'}_${new Date().toISOString().split('T')[0]}.csv`
+      );
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Log de exportación
+      await this.auditLog.log(
+        'Exportación de estadísticas de usuario',
+        'info',
+        {
+          userId: this.usuarioSeleccionado.id,
+          nombre: this.usuarioSeleccionado.nombre,
+          email: this.usuarioSeleccionado.email,
+          periodo: this.periodoSeleccionado
+        },
+        this.usuarioSeleccionado.id || null, // null en vez de undefined
+        'usuario'
+      );
+
+    } catch (error) {
+      console.error('Error al exportar estadísticas:', error);
+
+      this.ngZone.run(() => {
+        this.error = 'Error al exportar estadísticas. Inténtalo de nuevo.';
+      });
+
+      // Log de error
+      await this.auditLog.logError('Error al exportar estadísticas', error, 'exportarEstadisticas');
+    } finally {
+      this.ngZone.run(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  // Utilidades
+  formatFecha(fecha: any): string {
+    if (!fecha) return 'N/A';
+
+    try {
+      // Convertir Timestamp de Firestore a Date si es necesario
+      const date = fecha instanceof Timestamp ? fecha.toDate() : new Date(fecha);
+
+      return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error al formatear fecha:', error);
+      return 'Fecha inválida';
+    }
+  }
+
+  formatearFechaRelativa(fecha: any): string {
+    try {
+      // Convertir Timestamp de Firestore a Date si es necesario
+      const fechaObj = fecha instanceof Timestamp ? fecha.toDate() : new Date(fecha);
+
+      const ahora = new Date();
+      const dias = Math.floor((ahora.getTime() - fechaObj.getTime()) / (1000 * 3600 * 24));
+
+      if (dias === 0) return 'Hoy';
+      if (dias === 1) return 'Ayer';
+      if (dias < 7) return `Hace ${dias} días`;
+      if (dias < 30) return `Hace ${Math.floor(dias / 7)} semanas`;
+      return `Hace ${Math.floor(dias / 30)} meses`;
+    } catch (error) {
+      console.error('Error al formatear fecha relativa:', error);
+      return 'Fecha desconocida';
+    }
   }
 
   getColorProgreso(valor: number): string {
@@ -250,9 +427,14 @@ export class EstadisticasUsuarioComponent implements OnInit {
     return 'low';
   }
 
-  exportarEstadisticas(): void {
-    if (!this.usuarioSeleccionado) return;
-    console.log('Exportando estadísticas de', this.usuarioSeleccionado.nombre);
-    alert(`Exportando estadísticas de ${this.usuarioSeleccionado.nombre} en formato PDF...`);
+  // Estas funciones son necesarias para compatibilidad con el HTML
+  obtenerUbicacion(latitud?: number, longitud?: number): string {
+    if (!latitud || !longitud) return 'Ubicación desconocida';
+    return `${latitud.toFixed(3)}°, ${longitud.toFixed(3)}°`;
+  }
+
+  capitalizarPrimeraLetra(texto: string): string {
+    if (!texto) return '';
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
   }
 }
