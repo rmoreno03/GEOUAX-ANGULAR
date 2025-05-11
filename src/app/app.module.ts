@@ -7,6 +7,7 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -42,7 +43,8 @@ export const storage = getStorage(app);
     LayoutModule,
     SharedModule,
     HttpClientModule,
-    CoreModule
+    CoreModule,
+    BrowserAnimationsModule
   ],
   providers: [
     provideAnimationsAsync(),

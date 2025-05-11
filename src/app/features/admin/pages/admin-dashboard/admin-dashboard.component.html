@@ -1,19 +1,156 @@
 <div class="admin-dashboard">
-  <h2><i class="fas fa-cogs"></i> Panel de Administración</h2>
-
-  <div *ngIf="cargando" class="loader">Cargando usuarios...</div>
-
-  <div *ngIf="!cargando" class="tabla-usuarios">
-    <div class="usuario-card" *ngFor="let user of usuarios$ | async">
-      <img *ngIf="user.fotoUrl" [src]="user.fotoUrl" class="avatar" alt="avatar" />
-      <div class="info">
-        <h4>{{ user.nombre || 'Usuario sin nombre' }}</h4>
-        <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
-        <p><i class="fas fa-calendar-alt"></i> Registrado: {{ formatFecha(user.fechaRegistro) }}</p>
-        <p><i class="fas fa-user-tag"></i>
-          <span [ngStyle]="{ color: getColorRol(user.rol) }">{{ user.rol }}</span>
-        </p>
+  <div class="dashboard-header">
+    <h2><i class="fas fa-cogs"></i> Panel de Administración</h2>
+    <div class="actions">
+      <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Buscar usuarios..." [(ngModel)]="searchTerm" (input)="filtrarUsuarios()">
       </div>
+      <button class="btn-action"><i class="fas fa-plus"></i> Nuevo Usuario</button>
+    </div>
+  </div>
+
+  <div class="dashboard-stats">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-users"></i></div>
+      <div class="stat-info">
+        <h3>{{ totalUsuarios }}</h3>
+        <p>Usuarios totales</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+      <div class="stat-info">
+        <h3>{{ usuariosAdmin }}</h3>
+        <p>Administradores</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+      <div class="stat-info">
+        <h3>{{ usuariosActivos }}</h3>
+        <p>Usuarios activos</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-route"></i></div>
+      <div class="stat-info">
+        <h3>{{ totalRutas }}</h3>
+        <p>Rutas creadas</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    <div class="content-header">
+      <h3>Gestión de Usuarios</h3>
+      <div class="filter-options">
+        <select [(ngModel)]="filtroRol" (change)="filtrarUsuarios()">
+          <option value="">Todos los roles</option>
+          <option value="admin">Administradores</option>
+          <option value="moderador">Moderadores</option>
+          <option value="usuario">Usuarios</option>
+        </select>
+        <select [(ngModel)]="filtroActivo" (change)="filtrarUsuarios()">
+          <option value="">Todos los estados</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+        <select [(ngModel)]="filtroProveedor" (change)="filtrarUsuarios()">
+          <option value="">Todos los proveedores</option>
+          <option value="google">Google</option>
+          <option value="facebook">Facebook</option>
+          <option value="twitter">Twitter</option>
+          <option value="email">Email</option>
+        </select>
+        <select [(ngModel)]="ordenUsuarios" (change)="ordenarUsuarios()">
+          <option value="reciente">Registrados recientes</option>
+          <option value="ultimaConexion">Última conexión</option>
+          <option value="alfabetico">Alfabético</option>
+          <option value="totalRutas">Más rutas</option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="cargando" class="loader">
+      <div class="spinner"></div>
+      <p>Cargando usuarios...</p>
+    </div>
+
+    <div *ngIf="!cargando && usuariosFiltrados.length === 0" class="no-results">
+      <i class="fas fa-search"></i>
+      <p>No se encontraron usuarios con los filtros aplicados</p>
+      <button (click)="resetFiltros()" class="btn-reset">Resetear filtros</button>
+    </div>
+
+    <div *ngIf="!cargando && usuariosFiltrados.length > 0" class="tabla-usuarios">
+      <div class="usuario-card" *ngFor="let user of usuariosFiltrados">
+        <div class="card-header">
+          <div class="user-badge" [ngClass]="'badge-' + user.rol">{{ user.rol }}</div>
+          <div class="user-actions">
+            <button class="btn-icon" title="Editar usuario"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon" title="Eliminar usuario"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="avatar-container">
+            <img *ngIf="user.fotoUrl" [src]="user.fotoUrl" class="avatar" alt="avatar" />
+            <div *ngIf="!user.fotoUrl" class="avatar-placeholder">
+              <span>{{ getInitials(user.nombre) }}</span>
+            </div>
+            <div class="status-indicator" [ngClass]="{ 'online': user.estaActivo }"></div>
+            <div *ngIf="user.authProvider" class="provider-badge" [ngClass]="'provider-' + user.authProvider">
+              <i class="fab" [ngClass]="getProviderIcon(user.authProvider)"></i>
+            </div>
+          </div>
+          <div class="info">
+            <h4>{{ user.nombre || 'Usuario sin nombre' }}</h4>
+            <p><i class="fas fa-envelope"></i> {{ user.email }} <i *ngIf="user.emailVerified" class="fas fa-check-circle verificado" title="Email verificado"></i></p>
+            <p class="uid-text"><i class="fas fa-fingerprint"></i> {{ user.uid }}</p>
+            <p *ngIf="user.fechaRegistro"><i class="fas fa-calendar-alt"></i> Registrado: {{ formatFecha(user.fechaRegistro) }}</p>
+            <p *ngIf="user.fechaUltimoLogin"><i class="fas fa-clock"></i> Último login: {{ formatFecha(user.fechaUltimoLogin) }}</p>
+            <p *ngIf="user.ultimaConexion"><i class="fas fa-plug"></i> Última conexión: {{ formatFecha(user.ultimaConexion) }}</p>
+            <p *ngIf="user.biografia"><i class="fas fa-comment-alt"></i> {{ user.biografia }}</p>
+            <p *ngIf="user.phoneNumber"><i class="fas fa-phone"></i> {{ user.phoneNumber }}</p>
+
+            <div *ngIf="user.totalRutas || user.kmRecorridos || user.rutasPublicas" class="user-stats">
+              <div class="stat-chip" *ngIf="user.totalRutas">
+                <i class="fas fa-route"></i> {{ user.totalRutas }} rutas
+              </div>
+              <div class="stat-chip" *ngIf="user.rutasPublicas">
+                <i class="fas fa-map"></i> {{ user.rutasPublicas }} públicas
+              </div>
+              <div class="stat-chip" *ngIf="user.kmRecorridos">
+                <i class="fas fa-road"></i> {{ user.kmRecorridos }} km
+              </div>
+            </div>
+
+            <div *ngIf="user.ajustes?.privacidad" class="privacidad-info">
+              <span class="privacidad-label">Privacidad:</span>
+            <!-- <span class="privacidad-valor" [ngClass]="{'activo': user.ajustes.privacidad.perfilPublico}">Perfil {{ user.ajustes.privacidad.perfilPublico ? 'público' : 'privado' }}</span>  aun no esta implementado -->
+            </div>
+
+            <p *ngIf="user.amigos && user.amigos.length > 0" class="amigos-info">
+              <i class="fas fa-users"></i> {{ user.amigos.length }} amigos
+            </p>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn-action-sm"><i class="fas fa-edit"></i> Editar</button>
+          <button class="btn-action-sm btn-danger"><i class="fas fa-trash-alt"></i> Eliminar</button>
+          <button class="btn-action-sm btn-warning"><i class="fas fa-power-off"></i> {{ user.estaActivo ? 'Desactivar' : 'Activar' }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!cargando && totalPaginas > 1" class="pagination">
+      <button [disabled]="paginaActual === 1" (click)="cambiarPagina(paginaActual - 1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+      <button [disabled]="paginaActual === totalPaginas" (click)="cambiarPagina(paginaActual + 1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
     </div>
   </div>
 </div>

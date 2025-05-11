@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --open",
+    "start": "start msedge http://localhost:4200 && ng serve",
     "start-lint": "npm run lint && ng serve --open",
     "build": "ng build",
     "build-dev": "ng build --configuration development --output-path=dist/geouax/browser",
