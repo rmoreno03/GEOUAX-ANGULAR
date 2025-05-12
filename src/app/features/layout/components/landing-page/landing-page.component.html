@@ -1,59 +1,276 @@
+<!-- Navbar -->
 <header class="navbar">
   <div class="container nav-content">
-    <img src="LogoGEOUAXsinFondo.png" alt="Logo GeoUAX" class="logo" />
-    <h1 class="titulo">GeoUAX</h1>
-    <nav class="nav-links">
+    <div class="logo-container">
+      <img src="LogoGEOUAXsinFondo.png" alt="Logo GeoUAX" class="logo" />
+      <h1 class="titulo">GeoUAX</h1>
+    </div>
+    <button class="nav-toggle" (click)="toggleMenu()" aria-label="Abrir menú">
+      <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+    </button>
+    <nav class="nav-links" [ngClass]="{'active': isMenuOpen}">
+      <a href="#inicio" class="nav-link">Inicio</a>
+      <a href="#caracteristicas" class="nav-link">Características</a>
+      <a href="#como-funciona" class="nav-link">Cómo funciona</a>
+      <a href="#impacto" class="nav-link">Impacto ambiental</a>
+      <a href="#testimonios" class="nav-link">Testimonios</a>
       <a routerLink="/auth/login" class="btn-outline">Iniciar sesión</a>
       <a routerLink="/auth/register" class="btn-solid">Registrarse</a>
     </nav>
   </div>
 </header>
 
-<section class="hero-section">
+<!-- Hero Section -->
+<section id="inicio" class="hero-section">
   <div class="container hero-content">
     <div class="hero-text">
+      <span class="badge">PROYECTO FIN DE GRADO 2025</span>
       <h1>GeoUAX <span>te conecta con el planeta</span></h1>
       <p>Una plataforma que convierte tus rutas en acciones sostenibles. Crea, visualiza y comparte recorridos que dejan huella... pero no de carbono.</p>
       <div class="cta-buttons">
-        <a routerLink="/auth/register" class="btn-solid">Empieza ahora</a>
-        <a href="#info" class="btn-outline">¿Cómo funciona?</a>
+        <a routerLink="/auth/register" class="btn-solid">
+          <i class="fas fa-rocket"></i> Empieza ahora
+        </a>
+        <a href="#demo" class="btn-outline">
+          <i class="fas fa-play-circle"></i> Ver demostración
+        </a>
+      </div>
+      <div class="stats-container">
+        <div class="stat-item">
+          <span class="stat-number">3.5K+</span>
+          <span class="stat-label">Usuarios activos</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">12K+</span>
+          <span class="stat-label">Rutas creadas</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">42K+</span>
+          <span class="stat-label">kg CO₂ ahorrados</span>
+        </div>
       </div>
     </div>
     <div class="hero-image">
-      <img src="mapaLanding.png" alt="Vista previa GeoUAX" />
+      <img src="imageLanding.png" alt="Vista previa GeoUAX" />
+      <div class="floating-badge">
+        <i class="fas fa-leaf"></i>
+        <span>Sostenible</span>
+      </div>
+    </div>
+  </div>
+  <div class="wave-container">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+      <path fill="#ffffff" fill-opacity="1" d="M0,160L48,138.7C96,117,192,75,288,64C384,53,480,75,576,112C672,149,768,203,864,213.3C960,224,1056,192,1152,165.3C1248,139,1344,117,1392,106.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+    </svg>
+  </div>
+</section>
+
+<!-- Características -->
+<section id="caracteristicas" class="feature-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">CARACTERÍSTICAS</span>
+      <h2>Explora, Mide, Evoluciona.</h2>
+      <p class="section-desc">GeoUAX es tu asistente ambiental personal. Desde estudiantes hasta exploradores urbanos, nuestra herramienta te permite optimizar cada trayecto y compartir el cambio.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <div class="feature-icon">
+          <i class="fas fa-{{feature.icon}}"></i>
+        </div>
+        <h3>{{feature.title}}</h3>
+        <p>{{feature.description}}</p>
+        <a href="#mas-info" class="feature-link">Saber más <i class="fas fa-arrow-right"></i></a>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="info" class="feature-section">
+<!-- Cómo funciona -->
+<section id="como-funciona" class="how-it-works">
   <div class="container">
-    <h2>Explora, Mide, Evoluciona.</h2>
-    <p class="section-desc">GeoUAX es tu asistente ambiental personal. Desde estudiantes hasta exploradores urbanos, nuestra herramienta te permite optimizar cada trayecto y compartir el cambio.</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <i class="fas fa-map-marker-alt"></i>
-        <h3>Puntos sostenibles</h3>
-        <p>Guarda ubicaciones, imágenes y datos ambientales. Todo se registra en la nube con tecnología Firebase.</p>
+    <div class="section-header">
+      <span class="section-label">CÓMO FUNCIONA</span>
+      <h2>Simple, Intuitivo y Efectivo</h2>
+      <p class="section-desc">Empieza a utilizar GeoUAX en tres sencillos pasos y comienza a contribuir a un mundo más sostenible desde hoy mismo.</p>
+    </div>
+
+    <div class="steps-container">
+      <div class="step-item">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Crea tu cuenta</h3>
+          <p>Regístrate en menos de un minuto y personaliza tu perfil con tus preferencias de movilidad.</p>
+        </div>
+        <div class="step-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
       </div>
-      <div class="feature-card">
-        <i class="fas fa-route"></i>
-        <h3>Rutas por tipo de transporte</h3>
-        <p>Elige entre a pie, bicicleta o coche. Visualiza el impacto y selecciona la ruta más responsable.</p>
+
+      <div class="step-item">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Planifica tus rutas</h3>
+          <p>Utiliza nuestro mapa interactivo para crear rutas optimizadas según tus necesidades y preferencias.</p>
+        </div>
+        <div class="step-icon">
+          <i class="fas fa-map"></i>
+        </div>
       </div>
-      <div class="feature-card">
-        <i class="fas fa-seedling"></i>
-        <h3>Huella de carbono</h3>
-        <p>GeoUAX calcula las emisiones de cada trayecto y te ofrece alternativas para reducirlas.</p>
-      </div>
-      <div class="feature-card">
-        <i class="fas fa-award"></i>
-        <h3>Retos y logros</h3>
-        <p>Completa retos semanales, sube de nivel y colabora con la comunidad para mejorar el mundo.</p>
+
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Reduce tu huella</h3>
+          <p>Visualiza el impacto ambiental de cada trayecto y elige las alternativas más sostenibles.</p>
+        </div>
+        <div class="step-icon">
+          <i class="fas fa-leaf"></i>
+        </div>
       </div>
     </div>
-    <div class="illustration">
-      <img src="ecoMapa.png" alt="Ilustración de rutas sostenibles" />
-        <img src="rutasSostenibles.png" alt="Ilustración de rutas sostenibles" />
+
+    <div id="demo" class="demo-container">
+      <div class="demo-content">
+        <h3>Mira cómo funciona GeoUAX</h3>
+        <p>En nuestras redes podrás encontrar mas información sobre GeoUAX además, tienes tutoriales y guías dentro de nuestra web en la parte de ayuda.</p>
+        <a href="#" class="btn-outline">Ver tutorial completo</a>
+      </div>
+      <div class="demo-video">
+        <div class="video-placeholder">
+          <i class="fas fa-play-circle"></i>
+          <img src="rutas-sostenibles.png" alt="Demostración GeoUAX">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Impacto ambiental -->
+<section id="impacto" class="impact-section">
+  <div class="container">
+    <div class="section-header light">
+      <span class="section-label">IMPACTO AMBIENTAL</span>
+      <h2>Tu contribución importa</h2>
+      <p class="section-desc">Cada kilómetro sostenible cuenta. Descubre cómo tu participación en GeoUAX ayuda a crear un futuro más verde.</p>
+    </div>
+
+    <div class="impact-stats">
+      <div class="impact-counter" *ngFor="let stat of impactStats">
+        <span class="counter-number">0</span>
+        <span class="counter-unit">{{stat.unit}}</span>
+        <p>{{stat.label}}</p>
+      </div>
+    </div>
+
+    <div class="impact-projects">
+      <h3>Proyectos de reforestación activos</h3>
+      <div class="projects-grid">
+        <div class="project-card" *ngFor="let project of reforestationProjects">
+          <div class="project-image">
+            <img [src]="project.image" [alt]="project.name">
+          </div>
+          <div class="project-content">
+            <h4>{{project.name}}</h4>
+            <div class="project-stats">
+              <div class="project-stat">
+                <i class="fas fa-tree"></i>
+                <span>{{project.trees}} árboles</span>
+              </div>
+              <div class="project-stat">
+                <i class="fas fa-users"></i>
+                <span>{{project.participants}} participantes</span>
+              </div>
+            </div>
+            <div class="project-progress">
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="project.progress"></div>
+              </div>
+              <span class="progress-text">{{project.progress}}% completado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-center">
+        <a href="#" class="btn-solid">
+          <i class="fas fa-leaf"></i> Participar en proyectos
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="impact-illustration">
+    <img src="ecoMapa.png" alt="Ilustración de rutas sostenibles">
+  </div>
+</section>
+
+<!-- Testimonios -->
+<section id="testimonios" class="testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">TESTIMONIOS</span>
+      <h2>Lo que dicen nuestros usuarios</h2>
+      <p class="section-desc">Descubre las experiencias de quienes ya forman parte de la comunidad GeoUAX.</p>
+    </div>
+
+    <div class="testimonials-slider">
+      <div class="testimonial-card" *ngFor="let testimonial of testimonials; let i = index"
+          [style.transform]="'translateX(' + (i - currentTestimonialIndex) * 100 + '%)'">
+        <div class="testimonial-content">
+          <div class="quote-icon">
+            <i class="fas fa-quote-left"></i>
+          </div>
+          <p>"{{testimonial.quote}}"</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-image">
+            <img [src]="testimonial.image" [alt]="testimonial.author">
+          </div>
+          <div class="author-info">
+            <h4>{{testimonial.author}}</h4>
+            <p>{{testimonial.position}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-controls">
+      <button class="control-btn prev" (click)="previousTestimonial()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="control-dots">
+        <span class="dot" *ngFor="let testimonial of testimonials; let i = index"
+              [class.active]="i === currentTestimonialIndex"
+              (click)="setTestimonial(i)"></span>
+      </div>
+      <button class="control-btn next" (click)="nextTestimonial()">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / Registro -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <div class="cta-content">
+        <h2>¿Listo para empezar tu viaje sostenible?</h2>
+        <p>Únete a miles de usuarios que ya están marcando la diferencia en cada trayecto.</p>
+        <div class="cta-buttons">
+          <a routerLink="/auth/register" class="btn-solid">
+            <i class="fas fa-user-plus"></i> Crear cuenta gratis
+          </a>
+          <a routerLink="/auth/login" class="btn-outline">
+            <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+          </a>
+        </div>
+      </div>
+      <div class="cta-image">
+        <img src="cta-image.png" alt="Empieza ahora">
+      </div>
     </div>
   </div>
 </section>
