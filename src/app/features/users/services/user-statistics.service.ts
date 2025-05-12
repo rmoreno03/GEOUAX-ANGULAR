@@ -99,7 +99,7 @@ export class UserStatisticsService {
 
       // 1. Obtener rutas del usuario (sin ordenar para evitar error de índice)
       const rutasRef = collection(this.firestore, 'rutas');
-      let rutasQuery = query(
+      const rutasQuery = query(
         rutasRef,
         where('usuarioCreador', '==', userId)
       );
@@ -148,7 +148,7 @@ export class UserStatisticsService {
 
       // 2. Obtener puntos del usuario (sin ordenar para evitar error de índice)
       const puntosRef = collection(this.firestore, 'puntos_localizacion');
-      let puntosQuery = query(
+      const puntosQuery = query(
         puntosRef,
         where('usuarioCreador', '==', userId)
       );
@@ -172,7 +172,7 @@ export class UserStatisticsService {
 
       // 3. Obtener progreso de rutas
       const progresoRef = collection(this.firestore, 'progreso-rutas');
-      let progresoQuery = query(
+      const progresoQuery = query(
         progresoRef,
         where('usuarioId', '==', userId),
         where('completado', '==', true)
@@ -426,14 +426,14 @@ export class UserStatisticsService {
   /**
    * Obtiene la actividad reciente de un usuario
    */
-  async getUserActivity(userId: string, maxResult: number = 10): Promise<Actividad[]> {
+  async getUserActivity(userId: string, maxResult = 10): Promise<Actividad[]> {
     try {
       const actividades: Actividad[] = [];
 
       // 1. Obtener rutas recientes
       try {
         const rutasRef = collection(this.firestore, 'rutas');
-        let rutasQuery = query(
+        const rutasQuery = query(
           rutasRef,
           where('usuarioCreador', '==', userId)
         );
@@ -493,7 +493,7 @@ export class UserStatisticsService {
       // 2. Obtener puntos de localización recientes
       try {
         const puntosRef = collection(this.firestore, 'puntos_localizacion');
-        let puntosQuery = query(
+        const puntosQuery = query(
           puntosRef,
           where('usuarioCreador', '==', userId)
         );

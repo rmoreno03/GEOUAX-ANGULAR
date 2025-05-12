@@ -110,11 +110,11 @@ export class TopBarComponent {
       } else if (url.includes('configuracion')) {
         this.title = 'Configuración';
         this.menuOptions = [
-          { label: 'Preferencias del Usuario', icon: 'fas fa-user-cog', action: () => this.router.navigate(['/configuracion/preferencias']) },
-          { label: 'Ajustes de Mapa', icon: 'fas fa-map', action: () => this.router.navigate(['/configuracion/mapa']) },
+          { label: 'Preferencias del Usuario', icon: 'fas fa-user-cog', action: () => this.router.navigate(['/configuracion/preferencias-usuario']) },
+          { label: 'Ajustes de Mapa', icon: 'fas fa-map', action: () => this.router.navigate(['/configuracion/ajustes-mapa']) },
           { label: 'Notificaciones', icon: 'fas fa-bell', action: () => this.router.navigate(['/configuracion/notificaciones']) },
-          { label: 'Idioma y Región', icon: 'fas fa-language', action: () => this.router.navigate(['/configuracion/idioma']) },
-          { label: 'Apariencia / Tema', icon: 'fas fa-palette', action: () => this.router.navigate(['/configuracion/tema']) }
+          { label: 'Idioma y Región', icon: 'fas fa-language', action: () => this.router.navigate(['/configuracion/idioma-region']) },
+          { label: 'Apariencia / Tema', icon: 'fas fa-palette', action: () => this.router.navigate(['/configuracion/apariencia-tema']) }
         ];
 
       } else if (url.includes('ayuda')) {

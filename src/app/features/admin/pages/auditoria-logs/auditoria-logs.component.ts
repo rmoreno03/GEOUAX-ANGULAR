@@ -42,9 +42,9 @@ export class AuditoriaLogsComponent implements OnInit {
   cargando = true;
 
   // Filtros
-  filtroTipo: string = '';
-  filtroEntidad: string = '';
-  filtroUsuario: string = '';
+  filtroTipo = '';
+  filtroEntidad = '';
+  filtroUsuario = '';
 
   // Paginación
   lastDoc: QueryDocumentSnapshot | null = null;
@@ -55,7 +55,7 @@ export class AuditoriaLogsComponent implements OnInit {
     await this.cargarLogs();
   }
 
-  async cargarLogs(cargarMas: boolean = false) {
+  async cargarLogs(cargarMas = false) {
     try {
       if (!cargarMas) {
         this.cargando = true;

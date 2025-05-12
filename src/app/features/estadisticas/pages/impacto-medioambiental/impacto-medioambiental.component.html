@@ -85,6 +85,12 @@
           </div>
         </div>
       </div>
+
+      <button class="contribute-button" (click)="contribuirImpactoGlobal()"
+              *ngIf="datosPersonales.co2Reducido > 0">
+        <i class="fas fa-share-alt"></i>
+        Contribuir al impacto global
+      </button>
     </div>
 
     <!-- Gráfico de evolución -->
@@ -96,7 +102,7 @@
         </h3>
 
         <div class="chart-container">
-          <!-- Simulación visual de gráfico -->
+          <!-- Gráfico de barras para visualizar la evolución -->
           <div class="evolution-chart">
             <div class="chart-legend">
               <span class="legend-item"><i class="fas fa-circle" style="color: #51cf66;"></i> CO<sub>2</sub> reducido (kg)</span>
@@ -159,7 +165,7 @@
           </div>
 
           <div class="progress-circle">
-            <!-- Simulación visual de círculo de progreso -->
+            <!-- Círculo de progreso SVG -->
             <svg width="120" height="120" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="54" fill="none" stroke="#e9ecef" stroke-width="12"></circle>
               <circle cx="60" cy="60" r="54" fill="none" stroke="#51cf66" stroke-width="12"
@@ -203,7 +209,15 @@
             </div>
           </div>
 
-          <button class="join-button" (click)="unirseProyecto(proyecto.nombre)">
+          <p *ngIf="proyecto.descripcion" class="project-description">
+            {{ proyecto.descripcion }}
+          </p>
+
+          <div *ngIf="proyecto.ubicacion" class="project-location">
+            <i class="fas fa-map-marker-alt"></i> {{ proyecto.ubicacion }}
+          </div>
+
+          <button class="join-button" (click)="unirseProyecto(proyecto.id)">
             <i class="fas fa-plus-circle"></i>
             Unirse al proyecto
           </button>
@@ -227,6 +241,14 @@
           <p>{{ consejo.descripcion }}</p>
         </div>
       </div>
+    </div>
+
+    <!-- Botón para recargar datos -->
+    <div class="reload-section">
+      <button class="reload-button" (click)="recargarDatos()">
+        <i class="fas fa-sync-alt"></i>
+        Actualizar datos
+      </button>
     </div>
   </div>
 </div>

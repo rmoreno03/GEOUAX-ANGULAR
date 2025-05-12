@@ -1,0 +1,122 @@
+<div class="idioma-region-container">
+  <!-- Título de la sección -->
+  <div class="section-title">
+    <span class="section-icon"><i class="fas fa-globe"></i></span>
+    <span class="title-text">Idioma y Región</span>
+  </div>
+  <p class="section-description">Configura tus preferencias de idioma y localización</p>
+
+  <!-- Formulario de idioma y región -->
+  <form [formGroup]="idiomaRegionForm" (ngSubmit)="guardarIdioma()">
+    <!-- Sección de Idioma -->
+    <div class="config-section">
+      <h3>Idioma</h3>
+
+      <div class="form-group">
+        <label for="idioma">Selecciona tu idioma</label>
+        <select id="idioma" formControlName="idioma" class="form-control">
+          <option value="es">Español</option>
+          <option value="ca">Català</option>
+          <option value="eu">Euskera</option>
+          <option value="gl">Gallego</option>
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="it">Italiano</option>
+          <option value="pt">Português</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Sección de Región -->
+    <div class="config-section">
+      <h3>Región</h3>
+
+      <div class="form-group">
+        <label for="region">Selecciona tu región</label>
+        <select id="region" formControlName="region" class="form-control">
+          <option value="ES">España</option>
+          <option value="MX">México</option>
+          <option value="AR">Argentina</option>
+          <option value="CO">Colombia</option>
+          <option value="CL">Chile</option>
+          <option value="US">Estados Unidos</option>
+          <option value="GB">Reino Unido</option>
+          <option value="FR">Francia</option>
+          <option value="DE">Alemania</option>
+          <option value="IT">Italia</option>
+          <option value="PT">Portugal</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Sección de Formatos -->
+    <div class="config-section">
+      <h3>Formatos</h3>
+
+      <div class="form-group">
+        <label for="formatoFecha">Formato de fecha</label>
+        <select id="formatoFecha" formControlName="formatoFecha" class="form-control">
+          <option value="dd/MM/yyyy">DD/MM/AAAA (31/12/2023)</option>
+          <option value="MM/dd/yyyy">MM/DD/AAAA (12/31/2023)</option>
+          <option value="yyyy-MM-dd">AAAA-MM-DD (2023-12-31)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="formatoHora">Formato de hora</label>
+        <select id="formatoHora" formControlName="formatoHora" class="form-control">
+          <option value="24h">24 horas (14:30)</option>
+          <option value="12h">12 horas (2:30 PM)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Sección de Unidades -->
+    <div class="config-section">
+      <h3>Unidades</h3>
+
+      <div class="form-group">
+        <label for="unidadMedida">Unidad de medida</label>
+        <select id="unidadMedida" formControlName="unidadMedida" class="form-control">
+          <option value="km">Kilómetros (km)</option>
+          <option value="mi">Millas (mi)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="moneda">Moneda</label>
+        <select id="moneda" formControlName="moneda" class="form-control">
+          <option value="EUR">Euro (€)</option>
+          <option value="USD">Dólar estadounidense ($)</option>
+          <option value="GBP">Libra esterlina (£)</option>
+          <option value="MXN">Peso mexicano ($)</option>
+          <option value="ARS">Peso argentino ($)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="restaurarDefecto()">
+        <i class="fas fa-undo"></i>
+        Restaurar valores predeterminados
+      </button>
+      <button type="submit" class="btn-primary">
+        <i class="fas fa-save"></i>
+        Guardar cambios
+      </button>
+    </div>
+  </form>
+
+  <!-- Mensajes -->
+  <div *ngIf="guardadoExitoso" class="success-message">
+    <i class="fas fa-check-circle"></i>
+    La configuración se ha guardado correctamente
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ error }}
+  </div>
+</div>

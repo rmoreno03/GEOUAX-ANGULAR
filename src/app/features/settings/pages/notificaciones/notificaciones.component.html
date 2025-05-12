@@ -1,0 +1,207 @@
+<div class="notifications-container">
+  <!-- Canales de Notificación -->
+  <div class="notification-section">
+    <h2 class="section-title">Canales de Notificación</h2>
+    <p class="section-description">Selecciona cómo quieres recibir las notificaciones</p>
+
+    <div class="notification-channels" [formGroup]="notificacionesForm">
+      <div class="notification-channel-item">
+        <div class="channel-icon-container">
+          <i class="channel-icon fas fa-bell"></i>
+        </div>
+        <div class="channel-info">
+          <h3>Notificaciones push</h3>
+          <p>Recibe alertas en tu dispositivo</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="notificacionesPush">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="notification-channel-item">
+        <div class="channel-icon-container">
+          <i class="channel-icon fas fa-envelope"></i>
+        </div>
+        <div class="channel-info">
+          <h3>Correo electrónico</h3>
+          <p>Recibe notificaciones por email</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="correoElectronico">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tipos de Notificaciones -->
+  <div class="notification-section">
+    <h2 class="section-title">Tipos de Notificaciones</h2>
+    <p class="section-description">Selecciona qué notificaciones deseas recibir</p>
+
+    <div class="notification-types-grid" [formGroup]="notificacionesForm">
+      <!-- Rutas -->
+      <div class="notification-type-item">
+        <div class="type-info">
+          <i class="type-icon fas fa-route"></i>
+          <h3>Rutas</h3>
+          <p>Actualizaciones de rutas y recomendaciones</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="rutasCercanas">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Mensajes -->
+      <div class="notification-type-item">
+        <div class="type-info">
+          <i class="type-icon fas fa-comment"></i>
+          <h3>Mensajes</h3>
+          <p>Mensajes de otros usuarios</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="mensajes">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Eventos -->
+      <div class="notification-type-item">
+        <div class="type-info">
+          <i class="type-icon fas fa-calendar-alt"></i>
+          <h3>Eventos</h3>
+          <p>Nuevos eventos y actividades</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="eventos">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Amigos -->
+      <div class="notification-type-item">
+        <div class="type-info">
+          <i class="type-icon fas fa-users"></i>
+          <h3>Amigos</h3>
+          <p>Solicitudes de amistad y actualizaciones</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="amigos">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Valoraciones -->
+      <div class="notification-type-item">
+        <div class="type-info">
+          <i class="type-icon fas fa-star"></i>
+          <h3>Valoraciones</h3>
+          <p>Comentarios y valoraciones en tus rutas</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="valoraciones">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Sistema -->
+      <div class="notification-type-item">
+        <div class="type-info">
+          <i class="type-icon fas fa-cogs"></i>
+          <h3>Sistema</h3>
+          <p>Actualizaciones y avisos importantes</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" formControlName="sistema">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Botones de activar/desactivar todas -->
+    <div class="toggle-all-buttons">
+      <button type="button" class="toggle-all-button activate" (click)="activarTodas()">
+        <i class="button-icon fas fa-check-double"></i> Activar todas
+      </button>
+      <button type="button" class="toggle-all-button deactivate" (click)="desactivarTodas()">
+        <i class="button-icon fas fa-times"></i> Desactivar todas
+      </button>
+    </div>
+  </div>
+
+  <!-- Frecuencia de Notificaciones -->
+  <div class="notification-section">
+    <h2 class="section-title">Frecuencia de Notificaciones</h2>
+    <p class="section-description">¿Con qué frecuencia quieres recibir notificaciones?</p>
+
+    <div class="frequency-options" [formGroup]="notificacionesForm">
+      <div class="radio-option">
+        <input type="radio" id="todas" value="todas" formControlName="metodo">
+        <label for="todas">En tiempo real</label>
+      </div>
+
+      <div class="radio-option">
+        <input type="radio" id="resumen" value="resumen" formControlName="metodo">
+        <label for="resumen">Resumen diario</label>
+      </div>
+
+      <div class="radio-option">
+        <input type="radio" id="importantes" value="importantes" formControlName="metodo">
+        <label for="importantes">Solo importantes</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Horario de Silencio -->
+  <div class="notification-section">
+    <h2 class="section-title">Horario de Silencio</h2>
+    <p class="section-description">Define un horario en el que no recibirás notificaciones</p>
+
+    <div class="silence-mode" [formGroup]="notificacionesForm">
+      <div class="silence-toggle">
+        <label for="silenciar">Activar horario de silencio</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="silenciar" formControlName="silenciar">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="silence-times" *ngIf="notificacionesForm.get('silenciar')?.value">
+        <div class="time-field">
+          <label for="horaInicio">Desde</label>
+          <input type="time" id="horaInicio" formControlName="horaInicio">
+        </div>
+
+        <div class="time-field">
+          <label for="horaFin">Hasta</label>
+          <input type="time" id="horaFin" formControlName="horaFin">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="form-actions">
+    <button type="button" class="btn-secondary" (click)="restaurarDefecto()">
+      <i class="fas fa-undo"></i>
+      Restaurar valores predeterminados
+    </button>
+    <button type="submit" class="btn-primary" (click)="guardarNotificaciones()">
+      <i class="fas fa-save"></i>
+      Guardar cambios
+    </button>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="guardadoExitoso" class="success-message">
+    <i class="fas fa-check-circle"></i>
+    La configuración se ha guardado correctamente
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ error }}
+  </div>
+</div>

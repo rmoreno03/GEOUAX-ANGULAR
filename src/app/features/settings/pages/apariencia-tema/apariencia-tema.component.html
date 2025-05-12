@@ -1,0 +1,153 @@
+<div class="apariencia-tema-container">
+  <!-- Título de la sección -->
+  <div class="section-title">
+    <span class="section-icon"><i class="fas fa-palette"></i></span>
+    <span class="title-text">Apariencia / Tema</span>
+  </div>
+  <p class="section-description">Personaliza la apariencia de la aplicación</p>
+
+  <!-- Formulario de apariencia y tema -->
+  <form [formGroup]="aparienciaForm" (ngSubmit)="guardarApariencia()">
+    <!-- Selección de Tema -->
+    <div class="config-section">
+      <h3>Tema</h3>
+
+      <div class="theme-options">
+        <div class="theme-option" [class.selected]="aparienciaForm.get('tema')?.value === 'claro'">
+          <input type="radio" id="tema-claro" value="claro" formControlName="tema">
+          <label for="tema-claro" class="theme-label">
+            <div class="theme-preview light-theme"></div>
+            <span>Claro</span>
+          </label>
+        </div>
+
+        <div class="theme-option" [class.selected]="aparienciaForm.get('tema')?.value === 'oscuro'">
+          <input type="radio" id="tema-oscuro" value="oscuro" formControlName="tema">
+          <label for="tema-oscuro" class="theme-label">
+            <div class="theme-preview dark-theme"></div>
+            <span>Oscuro</span>
+          </label>
+        </div>
+
+        <div class="theme-option" [class.selected]="aparienciaForm.get('tema')?.value === 'sistema'">
+          <input type="radio" id="tema-sistema" value="sistema" formControlName="tema">
+          <label for="tema-sistema" class="theme-label">
+            <div class="theme-preview system-theme"></div>
+            <span>Usar tema del sistema</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selección de Color Primario -->
+    <div class="config-section">
+      <h3>Color Primario</h3>
+
+      <div class="color-options">
+        <div class="color-option" [class.selected]="aparienciaForm.get('colorPrimario')?.value === 'naranja'">
+          <input type="radio" id="color-naranja" value="naranja" formControlName="colorPrimario">
+          <label for="color-naranja" class="color-preview orange-color"></label>
+        </div>
+
+        <div class="color-option" [class.selected]="aparienciaForm.get('colorPrimario')?.value === 'azul'">
+          <input type="radio" id="color-azul" value="azul" formControlName="colorPrimario">
+          <label for="color-azul" class="color-preview blue-color"></label>
+        </div>
+
+        <div class="color-option" [class.selected]="aparienciaForm.get('colorPrimario')?.value === 'verde'">
+          <input type="radio" id="color-verde" value="verde" formControlName="colorPrimario">
+          <label for="color-verde" class="color-preview green-color"></label>
+        </div>
+
+        <div class="color-option" [class.selected]="aparienciaForm.get('colorPrimario')?.value === 'rojo'">
+          <input type="radio" id="color-rojo" value="rojo" formControlName="colorPrimario">
+          <label for="color-rojo" class="color-preview red-color"></label>
+        </div>
+
+        <div class="color-option" [class.selected]="aparienciaForm.get('colorPrimario')?.value === 'morado'">
+          <input type="radio" id="color-morado" value="morado" formControlName="colorPrimario">
+          <label for="color-morado" class="color-preview purple-color"></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Otras opciones de visualización -->
+    <div class="config-section">
+      <h3>Opciones de Visualización</h3>
+
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="animaciones" formControlName="animaciones">
+          <label for="animaciones"><i class="fas fa-film fa-fw"></i> Mostrar animaciones</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="contrasteAlto" formControlName="contrasteAlto">
+          <label for="contrasteAlto"><i class="fas fa-adjust fa-fw"></i> Contraste alto</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="escalaTipografia" formControlName="escalaTipografia">
+          <label for="escalaTipografia"><i class="fas fa-text-height fa-fw"></i> Escala de texto grande</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de previsualización -->
+    <div class="config-section preview-section">
+      <h3>Vista previa</h3>
+
+      <div class="theme-preview-container"
+           [class.dark-preview]="aparienciaForm.get('tema')?.value === 'oscuro'"
+           [class.contrast-preview]="aparienciaForm.get('contrasteAlto')?.value"
+           [ngClass]="'color-' + aparienciaForm.get('colorPrimario')?.value">
+
+        <div class="preview-header">
+          <div class="preview-icon"><i class="fas fa-map-marked-alt"></i></div>
+          <div class="preview-title"></div>
+          <div class="preview-actions">
+            <div class="preview-button"></div>
+            <div class="preview-button"></div>
+          </div>
+        </div>
+
+        <div class="preview-content">
+          <div class="preview-card">
+            <div class="preview-card-title"></div>
+            <div class="preview-card-text"></div>
+            <div class="preview-card-action"></div>
+          </div>
+
+          <div class="preview-list">
+            <div class="preview-list-item"></div>
+            <div class="preview-list-item"></div>
+            <div class="preview-list-item"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="restaurarDefecto()">
+        <i class="fas fa-undo"></i>
+        Restaurar valores predeterminados
+      </button>
+      <button type="submit" class="btn-primary">
+        <i class="fas fa-save"></i>
+        Guardar cambios
+      </button>
+    </div>
+  </form>
+
+  <!-- Mensajes -->
+  <div *ngIf="guardadoExitoso" class="success-message">
+    <i class="fas fa-check-circle"></i>
+    La configuración se ha guardado correctamente
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ error }}
+  </div>
+</div>

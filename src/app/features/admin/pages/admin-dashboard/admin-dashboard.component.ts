@@ -45,7 +45,7 @@ export class AdminDashboardComponent implements OnInit {
 
   // Estados
   cargando = true;
-  usuariosSeleccionados: Set<string> = new Set();
+  usuariosSeleccionados = new Set<string>();
   mostrarModalEliminar = false;
   mostrarModalEditar = false;
   usuarioEditando: Usuario | null = null;

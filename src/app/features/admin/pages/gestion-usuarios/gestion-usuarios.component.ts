@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -21,7 +21,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./gestion-usuarios.component.css'],
   standalone: false
 })
-export class GestionUsuariosComponent implements OnInit {
+export class GestionUsuariosComponent implements OnInit, OnDestroy {
   usuarios$: Observable<Usuario[]>;
   todos: Usuario[] = [];
   filtrados: Usuario[] = [];

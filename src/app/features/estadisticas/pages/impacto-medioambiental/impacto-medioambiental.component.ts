@@ -1,4 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+
+import {
+  ImpactoMedioambientalService,
+  ImpactoPersonalStats,
+  ImpactoGlobalStats,
+  EvolucionMensual,
+  ProyectoReforestacion,
+  ConsejoSostenible
+} from '../../services/impacto-medioambiental.service';
+import { Ruta } from '../../../../models/ruta.model';
+import { AuditLogService } from '../../../../core/services/audit-log.service';
 
 @Component({
   standalone: false,
@@ -6,112 +18,198 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './impacto-medioambiental.component.html',
   styleUrls: ['./impacto-medioambiental.component.css']
 })
-export class ImpactoMedioambientalComponent implements OnInit {
-  // Estados de la interfaz
+export class ImpactoMedioambientalComponent implements OnInit, OnDestroy {
+  // Estado de carga
   loading = false;
   error = '';
 
-  // Datos simulados para estadísticas de impacto medioambiental
-  datosPersonales = {
-    rutasAlternativas: 82,
-    kilometrosAhorro: 529,
-    co2Reducido: 78.5, // en kg
-    arbolesEquivalentes: 3.6,
-    reutasVerdes: 27,
-    calificacionSostenibilidad: 'A' // A, B, C, D, E
+  // Datos de usuario
+  rutasUsuario: Ruta[] = [];
+  datosPersonales: ImpactoPersonalStats = {
+    rutasAlternativas: 0,
+    kilometrosAhorro: 0,
+    co2Reducido: 0,
+    arbolesEquivalentes: 0,
+    rutasVerdes: 0,
+    calificacionSostenibilidad: 'E'
   };
 
   // Datos globales
-  datosGlobales = {
-    totalCO2Reducido: 42680, // en kg
-    kilometrosAlternativos: 286540,
-    usuariosVerdes: 8452,
-    rutasVerdesCreadas: 15680,
-    arbolesEquivalentes: 1945,
-    litrosCombustibleAhorrado: 25680
+  datosGlobales: ImpactoGlobalStats = {
+    totalCO2Reducido: 0,
+    kilometrosAlternativos: 0,
+    usuariosVerdes: 0,
+    rutasVerdesCreadas: 0,
+    arbolesEquivalentes: 0,
+    litrosCombustibleAhorrado: 0
   };
 
-  // Evolución de ahorro mensual
-  evolucionMensual = [
-    { mes: 'Noviembre', co2: 5.2, km: 38 },
-    { mes: 'Diciembre', co2: 7.8, km: 52 },
-    { mes: 'Enero', co2: 10.5, km: 72 },
-    { mes: 'Febrero', co2: 12.2, km: 86 },
-    { mes: 'Marzo', co2: 18.6, km: 124 },
-    { mes: 'Abril', co2: 24.2, km: 157 }
-  ];
-
-  // Consejos sostenibles
-  consejosSostenibles = [
-    {
-      titulo: 'Planifica rutas más eficientes',
-      descripcion: 'Utiliza rutas circulares y evita trayectos redundantes para reducir la distancia total.',
-      icono: 'route'
-    },
-    {
-      titulo: 'Usa transporte público en el acceso',
-      descripcion: 'Considera usar transporte público para llegar al inicio de tus rutas cuando sea posible.',
-      icono: 'bus'
-    },
-    {
-      titulo: 'Compartir vehículo',
-      descripcion: 'Coordínate con otros usuarios para compartir vehículo y reducir la huella de carbono.',
-      icono: 'car-side'
-    },
-    {
-      titulo: 'Lleva tu basura de vuelta',
-      descripcion: 'No dejes residuos en las rutas y contribuye a mantener los espacios naturales limpios.',
-      icono: 'trash-restore'
-    }
-  ];
+  // Evolución mensual
+  evolucionMensual: EvolucionMensual[] = [];
 
   // Proyectos de reforestación
-  proyectosReforestacion = [
-    {
-      nombre: 'Reforestación Sierra Norte',
-      arboles: 850,
-      fechaInicio: new Date('2024-10-15'),
-      participantes: 124,
-      completado: 78 // porcentaje
-    },
-    {
-      nombre: 'Recuperación Bosque Mediterráneo',
-      arboles: 1250,
-      fechaInicio: new Date('2024-11-22'),
-      participantes: 186,
-      completado: 45
-    },
-    {
-      nombre: 'Cinturón Verde Madrid',
-      arboles: 620,
-      fechaInicio: new Date('2025-02-08'),
-      participantes: 92,
-      completado: 30
-    }
-  ];
+  proyectosReforestacion: ProyectoReforestacion[] = [];
 
+  // Consejos sostenibles
+  consejosSostenibles: ConsejoSostenible[] = [];
+
+  // Subscripciones
+  private subscriptions: Subscription[] = [];
+
+  constructor(
+    private impactoService: ImpactoMedioambientalService,
+    private auditLog: AuditLogService
+  ) { }
 
   ngOnInit(): void {
-    this.cargarDatosImpacto();
-  }
-
-  cargarDatosImpacto(): void {
     this.loading = true;
 
-    // Simulación de carga de datos
-    setTimeout(() => {
-      // Aquí iría la petición al servicio para cargar datos reales
-      this.loading = false;
-    }, 1200);
+    // Registrar visita a la página
+    this.auditLog.log(
+      'Visita a página de impacto medioambiental',
+      'info',
+      null,
+      this.impactoService.getUserId(),
+      'sistema'
+    );
+
+    // Cargar datos
+    this.cargarDatos();
+
+    // Suscribirse a cambios en los datos
+    this.subscribeToDataChanges();
+
+    // Cargar consejos sostenibles
+    this.consejosSostenibles = this.impactoService.obtenerConsejosSostenibles();
   }
 
-  // Métodos para calcular estadísticas derivadas
-  calcularPromedioAhorroCO2(): number {
-    let total = 0;
-    this.evolucionMensual.forEach(mes => total += mes.co2);
-    return total / this.evolucionMensual.length;
+  ngOnDestroy(): void {
+    // Cancelar todas las suscripciones
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  /**
+   * Carga todos los datos necesarios para la página
+   */
+  cargarDatos(): void {
+    this.loading = true;
+    this.error = '';
+
+    // Cargar rutas del usuario
+    this.impactoService.cargarRutasUsuario()
+      .then(rutas => {
+        this.rutasUsuario = rutas;
+
+        // Cargar proyectos de reforestación
+        return this.impactoService.obtenerProyectosReforestacion();
+      })
+      .then(proyectos => {
+        this.proyectosReforestacion = proyectos;
+        this.loading = false;
+      })
+      .catch(error => {
+        console.error('Error al cargar datos de impacto:', error);
+        this.error = 'No se pudieron cargar los datos. Por favor, inténtalo de nuevo más tarde.';
+        this.loading = false;
+
+        // Registrar error
+        this.auditLog.logError('Error al cargar datos de impacto', error, 'cargarDatos');
+      });
+  }
+
+  /**
+   * Suscribe el componente a los cambios en los datos
+   */
+  private subscribeToDataChanges(): void {
+    // Suscripción a datos personales
+    const personalSub = this.impactoService.getImpactoPersonal()
+      .subscribe(datos => {
+        if (datos) {
+          this.datosPersonales = datos;
+        }
+      });
+
+    // Suscripción a datos globales
+    const globalSub = this.impactoService.getImpactoGlobal()
+      .subscribe(datos => {
+        if (datos) {
+          this.datosGlobales = datos;
+        }
+      });
+
+    // Suscripción a evolución mensual
+    const evolucionSub = this.impactoService.getEvolucionMensual()
+      .subscribe(datos => {
+        if (datos && datos.length > 0) {
+          this.evolucionMensual = datos;
+        }
+      });
+
+    // Guardar suscripciones para limpieza
+    this.subscriptions.push(personalSub, globalSub, evolucionSub);
+  }
+
+  /**
+   * Unirse a un proyecto de reforestación
+   */
+  unirseProyecto(proyectoId: string): void {
+    // Buscar el proyecto por ID
+    const proyecto = this.proyectosReforestacion.find(p => p.id === proyectoId);
+
+    if (!proyecto) {
+      alert('Proyecto no encontrado');
+      return;
+    }
+
+    this.impactoService.unirseProyecto(proyectoId)
+      .then(() => {
+        alert(`Te has unido al proyecto: ${proyecto.nombre}`);
+
+        // Actualizar localmente el número de participantes
+        proyecto.participantes += 1;
+      })
+      .catch(error => {
+        console.error('Error al unirse al proyecto:', error);
+
+        if (error.message === 'Ya estás unido a este proyecto') {
+          alert('Ya estás unido a este proyecto');
+        } else {
+          alert('No se pudo unir al proyecto. Inténtalo de nuevo más tarde.');
+        }
+      });
+  }
+
+  /**
+   * Contribuir al impacto global con los datos actuales
+   */
+  contribuirImpactoGlobal(): void {
+    this.impactoService.contribuirImpactoGlobal(this.datosPersonales)
+      .then(() => {
+        alert('Has contribuido al impacto global con tus estadísticas personales');
+      })
+      .catch(error => {
+        console.error('Error al contribuir al impacto global:', error);
+        alert('No se pudo completar la operación. Inténtalo de nuevo más tarde.');
+      });
+  }
+
+  /**
+   * Recarga los datos de la página
+   */
+  recargarDatos(): void {
+    this.cargarDatos();
+  }
+
+  /**
+   * Calcula el porcentaje de usuarios verdes para los gráficos
+   */
+  calcularPorcentajeUsuariosVerdes(): number {
+    return this.impactoService.calcularPorcentajeUsuariosVerdes();
+  }
+
+  /**
+   * Devuelve la clase CSS correspondiente a la calificación
+   */
   obtenerClaseCalificacion(): string {
     switch (this.datosPersonales.calificacionSostenibilidad) {
       case 'A': return 'eco-a';
@@ -121,16 +219,5 @@ export class ImpactoMedioambientalComponent implements OnInit {
       case 'E': return 'eco-e';
       default: return 'eco-e';
     }
-  }
-
-  calcularPorcentajeUsuariosVerdes(): number {
-    // Suponiendo un total global de 15000 usuarios
-    return (this.datosGlobales.usuariosVerdes / 15000) * 100;
-  }
-
-  // Método para unirse a proyectos (simulado)
-  unirseProyecto(proyectoNombre: string): void {
-    alert(`Te has unido al proyecto: ${proyectoNombre}`);
-    // Aquí iría la lógica para unirse realmente al proyecto
   }
 }

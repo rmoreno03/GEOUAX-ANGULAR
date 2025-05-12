@@ -1,0 +1,139 @@
+<div class="preferences-container">
+  <div class="section-header">
+    <h2>
+      <i class="fas fa-user"></i>
+      Preferencias del Usuario
+    </h2>
+    <p class="subtitle">Personaliza tu experiencia en la aplicación</p>
+  </div>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando preferencias...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Mensaje de éxito -->
+  <div *ngIf="success" class="success-message">
+    <i class="fas fa-check-circle"></i>
+    <p>¡Tus preferencias han sido guardadas correctamente!</p>
+  </div>
+
+  <!-- Formulario de preferencias -->
+  <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" *ngIf="!loading">
+    <!-- Sección: Preferencias generales -->
+    <div class="preferences-section">
+      <h3>Preferencias Generales</h3>
+
+      <div class="form-group">
+        <label for="unidadMedida">Unidad de medida</label>
+        <select id="unidadMedida" formControlName="unidadMedida" class="form-control">
+          <option value="km">Kilómetros (km)</option>
+          <option value="mi">Millas (mi)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tipoRutaPreferida">Tipo de ruta predeterminada</label>
+        <select id="tipoRutaPreferida" formControlName="tipoRutaPreferida" class="form-control">
+          <option value="driving">En coche</option>
+          <option value="cycling">En bicicleta</option>
+          <option value="walking">A pie</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Sección: Vehículos -->
+    <div class="preferences-section" formGroupName="vehiculos">
+      <h3>Vehículos</h3>
+      <p class="section-desc">Selecciona los vehículos que utilizas para tus rutas</p>
+
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="coche" formControlName="coche">
+          <label for="coche">Coche</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="bicicleta" formControlName="bicicleta">
+          <label for="bicicleta">Bicicleta</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="moto" formControlName="moto">
+          <label for="moto">Moto</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="caminar" formControlName="caminar">
+          <label for="caminar">A pie</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Notificaciones -->
+    <div class="preferences-section" formGroupName="notificaciones">
+      <h3>Notificaciones</h3>
+      <p class="section-desc">Configura las notificaciones que deseas recibir</p>
+
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="rutas" formControlName="rutas">
+          <label for="rutas">Rutas cercanas</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="mensajes" formControlName="mensajes">
+          <label for="mensajes">Mensajes</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="eventos" formControlName="eventos">
+          <label for="eventos">Eventos</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Privacidad -->
+    <div class="preferences-section" formGroupName="privacidad">
+      <h3>Privacidad</h3>
+      <p class="section-desc">Configura quién puede ver tu información</p>
+
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="perfilPublico" formControlName="perfilPublico">
+          <label for="perfilPublico">Perfil público</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="mostrarHistorialRutas" formControlName="mostrarHistorialRutas">
+          <label for="mostrarHistorialRutas">Mostrar historial de rutas</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="compartirEstadisticas" formControlName="compartirEstadisticas">
+          <label for="compartirEstadisticas">Compartir estadísticas</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="action-buttons">
+      <button type="button" class="btn-secondary" (click)="restoreDefaults()">
+        <i class="fas fa-undo"></i>
+        Restaurar valores por defecto
+      </button>
+
+      <button type="submit" class="btn-primary">
+        <i class="fas fa-save"></i>
+        Guardar preferencias
+      </button>
+    </div>
+  </form>
+</div>

@@ -18,7 +18,7 @@ export interface LogEntry {
   ip?: string;
   detalles?: any;
   entidadId?: string | null; // Cambiado a nullable
-  entidadTipo?: 'usuario' | 'ruta' | 'punto' | 'sesion' | 'sistema';
+  entidadTipo?: 'usuario' | 'ruta' | 'punto' | 'sesion' | 'sistema' | 'impacto' ;
   browser?: string;
   plataforma?: string;
 }

@@ -342,8 +342,8 @@ select:focus {
 }
 
 .btn-outline:hover:not(:disabled) {
-  border-color: #ff5722;
-  color: #ff5722;
+  border-color: #ffffff;
+  color: #ffffff;
   background-color: rgba(255, 87, 34, 0.05);
 }
 

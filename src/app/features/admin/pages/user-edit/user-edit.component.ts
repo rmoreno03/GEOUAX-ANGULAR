@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -17,7 +17,7 @@ import { Usuario } from '../../../../models/usuario.model';
   styleUrls: ['./user-edit.component.css'],
   standalone: false
 })
-export class UserEditComponent implements OnInit {
+export class UserEditComponent implements OnInit, OnDestroy {
   user: Usuario | null = null;
   userForm: FormGroup;
   loading = true;
