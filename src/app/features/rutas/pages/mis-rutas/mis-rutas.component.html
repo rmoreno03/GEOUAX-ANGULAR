@@ -60,12 +60,12 @@
         <button class="btn-seguir" [routerLink]="['/ruta-seguimiento', ruta.id]">
           <i class="fa-solid fa-location-arrow"></i>
           <span *ngIf="getEstadoRuta(ruta.id || '') === 'no-iniciada'">Iniciar ruta</span>
-          <span *ngIf="getEstadoRuta(ruta.id || '') === 'en-progreso'">Continuar</span>
+          <span *ngIf="getEstadoRuta(ruta.id || '') === 'en-progreso'">Continuar ruta</span>
           <span *ngIf="getEstadoRuta(ruta.id || '') === 'completada'">Ver recorrido</span>
         </button>
 
         <button class="btn-eliminar" (click)="eliminarRuta(ruta.id ?? '')">
-          <i class="fa-solid fa-trash"></i> Eliminar
+          <i class="fa-solid fa-trash"></i> Eliminar ruta
         </button>
       </div>
     </div>

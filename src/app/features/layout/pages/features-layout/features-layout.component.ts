@@ -13,8 +13,8 @@ export class FeaturesLayoutComponent implements OnInit {
   sidebarCollapsed = false;     // Para desktop
   sidebarMobileOpen = false;    // Para móvil
 
-  // Estado del topbar en móvil
-  topbarMobileOpen = true;      // Inicialmente visible
+  // Estado del topbar en móvil - CERRADO por defecto
+  topbarMobileOpen = false;     // Inicialmente oculto en móvil
 
   // Detección de dispositivo
   esMovil = false;
@@ -44,8 +44,13 @@ export class FeaturesLayoutComponent implements OnInit {
     // Si cambiamos de móvil a desktop, resetear estados móviles
     if (prevEsMovil && !this.esMovil) {
       this.sidebarMobileOpen = false;
-      this.topbarMobileOpen = true;
+      this.topbarMobileOpen = false; // Resetear a false
       document.body.style.overflow = '';
+    }
+    // Si cambiamos de desktop a móvil, asegurar que topbar esté cerrado
+    else if (!prevEsMovil && this.esMovil) {
+      this.topbarMobileOpen = false; // Cerrado por defecto
+      this.sidebarMobileOpen = false;
     }
   }
 
