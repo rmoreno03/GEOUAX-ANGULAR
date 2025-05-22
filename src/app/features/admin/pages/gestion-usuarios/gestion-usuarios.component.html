@@ -123,7 +123,7 @@
             <div class="user-info">
               <div class="avatar-wrapper">
                 <img
-                  [src]="user.fotoUrl || '/assets/images/default-avatar.png'"
+                  [src]="user.fotoUrl || 'default-avatar.png'"
                   class="user-avatar"
                   [alt]="user.nombre || 'Usuario'"
                   (error)="onImageError($event)"

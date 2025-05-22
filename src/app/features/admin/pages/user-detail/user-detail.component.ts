@@ -264,7 +264,7 @@ export class UserDetailComponent implements OnInit {
   }
 
   onImageError(event: any): void {
-    event.target.src = '/assets/images/default-avatar.png';
+    event.target.src = 'default-avatar.png';
   }
 
   exportUser(): void {

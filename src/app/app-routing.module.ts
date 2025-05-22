@@ -61,7 +61,6 @@ const routes: Routes = [
       },
       {
         path: 'configuracion',
-        canActivate: [AdminGuard],
         loadChildren: () => import('./features/settings/settings.module').then(m => m.SettingsModule)
       },
       {

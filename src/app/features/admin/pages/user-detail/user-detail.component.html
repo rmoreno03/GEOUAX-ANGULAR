@@ -12,7 +12,7 @@
       <div class="user-identity">
         <div class="avatar-container">
           <img
-            [src]="user.fotoUrl || '/assets/images/default-avatar.png'"
+            [src]="user.fotoUrl || 'default-avatar.png'"
             [alt]="user.nombre || 'Usuario'"
             class="user-avatar"
             (error)="onImageError($event)"

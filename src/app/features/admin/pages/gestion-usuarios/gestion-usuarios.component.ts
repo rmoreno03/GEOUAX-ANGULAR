@@ -271,7 +271,7 @@ export class GestionUsuariosComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: any): void {
-    event.target.src = '/assets/images/default-avatar.png';
+    event.target.src = 'default-avatar.png';
   }
 
   // Métodos de permisos
