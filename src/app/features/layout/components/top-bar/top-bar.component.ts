@@ -135,6 +135,8 @@ export class TopBarComponent {
           { label: 'Ajustes de cuenta', icon: 'fas fa-cog', action: () => this.router.navigate(['/perfil/ajustes']) },
           { label: 'Solicitudes de Amistad', icon: 'fas fa-user-friends', action: () => this.router.navigate(['/perfil/solicitudes']) },
         ];
+      } else if (url.includes('ruta-seguimiento')) {
+        this.title = 'Seguimiento de Ruta';
       } else {
         this.title = '';
         this.menuOptions = [];

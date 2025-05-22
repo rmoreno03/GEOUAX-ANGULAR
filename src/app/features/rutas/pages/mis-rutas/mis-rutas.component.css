@@ -10,7 +10,7 @@ html, body, h1, h2, h3, h4, h5, h6, p, span, label, input, textarea, button, a {
 /* === CONTENEDOR PRINCIPAL === */
 .container {
   width: 100%;
-  max-width: 1400px;
+
   margin: 0 auto;
   padding: 32px;
   background: #ffffff;
